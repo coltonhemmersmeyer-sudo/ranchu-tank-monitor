@@ -119,6 +119,53 @@ footer{color:#6f8496;font-size:10px;margin-top:22px;text-align:center}
   .modal p{font-size:14px}
 }
 @media(min-width:901px) and (max-width:1100px){.app{grid-template-columns:220px minmax(0,1fr)}.main{padding-left:20px;padding-right:20px}}
+
+/* Phone-first layout refinements */
+.mobile-nav-label,.mobile-page-select{display:none}
+html,body{max-width:100%;overflow-x:hidden}
+img,svg,canvas,video{max-width:100%}
+.grid>*{min-width:0}
+.card,.card-head,.stat-row,.list-row,.auth-line{min-width:0}
+.list-row>span{overflow-wrap:anywhere}
+.chart{min-width:0;max-width:100%;overflow:hidden}
+@media(max-width:600px){
+  .sidebar{position:relative;gap:10px;padding:10px 12px}
+  .brand{padding:0 2px 9px}
+  .nav-label,nav,.sidebar-bottom{display:none!important}
+  .mobile-nav-label{display:block;color:var(--muted);font-size:11px;margin:0 2px 5px}
+  .mobile-page-select{display:block;width:100%;min-height:48px;padding:12px 42px 12px 13px;border-radius:11px;font-size:16px;background:#142536;border:1px solid #35516a;color:var(--text)}
+  .main{padding:16px 11px calc(28px + env(safe-area-inset-bottom))}
+  .topbar{gap:10px;margin-bottom:14px}
+  .eyebrow{font-size:9px;letter-spacing:1.2px}
+  h2{font-size:24px;line-height:1.2}
+  .pills{gap:6px}
+  .pill{white-space:normal;line-height:1.3}
+  .grid{grid-template-columns:minmax(0,1fr);gap:10px}
+  .span-12,.span-8,.span-7,.span-6,.span-5,.span-4{grid-column:1/-1}
+  .card{padding:14px;border-radius:12px}
+  .card-head{align-items:flex-start;flex-wrap:wrap}
+  .stat-row{align-items:flex-start;flex-wrap:wrap}
+  .big{font-size:29px;overflow-wrap:anywhere}
+  .mini-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .actions{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
+  .actions .btn,.auth-line .btn{width:100%;min-height:46px}
+  .segment{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+  .segment button{min-width:0;min-height:46px}
+  .field{min-width:0}
+  input,select{max-width:100%;min-width:0}
+  .list-row{gap:8px;flex-wrap:wrap}
+  .list-row .badge{max-width:100%;white-space:normal}
+  .modal-backdrop{align-items:flex-end;padding:10px}
+  .modal{max-height:85dvh;overflow-y:auto;padding:17px;width:100%}
+  .modal .actions{display:grid;grid-template-columns:1fr}
+  .toast{left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));text-align:center}
+  footer{line-height:1.5;padding:0 8px}
+}
+@media(min-width:601px) and (max-width:900px){
+  .mobile-nav-label,.mobile-page-select{display:none}
+  nav{display:flex;overflow-x:auto}
+}
+
 </style>
 </head>
 <body>
@@ -136,6 +183,17 @@ footer{color:#6f8496;font-size:10px;margin-top:22px;text-align:center}
       <button class="nav-btn" data-page="status"><span class="nav-icon">▤</span>Project Status</button>
       <button class="nav-btn" data-page="testing"><span class="nav-icon">🧪</span>Testing</button>
     </nav>
+    <label class="mobile-nav-label" for="mobilePageSelect">Open section</label>
+    <select id="mobilePageSelect" class="mobile-page-select" aria-label="Choose dashboard section">
+      <option value="overview">Overview</option>
+      <option value="water">Water Management</option>
+      <option value="feeding">Feeding Center</option>
+      <option value="conditions">Water Conditions</option>
+      <option value="camera">Tank Camera</option>
+      <option value="devices">Devices & Settings</option>
+      <option value="status">Project Status</option>
+      <option value="testing">Testing</option>
+    </select>
     <div class="sidebar-bottom"><strong>System operating mode</strong><span>Simulation only · No hardware connected</span></div>
   </aside>
   <main class="main">
@@ -344,6 +402,15 @@ function showPage(name){
  window.scrollTo({top:0,behavior:'smooth'});
 }
 document.querySelectorAll('.nav-btn').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));
+const mobilePageSelect=$('mobilePageSelect');
+if(mobilePageSelect){
+ mobilePageSelect.addEventListener('change',()=>showPage(mobilePageSelect.value));
+}
+const originalShowPage=showPage;
+showPage=function(name){
+ originalShowPage(name);
+ if(mobilePageSelect) mobilePageSelect.value=name;
+};
 function levelState(){return gallons<0.9*CAPACITY?'critical':gallons<0.95*CAPACITY?'caution':'normal'}
 let lastAlertState='normal';
 function updateLevel(showPopup=false){
