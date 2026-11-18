@@ -76,8 +76,49 @@ input:focus,select:focus{border-color:var(--blue)}
 .toast{position:fixed;bottom:20px;right:20px;background:#183b30;border:1px solid #2e7256;color:#c6f5df;padding:12px 16px;border-radius:10px;font-size:12px;display:none;z-index:30;box-shadow:var(--shadow)}
 .toast.show{display:block}
 footer{color:#6f8496;font-size:10px;margin-top:22px;text-align:center}
-@media(max-width:900px){.app{grid-template-columns:1fr}.sidebar{padding:13px 14px;border-right:0;border-bottom:1px solid var(--line);gap:12px}.brand{padding:0 4px 10px}.nav-label,.sidebar-bottom{display:none}nav{display:flex;overflow-x:auto;padding-bottom:3px}.nav-btn{white-space:nowrap;padding:9px 11px}.main{padding-top:20px}.span-8,.span-7,.span-5,.span-4{grid-column:span 6}}
-@media(max-width:600px){.topbar{align-items:flex-start;flex-direction:column}.pills{justify-content:flex-start}.span-8,.span-7,.span-6,.span-5,.span-4{grid-column:span 12}.mini-stats{grid-template-columns:1fr 1fr 1fr}.big{font-size:29px}}
+@media(max-width:900px){
+  .app{grid-template-columns:1fr}
+  .sidebar{padding:12px 14px;border-right:0;border-bottom:1px solid var(--line);gap:10px}
+  .brand{padding:0 4px 9px}
+  .nav-label,.sidebar-bottom{display:none}
+  nav{display:flex;overflow-x:auto;overscroll-behavior-x:contain;padding:2px 0 8px;gap:7px;scrollbar-width:thin}
+  .nav-btn{white-space:nowrap;flex:0 0 auto;padding:11px 13px;font-size:14px;min-height:44px}
+  .main{padding:20px 18px 40px}
+  .span-8,.span-7,.span-5,.span-4{grid-column:span 6}
+}
+@media(max-width:600px){
+  body{font-size:16px}
+  .sidebar{padding:11px 10px}
+  .brand h1{font-size:17px}.brand p{font-size:12px}
+  .logo{width:44px;height:44px}
+  nav{margin:0 -2px}
+  .nav-btn{font-size:14px;padding:12px 14px;min-height:46px}
+  .main{padding:18px 12px 34px}
+  .topbar{align-items:flex-start;flex-direction:column;gap:12px;margin-bottom:18px}
+  h2{font-size:27px}
+  .sub{font-size:14px}
+  .pills{justify-content:flex-start}
+  .pill{font-size:11px;padding:8px 10px}
+  .span-8,.span-7,.span-6,.span-5,.span-4{grid-column:span 12}
+  .grid{gap:12px}
+  .card{padding:16px;border-radius:13px}
+  .card h3{font-size:16px}
+  .hint,.field label{font-size:13px}
+  .stat-label{font-size:13px}
+  .big{font-size:32px}
+  .mini-stats{grid-template-columns:1fr 1fr}
+  .mini{padding:13px}
+  .mini b{font-size:19px}.mini span{font-size:12px}
+  .btn{font-size:14px;padding:12px 15px;min-height:44px}
+  .segment button{font-size:13px;padding:11px 14px;min-height:44px}
+  input,select{font-size:16px;padding:12px;min-height:46px}
+  .list-row{font-size:14px;align-items:flex-start}
+  .badge{font-size:11px}
+  .modal-backdrop{padding:12px}
+  .modal{padding:19px}
+  .modal p{font-size:14px}
+}
+@media(min-width:901px) and (max-width:1100px){.app{grid-template-columns:220px minmax(0,1fr)}.main{padding-left:20px;padding-right:20px}}
 </style>
 </head>
 <body>
@@ -93,6 +134,7 @@ footer{color:#6f8496;font-size:10px;margin-top:22px;text-align:center}
       <button class="nav-btn" data-page="camera"><span class="nav-icon">▣</span>Tank Camera</button>
       <button class="nav-btn" data-page="devices"><span class="nav-icon">⚙</span>Devices & Settings</button>
       <button class="nav-btn" data-page="status"><span class="nav-icon">▤</span>Project Status</button>
+      <button class="nav-btn" data-page="testing"><span class="nav-icon">🧪</span>Testing</button>
     </nav>
     <div class="sidebar-bottom"><strong>System operating mode</strong><span>Simulation only · No hardware connected</span></div>
   </aside>
@@ -106,8 +148,8 @@ footer{color:#6f8496;font-size:10px;margin-top:22px;text-align:center}
       <div class="grid">
         <div class="card span-8">
           <div class="card-head"><h3>Tank water level</h3><span class="badge" id="tankBadge">Normal</span></div>
-          <div class="stat-row"><div><div class="stat-label">Current estimated volume</div><div class="big"><span id="gallons">172.8</span> <span class="unit">gal</span></div><div class="hint">of 240 gallons · simulated reading</div></div><div style="text-align:right"><div class="big" style="font-size:28px" id="percent">72%</div><div class="hint">water level</div></div></div>
-          <div class="progress"><span id="levelBar" style="width:72%"></span></div>
+          <div class="stat-row"><div><div class="stat-label">Current estimated volume</div><div class="big"><span id="gallons">240.0</span> <span class="unit">gal</span></div><div class="hint">of 240 gallons · simulated reading</div></div><div style="text-align:right"><div class="big" style="font-size:28px" id="percent">100.0%</div><div class="hint">water level</div></div></div>
+          <div class="progress"><span id="levelBar" style="width:100%"></span></div>
           <div class="mini-stats"><div class="mini"><b>240 gal</b><span>Tank capacity</span></div><div class="mini"><b id="todayChange">+0.0 gal</b><span>Change today</span></div><div class="mini"><b>Offline</b><span>Physical sensor</span></div></div>
           <div class="actions"><button class="btn" onclick="showPage('water')">Open Water Management</button><button class="btn secondary" onclick="showPage('conditions')">View Conditions</button></div>
         </div>
@@ -120,7 +162,7 @@ footer{color:#6f8496;font-size:10px;margin-top:22px;text-align:center}
 
     <section class="page" id="page-water">
       <div class="grid">
-        <div class="card span-7"><div class="card-head"><h3>Water level & volume</h3><span class="badge" id="waterBadge">Normal</span></div><div class="big"><span id="waterGallons">172.8</span> <span class="unit">/ 240 gal</span></div><div class="progress"><span id="waterBar" style="width:72%"></span></div><div class="stat-row"><span class="hint">Estimated water level</span><b id="waterPercent">72%</b></div><div class="notice info" style="margin-top:16px">This is a simulated estimate. A real sensor must be installed and calibrated before these values can be used for aquarium operation.</div></div>
+        <div class="card span-7"><div class="card-head"><h3>Water level & volume</h3><span class="badge" id="waterBadge">Normal</span></div><div class="big"><span id="waterGallons">240.0</span> <span class="unit">/ 240 gal</span></div><div class="progress"><span id="waterBar" style="width:100%"></span></div><div class="stat-row"><span class="hint">Estimated water level</span><b id="waterPercent">100.0%</b></div><div class="notice info" style="margin-top:16px">This is a simulated estimate. A real sensor must be installed and calibrated before these values can be used for aquarium operation.</div></div>
         <div class="card span-5"><div class="card-head"><h3>Refill mode</h3><span class="badge off">Simulation only</span></div><div class="segment"><button id="manualWaterBtn" class="selected" onclick="setWaterMode('manual')">Manual</button><button id="autoWaterBtn" onclick="setWaterMode('automatic')">Automatic</button></div><div id="waterModeText" class="hint" style="margin-top:12px">Manual mode: choose a simulated amount and start a pretend refill.</div><div class="field"><label for="refillAmount">Refill amount</label><select id="refillAmount"><option value="1">1 gallon</option><option value="2">2 gallons</option><option value="3">3 gallons</option><option value="5" selected>5 gallons</option><option value="10">10 gallons</option><option value="custom">Custom amount</option></select></div><div class="field" id="customAmountWrap" style="display:none"><label for="customAmount">Custom gallons</label><input id="customAmount" type="number" min="0.1" max="30" step="0.1" value="5"></div><div class="actions"><button class="btn green" id="startRefill">Start simulated refill</button><button class="btn danger" id="stopRefill">Stop</button></div><div class="hint" id="refillStatus" style="margin-top:12px">Status: Idle · Simulation only</div></div>
         <div class="card span-12"><div class="card-head"><h3>Refill history</h3><span class="hint">This session only</span></div><div id="refillHistory" class="hint">No simulated refills yet.</div></div>
         <div class="card span-12"><div class="notice">Automatic refill is a planned feature, not an active control. Real automatic operation will require a prepared-water reservoir, calibrated level sensor, flow meter, independent high-level cutoff, maximum volume/runtime limits, and physical emergency stop. Never connect an untested pump to this website.</div></div>
@@ -215,6 +257,50 @@ footer{color:#6f8496;font-size:10px;margin-top:22px;text-align:center}
       </div>
     </section>
 
+
+    <section class="page" id="page-testing">
+      <div class="grid">
+        <div class="card span-12">
+          <div class="card-head"><h3>Alert & warning test center</h3><span class="badge warn">Simulation only</span></div>
+          <div class="notice info">Use this page to preview every warning popup and test how the dashboard reacts as the simulated water volume drops. These tests do not measure or change a real aquarium.</div>
+        </div>
+        <div class="card span-7">
+          <div class="card-head"><h3>Simulated tank volume</h3><span class="badge" id="testLevelBadge">Normal</span></div>
+          <div class="big"><span id="testGallons">240.0</span> <span class="unit">/ 240 gal</span></div>
+          <div class="progress"><span id="testLevelBar" style="width:100%"></span></div>
+          <div class="stat-row"><span class="hint">Current simulated level</span><b id="testPercent">100.0%</b></div>
+          <div class="field">
+            <label for="testVolume">Adjust water volume (gallons)</label>
+            <input id="testVolume" type="range" min="0" max="240" step="1" value="240">
+          </div>
+          <div class="field">
+            <label for="testVolumeNumber">Or enter an exact volume</label>
+            <input id="testVolumeNumber" type="number" min="0" max="240" step="0.1" value="240">
+          </div>
+          <div class="actions">
+            <button class="btn secondary" id="testCautionBtn">Set caution level (220 gal)</button>
+            <button class="btn danger" id="testCriticalBtn">Set critical level (200 gal)</button>
+            <button class="btn secondary" id="testResetBtn">Reset to full (240 gal)</button>
+          </div>
+          <p class="hint" style="margin-top:12px">Thresholds used by this prototype: Normal at 95% or above; Caution below 95%; Critical below 90%. For a 240-gallon tank, that means caution below 228 gallons and critical below 216 gallons.</p>
+        </div>
+        <div class="card span-5">
+          <div class="card-head"><h3>Current alert state</h3><span class="badge" id="testStateBadge">Normal</span></div>
+          <div id="testStateNotice" class="notice good">The simulated water level is in the normal range.</div>
+          <p class="hint" style="margin-top:12px">Lower the volume past 228 gallons to test the caution state. Lower it past 216 gallons to test the critical state. The warning popup will appear when the state changes.</p>
+        </div>
+        <div class="card span-12">
+          <div class="card-head"><h3>Preview every popup</h3><span class="hint">You can trigger these independently</span></div>
+          <p class="hint">These buttons let you check the exact popup designs without changing the simulated tank volume.</p>
+          <div class="actions">
+            <button class="btn secondary" id="showNormalPopup">Preview normal / clear notice</button>
+            <button class="btn" id="showCautionPopup">Preview caution popup</button>
+            <button class="btn danger" id="showCriticalPopup">Preview critical popup</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section class="page" id="page-camera">
       <div class="grid"><div class="card span-12"><div class="card-head"><h3>Tank camera</h3><span class="badge off">Not connected</span></div><div class="camera"><div><div style="font-size:32px">▣</div><b>Camera feed unavailable</b><span class="hint">A compatible Wi-Fi IP camera will be integrated in a future stage.</span></div></div><p class="hint" style="margin-top:14px">The camera should support a stable local stream, preferably RTSP or another compatible integration. We'll avoid exposing the camera directly to the public internet.</p></div></div>
     </section>
@@ -237,7 +323,7 @@ footer{color:#6f8496;font-size:10px;margin-top:22px;text-align:center}
 
 <script>
 const CAPACITY=240;
-let gallons=172.8,waterMode='manual',feedMode='manual',refillLog=[],feedLog=[],conditionLog=[],paused=false;
+let gallons=240,waterMode='manual',feedMode='manual',refillLog=[],feedLog=[],conditionLog=[],paused=false;
 const pageInfo={
  overview:['Overview','Your aquarium at a glance.'],
  water:['Water Management','Water level, refill planning, and refill history.'],
@@ -245,7 +331,8 @@ const pageInfo={
  conditions:['Water Conditions','Record and review aquarium water tests.'],
  camera:['Tank Camera','Future live viewing of your aquarium.'],
  devices:['Devices & Settings','Hardware status, safety design, and account connection.'],
- status:['Project Status','Aquarium arrival, equipment checklist, estimated costs, and project milestones.']
+ status:['Project Status','Aquarium arrival, equipment checklist, estimated costs, and project milestones.'],
+ testing:['Testing','Preview alerts and safely test simulated water-level changes.']
 };
 function $(id){return document.getElementById(id)}
 function showPage(name){
@@ -258,7 +345,9 @@ function showPage(name){
 }
 document.querySelectorAll('.nav-btn').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));
 function levelState(){return gallons<0.9*CAPACITY?'critical':gallons<0.95*CAPACITY?'caution':'normal'}
-function updateLevel(){
+let lastAlertState='normal';
+function updateLevel(showPopup=false){
+ const previousState=lastAlertState;
  const pct=Math.max(0,Math.min(100,gallons/CAPACITY*100)),state=levelState();
  ['gallons','waterGallons'].forEach(id=>$(id).textContent=gallons.toFixed(1));
  ['percent','waterPercent'].forEach(id=>$(id).textContent=pct.toFixed(1)+'%');
@@ -269,7 +358,20 @@ function updateLevel(){
  $('headerStatus').textContent=state==='normal'?'● No active alerts':state==='caution'?'● Water level low':'● Critical water level';
  $('overviewAlert').className='notice '+(state==='normal'?'good':state==='caution'?'':'danger');
  $('overviewAlert').textContent=state==='normal'?'No simulated water-level warnings. Hardware monitoring is not connected.':state==='caution'?'CAUTION: The simulated water level is below 95% of tank capacity. Open Water Management to review.':'CRITICAL: The simulated water level is below 90% of tank capacity. Check the aquarium in person; simulated values are not real measurements.';
+ $('testGallons').textContent=gallons.toFixed(1);
+ $('testPercent').textContent=pct.toFixed(1)+'%';
+ $('testLevelBar').style.width=pct+'%';
+ $('testVolume').value=String(gallons);
+ $('testVolumeNumber').value=gallons.toFixed(1);
+ $('testLevelBadge').textContent=state==='normal'?'Normal':state==='caution'?'Caution':'Critical';
+ $('testStateBadge').textContent=state==='normal'?'Normal':state==='caution'?'Caution':'Critical';
+ $('testLevelBadge').className='badge'+(state==='normal'?'':state==='caution'?' warn':' off');
+ $('testStateBadge').className='badge'+(state==='normal'?'':state==='caution'?' warn':' off');
+ $('testStateNotice').className='notice '+(state==='normal'?'good':state==='caution'?'':'danger');
+ $('testStateNotice').textContent=state==='normal'?'NORMAL: The simulated tank volume is at or above 95% capacity.':state==='caution'?'CAUTION: The simulated tank volume is below 95% capacity.':'CRITICAL: The simulated tank volume is below 90% capacity.';
+ lastAlertState=state;
  drawChart();
+ if(showPopup && state!==previousState){showAlertPopup(state);}
 }
 function drawChart(){
  const values=[169,170,171,172,171.5,172.2,gallons],labels=['-6','-5','-4','-3','-2','-1','Now'];
@@ -288,7 +390,7 @@ $('startRefill').addEventListener('click',()=>{
  gallons+=added;refillLog.unshift({amount:added,time:new Date().toLocaleString(),mode:waterMode});
  $('refillStatus').textContent=`Status: Complete · ${added.toFixed(1)} simulated gallons added`;
  $('refillHistory').innerHTML=refillLog.map(x=>`<div class="list-row"><span>${x.amount.toFixed(1)} gal · ${x.mode==='manual'?'Manual simulation':'Automatic simulation'}</span><span class="muted">${x.time}</span></div>`).join('');
- $('todayChange').textContent='+'+refillLog.reduce((a,x)=>a+x.amount,0).toFixed(1)+' gal';updateLevel();toast('Simulated refill complete. No real water was moved.');
+ $('todayChange').textContent='+'+refillLog.reduce((a,x)=>a+x.amount,0).toFixed(1)+' gal';updateLevel(true);toast('Simulated refill complete. No real water was moved.');
 });
 $('stopRefill').addEventListener('click',()=>{$('refillStatus').textContent='Status: Stopped · Simulation only';toast('Simulation stopped. No hardware is connected.')});
 function setFeedMode(mode){feedMode=mode;$('manualFeedBtn').classList.toggle('selected',mode==='manual');$('autoFeedBtn').classList.toggle('selected',mode==='automatic');$('feedModeText').textContent=mode==='manual'?'Manual mode: simulate dispensing one measured portion.':'Automatic mode preview: configure feeding times below. This prototype does not run a real-time schedule or control a feeder.';$('feedNow').textContent=mode==='manual'?'Simulate feeding':'Simulate one scheduled portion'}
@@ -319,6 +421,32 @@ function checkOpeningWarning(){
 }
 $('dismissWarning').addEventListener('click',()=>$('warningModal').classList.remove('show'));
 $('goWarningPage').addEventListener('click',()=>{$('warningModal').classList.remove('show');showPage('water')});
+function showAlertPopup(state){
+ const title=state==='critical'?'CRITICAL WATER-LEVEL WARNING':state==='caution'?'WATER-LEVEL CAUTION':'WATER LEVEL NORMAL';
+ const message=state==='critical'
+  ? 'CRITICAL: The simulated tank volume is below 90% of capacity (under 216 gallons). Check the actual aquarium in person. This is only a test; no real sensor is connected.'
+  : state==='caution'
+  ? 'CAUTION: The simulated tank volume is below 95% of capacity (under 228 gallons). Review the water level and check the actual aquarium. This is only a test.'
+  : 'NORMAL: The simulated tank volume is back to 95% capacity or higher. This is only a test; no real sensor is connected.';
+ $('warningTitle').textContent=title;
+ $('warningMessage').textContent=message;
+ $('goWarningPage').onclick=()=>{$('warningModal').classList.remove('show');showPage('water')};
+ $('warningModal').classList.add('show');
+}
+function setTestVolume(value,showPopup=true){
+ const next=Number(value);
+ if(!Number.isFinite(next))return;
+ gallons=Math.max(0,Math.min(CAPACITY,next));
+ updateLevel(showPopup);
+}
+$('testVolume').addEventListener('input',e=>setTestVolume(e.target.value,true));
+$('testVolumeNumber').addEventListener('change',e=>setTestVolume(e.target.value,true));
+$('testCautionBtn').addEventListener('click',()=>setTestVolume(220,true));
+$('testCriticalBtn').addEventListener('click',()=>setTestVolume(200,true));
+$('testResetBtn').addEventListener('click',()=>setTestVolume(240,true));
+$('showNormalPopup').addEventListener('click',()=>showAlertPopup('normal'));
+$('showCautionPopup').addEventListener('click',()=>showAlertPopup('caution'));
+$('showCriticalPopup').addEventListener('click',()=>showAlertPopup('critical'));
 updateLevel();
 </script>
 
