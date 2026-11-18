@@ -1,54 +1,330 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ranchu Tank Monitor</title>
 <style>
-:root{--bg:#0b1118;--panel:#121c27;--panel2:#172433;--line:#263747;--text:#e7eef5;--muted:#91a5b8;--blue:#5bb8ed;--cyan:#72d4d0;--green:#6dd5a1;--yellow:#f0c46b;--red:#f17c7c}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 15% 0%,#162838 0,transparent 42%),var(--bg);color:var(--text);font:15px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif}button,input{font:inherit}button{cursor:pointer;color:inherit}.wrap{max-width:1200px;margin:auto;padding:24px 20px 40px}.top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:26px}.brand{display:flex;gap:12px;align-items:center}.logo{width:44px;height:44px;border-radius:14px;background:linear-gradient(145deg,#256a8e,#20445e);display:grid;place-items:center;font-size:22px}.brand h1{font-size:19px;margin:0;font-weight:700;letter-spacing:.2px}.brand small{display:block;color:var(--muted);font-size:12px;margin-top:2px}.pill{border:1px solid #745a30;color:#f2cf8b;background:#342b1d;border-radius:30px;padding:7px 11px;font-size:12px;white-space:nowrap}.welcome{margin:0 0 18px}.welcome h2{font-size:25px;margin:0 0 5px}.welcome p{margin:0;color:var(--muted)}.grid{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:14px}.card{background:linear-gradient(160deg,rgba(23,36,50,.97),rgba(17,26,37,.98));border:1px solid var(--line);border-radius:17px;padding:18px;min-width:0}.card h3{font-size:14px;margin:0 0 14px;color:#cbd9e5;font-weight:600}.levelcard{grid-row:span 2}.levelbox{display:flex;align-items:center;gap:20px}.tank{width:132px;height:220px;border:3px solid #57738b;border-top:5px solid #8bb1ca;border-radius:9px 9px 16px 16px;position:relative;overflow:hidden;background:#0a1824;flex-shrink:0}.water{position:absolute;bottom:0;width:100%;height:72%;background:linear-gradient(180deg,rgba(87,190,225,.68),rgba(24,97,148,.82));transition:height .6s}.water:before{content:"";position:absolute;top:0;left:-20%;width:140%;height:12px;background:rgba(173,233,255,.4);border-radius:50%;filter:blur(2px)}.tanklabel{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:white;font-size:20px;font-weight:700;text-shadow:0 2px 6px #00344d}.levelstats{flex:1}.big{font-size:32px;font-weight:700;letter-spacing:-1px}.unit{font-size:14px;color:var(--muted);font-weight:500}.sub{color:var(--muted);font-size:12px}.statline{display:flex;justify-content:space-between;border-top:1px solid var(--line);padding:11px 0;margin-top:10px;font-size:13px}.statline strong{font-weight:600}.status{color:var(--green)}.metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px}.metric{background:#0e1924;border:1px solid #223444;border-radius:12px;padding:13px}.metric .num{font-size:23px;font-weight:700}.metric .label{color:var(--muted);font-size:12px}.chart{height:180px;display:flex;align-items:end;gap:8px;padding:10px 4px 20px;border-bottom:1px solid #344657;position:relative}.bar{flex:1;min-width:4px;border-radius:5px 5px 0 0;background:linear-gradient(180deg,#69c6ec,#286b96);opacity:.85;position:relative}.bar span{position:absolute;bottom:-19px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--muted)}.chartwrap{margin-top:4px}.chart-note{display:flex;justify-content:space-between;color:var(--muted);font-size:11px;margin-top:9px}.refill .amount{font-size:13px;color:var(--muted);margin-bottom:8px}.presets{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}.preset{background:#1a2a3a;border:1px solid #31465b;border-radius:9px;padding:8px 12px;font-size:13px}.preset.active{border-color:var(--blue);background:#18384d;color:#aee3fb}.custom{display:flex;align-items:center;gap:8px}.custom input{width:100%;background:#0d1721;border:1px solid #2b4053;color:var(--text);border-radius:9px;padding:10px}.actions{display:flex;gap:8px;margin-top:12px}.primary,.stop,.authbtn{border:0;border-radius:10px;padding:10px 15px;font-weight:650}.primary{background:#2b91c5;color:#06141d;flex:1}.stop{background:#44262a;color:#f4a4a4;border:1px solid #69383d}.authbtn{background:#2b91c5;color:#06141d}.authbtn.secondary{background:#1a2a3a;color:var(--text);border:1px solid #31465b}.progress{height:8px;background:#243341;border-radius:10px;overflow:hidden;margin-top:12px}.progress>div{height:100%;background:var(--cyan);width:0;transition:width .3s}.refillstate{font-size:12px;color:var(--muted);margin-top:8px}.log{display:flex;justify-content:space-between;gap:8px;padding:10px 0;border-top:1px solid var(--line);font-size:12px}.log span{color:var(--muted)}.camera{min-height:190px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;background:linear-gradient(135deg,#0b1924,#142737);border:1px dashed #39546a;border-radius:12px;color:var(--muted);gap:8px}.camera .camicon{font-size:34px}.camera strong{color:#c9d7e4}.sensor{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-top:1px solid var(--line);font-size:13px}.sensor:first-of-type{border-top:0}.offline{color:var(--yellow)}.foot{color:#71879a;font-size:11px;text-align:center;margin-top:20px}.wide{grid-column:span 2}.authcard{margin-bottom:14px}.authrow{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}.authinfo{min-width:0}.authinfo strong{display:block}.authinfo span{font-size:12px;color:var(--muted);overflow-wrap:anywhere}.notice{font-size:12px;color:var(--muted);margin:10px 0 0}.firebase-state{color:var(--yellow)}@media(max-width:900px){.grid{grid-template-columns:1fr 1fr}.levelcard{grid-row:auto}.wide{grid-column:span 2}}@media(max-width:600px){.wrap{padding:16px 12px 30px}.top{align-items:flex-start}.pill{font-size:10px}.welcome h2{font-size:22px}.grid{grid-template-columns:1fr}.wide{grid-column:auto}.levelbox{gap:13px}.tank{width:108px;height:185px}.big{font-size:28px}.card{padding:15px}}
+:root{
+  --bg:#0a111a;--panel:#111d29;--panel2:#172636;--line:#26394c;
+  --text:#edf4fa;--muted:#9aafc1;--blue:#55b8e8;--green:#43c99a;
+  --yellow:#f2bd55;--red:#ef6b72;--shadow:0 12px 32px rgba(0,0,0,.22);
+}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at top left,#14283a 0,#0a111a 48%);color:var(--text);font-family:Inter,Segoe UI,Arial,sans-serif;min-height:100vh}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.app{display:grid;grid-template-columns:250px minmax(0,1fr);min-height:100vh}
+.sidebar{background:rgba(12,21,31,.94);border-right:1px solid var(--line);padding:24px 16px;display:flex;flex-direction:column;gap:24px}
+.brand{display:flex;align-items:center;gap:12px;padding:4px 8px 18px;border-bottom:1px solid var(--line)}
+.logo{width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,#1d789c,#36c5a0);display:grid;place-items:center;font-size:22px}
+.brand h1{font-size:15px;margin:0 0 4px;letter-spacing:.2px}.brand p{margin:0;color:var(--muted);font-size:11px}
+.nav-label{font-size:10px;color:#71899e;text-transform:uppercase;letter-spacing:1.5px;padding:0 10px;margin-bottom:-12px}
+nav{display:grid;gap:6px}
+.nav-btn{border:1px solid transparent;background:transparent;color:#b7c7d5;text-align:left;padding:12px 12px;border-radius:10px;display:flex;align-items:center;gap:12px;font-size:13px}
+.nav-btn:hover{background:#142536;color:white}.nav-btn.active{background:#17344a;border-color:#28516b;color:#fff}
+.nav-icon{width:20px;text-align:center;font-size:16px}
+.sidebar-bottom{margin-top:auto;border:1px solid var(--line);background:#101c28;border-radius:12px;padding:13px}
+.sidebar-bottom strong{display:block;font-size:12px;margin-bottom:5px}.sidebar-bottom span{font-size:11px;color:var(--muted)}
+.main{min-width:0;padding:28px clamp(16px,3vw,42px) 50px}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:25px}
+.eyebrow{color:var(--blue);font-size:10px;letter-spacing:1.8px;text-transform:uppercase;font-weight:700}
+h2{font-size:25px;margin:6px 0 5px;letter-spacing:-.5px}
+.sub{color:var(--muted);font-size:13px;margin:0;line-height:1.5}
+.pills{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.pill{border:1px solid var(--line);border-radius:99px;padding:7px 11px;font-size:10px;color:#c1d1de;background:#111e2b;white-space:nowrap}
+.pill.sim{border-color:#755c2e;color:#ffd47d;background:#302718}
+.page{display:none;animation:fade .18s ease}.page.active{display:block}
+@keyframes fade{from{opacity:.55;transform:translateY(3px)}to{opacity:1;transform:none}}
+.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:15px}
+.card{background:linear-gradient(160deg,rgba(21,35,49,.98),rgba(15,26,38,.98));border:1px solid var(--line);border-radius:15px;padding:18px;box-shadow:var(--shadow);min-width:0}
+.span-12{grid-column:span 12}.span-8{grid-column:span 8}.span-7{grid-column:span 7}.span-6{grid-column:span 6}.span-5{grid-column:span 5}.span-4{grid-column:span 4}
+.card-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
+.card h3{font-size:14px;margin:0}.hint{font-size:11px;color:var(--muted);line-height:1.5}
+.big{font-size:34px;font-weight:750;letter-spacing:-1.3px}.unit{font-size:13px;color:var(--muted);font-weight:500}
+.stat-row{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.stat-label{font-size:11px;color:var(--muted);margin-bottom:7px}
+.progress{height:9px;background:#263849;border-radius:99px;overflow:hidden;margin:15px 0 8px}
+.progress>span{height:100%;display:block;background:linear-gradient(90deg,#2e9ecb,#48d0a2);border-radius:99px;transition:width .25s}
+.mini-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}
+.mini{background:#101d2a;border:1px solid #26394b;border-radius:10px;padding:12px}
+.mini b{display:block;font-size:17px;margin-bottom:4px}.mini span{font-size:10px;color:var(--muted)}
+.btn{border:1px solid #31536b;background:#1b4058;color:#f2f8fc;border-radius:9px;padding:10px 13px;font-size:12px;font-weight:650}
+.btn:hover{filter:brightness(1.14)}.btn.secondary{background:#172636;border-color:var(--line);color:#c6d5e1}.btn.danger{background:#47242b;border-color:#81434b;color:#ffdce0}.btn.green{background:#174536;border-color:#2c765b}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.field{display:grid;gap:6px;margin:12px 0}.field label{font-size:11px;color:#b6c7d5}
+input,select{width:100%;background:#0d1823;border:1px solid #304458;color:var(--text);padding:10px;border-radius:8px;outline:none}
+input:focus,select:focus{border-color:var(--blue)}
+.segment{display:flex;gap:6px;flex-wrap:wrap}.segment button{background:#101d29;border:1px solid var(--line);color:#b8c8d5;border-radius:8px;padding:8px 12px;font-size:11px}.segment button.selected{background:#1c4963;border-color:#3b87aa;color:#fff}
+.notice{padding:12px 13px;border-radius:10px;border:1px solid #66532e;background:#2a2418;color:#f4d18a;font-size:12px;line-height:1.5}
+.notice.info{border-color:#31536b;background:#142a3a;color:#b8e4fa}.notice.good{border-color:#28634e;background:#142b25;color:#a8e7ce}.notice.danger{border-color:#81434b;background:#321e24;color:#ffb9bf}
+.list{display:grid;gap:9px}.list-row{display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:1px solid #243647;padding:10px 0;font-size:12px}.list-row:last-child{border:0}.muted{color:var(--muted)}
+.badge{font-size:10px;padding:5px 8px;border-radius:99px;background:#183d32;color:#9de2c6;border:1px solid #2d684f}.badge.warn{background:#382d19;color:#f4d18a;border-color:#6c552a}.badge.off{background:#202b36;color:#a9bac8;border-color:#354454}
+.chart{height:155px;display:flex;align-items:flex-end;gap:9px;padding:10px 2px 0;border-bottom:1px solid #34485a}
+.bar-wrap{height:100%;flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:7px;min-width:0}
+.bar{width:min(100%,30px);background:linear-gradient(180deg,#5ac5e9,#28779c);border-radius:5px 5px 0 0;min-height:4px}
+.bar-wrap small{font-size:9px;color:var(--muted)}
+.camera{height:190px;border:1px dashed #3b5368;border-radius:12px;background:repeating-linear-gradient(135deg,#101c28,#101c28 12px,#132230 12px,#132230 24px);display:grid;place-items:center;text-align:center;color:var(--muted)}
+.camera b{display:block;color:#e1edf6;margin:8px 0}
+.auth-line{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;padding:20px;z-index:20}
+.modal-backdrop.show{display:flex}
+.modal{max-width:440px;width:100%;background:#142231;border:1px solid #79523c;border-radius:16px;padding:22px;box-shadow:0 20px 70px #000}
+.modal h3{font-size:18px;margin:0 0 9px}.modal p{font-size:13px;color:#c1cfda;line-height:1.6}
+.modal .actions{justify-content:flex-end}
+.toast{position:fixed;bottom:20px;right:20px;background:#183b30;border:1px solid #2e7256;color:#c6f5df;padding:12px 16px;border-radius:10px;font-size:12px;display:none;z-index:30;box-shadow:var(--shadow)}
+.toast.show{display:block}
+footer{color:#6f8496;font-size:10px;margin-top:22px;text-align:center}
+@media(max-width:900px){.app{grid-template-columns:1fr}.sidebar{padding:13px 14px;border-right:0;border-bottom:1px solid var(--line);gap:12px}.brand{padding:0 4px 10px}.nav-label,.sidebar-bottom{display:none}nav{display:flex;overflow-x:auto;padding-bottom:3px}.nav-btn{white-space:nowrap;padding:9px 11px}.main{padding-top:20px}.span-8,.span-7,.span-5,.span-4{grid-column:span 6}}
+@media(max-width:600px){.topbar{align-items:flex-start;flex-direction:column}.pills{justify-content:flex-start}.span-8,.span-7,.span-6,.span-5,.span-4{grid-column:span 12}.mini-stats{grid-template-columns:1fr 1fr 1fr}.big{font-size:29px}}
 </style>
 </head>
 <body>
-<div class="wrap">
-<header class="top"><div class="brand"><div class="logo">〰</div><div><h1>Ranchu Tank Monitor</h1><small>Tank overview & care system</small></div></div><div class="pill" id="modepill">● SIMULATION MODE</div></header>
-<section class="welcome"><h2>Tank overview</h2><p>Your aquarium at a glance. Hardware sensors are not connected yet.</p></section>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="logo">🐟</div><div><h1>Ranchu Tank Monitor</h1><p>240-GALLON AQUARIUM</p></div></div>
+    <div class="nav-label">Aquarium</div>
+    <nav id="navigation">
+      <button class="nav-btn active" data-page="overview"><span class="nav-icon">⌂</span>Overview</button>
+      <button class="nav-btn" data-page="water"><span class="nav-icon">◉</span>Water Management</button>
+      <button class="nav-btn" data-page="feeding"><span class="nav-icon">♧</span>Feeding Center</button>
+      <button class="nav-btn" data-page="conditions"><span class="nav-icon">⌁</span>Water Conditions</button>
+      <button class="nav-btn" data-page="camera"><span class="nav-icon">▣</span>Tank Camera</button>
+      <button class="nav-btn" data-page="devices"><span class="nav-icon">⚙</span>Devices & Settings</button>
+      <button class="nav-btn" data-page="status"><span class="nav-icon">▤</span>Project Status</button>
+    </nav>
+    <div class="sidebar-bottom"><strong>System operating mode</strong><span>Simulation only · No hardware connected</span></div>
+  </aside>
+  <main class="main">
+    <header class="topbar">
+      <div><div class="eyebrow">Aquarium management center</div><h2 id="pageTitle">Overview</h2><p class="sub" id="pageSubtitle">Your aquarium at a glance.</p></div>
+      <div class="pills"><span class="pill sim">● SIMULATION MODE</span><span class="pill" id="headerStatus">● No active alerts</span></div>
+    </header>
 
-<section class="card authcard">
-  <h3>Account & Firebase connection</h3>
-  <div class="authrow">
-    <div class="authinfo"><strong id="authheading">Not signed in</strong><span id="authdetail">Sign in with the Google account authorized for this project.</span></div>
-    <div><button class="authbtn" id="signin">Sign in with Google</button><button class="authbtn secondary" id="signout" hidden>Sign out</button></div>
-  </div>
-  <p class="notice" id="firebaseStatus">Firebase: waiting for connection check. Tank readings and refill controls remain simulated; no hardware commands are sent.</p>
-</section>
+    <section class="page active" id="page-overview">
+      <div class="grid">
+        <div class="card span-8">
+          <div class="card-head"><h3>Tank water level</h3><span class="badge" id="tankBadge">Normal</span></div>
+          <div class="stat-row"><div><div class="stat-label">Current estimated volume</div><div class="big"><span id="gallons">172.8</span> <span class="unit">gal</span></div><div class="hint">of 240 gallons · simulated reading</div></div><div style="text-align:right"><div class="big" style="font-size:28px" id="percent">72%</div><div class="hint">water level</div></div></div>
+          <div class="progress"><span id="levelBar" style="width:72%"></span></div>
+          <div class="mini-stats"><div class="mini"><b>240 gal</b><span>Tank capacity</span></div><div class="mini"><b id="todayChange">+0.0 gal</b><span>Change today</span></div><div class="mini"><b>Offline</b><span>Physical sensor</span></div></div>
+          <div class="actions"><button class="btn" onclick="showPage('water')">Open Water Management</button><button class="btn secondary" onclick="showPage('conditions')">View Conditions</button></div>
+        </div>
+        <div class="card span-4"><div class="card-head"><h3>System alerts</h3><span class="badge" id="alertBadge">Clear</span></div><div id="overviewAlert" class="notice good">No simulated water-level warnings. Hardware monitoring is not connected.</div><div class="actions"><button class="btn secondary" onclick="showPage('devices')">System details</button></div></div>
+        <div class="card span-7"><div class="card-head"><h3>Water level history</h3><span class="hint">Illustrative · simulated</span></div><div class="chart" id="historyChart"></div><div class="hint" style="margin-top:10px">History will become real after a water-level sensor is installed and connected.</div></div>
+        <div class="card span-5"><div class="card-head"><h3>Quick controls</h3><span class="badge off">Simulation</span></div><div class="list"><div class="list-row"><span>Water refill</span><button class="btn secondary" onclick="showPage('water')">Manage</button></div><div class="list-row"><span>Automatic feeding</span><button class="btn secondary" onclick="showPage('feeding')">Manage</button></div><div class="list-row"><span>Water conditions</span><button class="btn secondary" onclick="showPage('conditions')">Review</button></div><div class="list-row"><span>Camera</span><button class="btn secondary" onclick="showPage('camera')">Open</button></div></div></div>
+        <div class="card span-12"><div class="auth-line"><div><h3>Account & Firebase connection</h3><div class="hint" id="authStatus">Checking sign-in status…</div></div><div class="actions" style="margin:0"><button class="btn" id="signInBtn">Sign in with Google</button><button class="btn secondary" id="signOutBtn" style="display:none">Sign out</button></div></div><div class="hint" style="margin-top:12px">Google authentication is enabled. The database is secured, but this prototype does not read or write tank data yet.</div></div>
+      </div>
+    </section>
 
-<div class="grid">
-<section class="card levelcard"><h3>Water level</h3><div class="levelbox"><div class="tank"><div class="water" id="water"></div><div class="tanklabel" id="tankpct">72%</div></div><div class="levelstats"><div class="big"><span id="gallons">172.8</span><span class="unit"> gal</span></div><div class="sub">of 240 gallons</div><div class="statline"><span>Water level</span><strong id="pct">72%</strong></div><div class="statline"><span>Tank status</span><strong class="status" id="status">Normal</strong></div></div></div></section>
-<section class="card"><h3>Quick stats</h3><div class="metrics"><div class="metric"><div class="num" id="change">—</div><div class="label">Change today</div></div><div class="metric"><div class="num" id="last">Just now</div><div class="label">Last update</div></div><div class="metric"><div class="num">240 gal</div><div class="label">Tank capacity</div></div><div class="metric"><div class="num offline">Offline</div><div class="label">Sensor connection</div></div></div></section>
-<section class="card"><h3>Water level history</h3><div class="chartwrap"><div class="chart" id="chart"></div><div class="chart-note"><span>Earlier</span><span>Now</span></div></div><div class="sub" style="margin-top:12px">Illustrative readings · simulated</div></section>
-<section class="card refill"><h3>Simulated refill</h3><div class="amount">Select refill amount</div><div class="presets"><button class="preset active" data-amount="1">1 gal</button><button class="preset" data-amount="2">2 gal</button><button class="preset" data-amount="3">3 gal</button><button class="preset" data-amount="5">5 gal</button><button class="preset" data-amount="10">10 gal</button></div><div class="custom"><input id="custom" type="number" min="0.1" max="50" step="0.1" placeholder="Custom gallons (optional)" /></div><div class="actions"><button class="primary" id="start">Start simulated refill</button><button class="stop" id="stop" disabled>Stop</button></div><div class="progress"><div id="progress"></div></div><div class="refillstate" id="refillstate">Status: Idle · Simulation only</div></section>
-<section class="card"><h3>Recent refill history</h3><div id="logs"><div class="log"><div>—<br><span>No refills yet</span></div><strong>—</strong></div></div></section>
-<section class="card"><h3>Tank camera</h3><div class="camera"><div class="camicon">▣</div><strong>Camera not connected</strong><span>Live video will be added in a future stage.</span></div></section>
-<section class="card"><h3>System status</h3><div class="sensor"><span>Water sensor</span><strong class="offline">Not connected</strong></div><div class="sensor"><span>Wi-Fi bridge</span><strong class="offline">Not configured</strong></div><div class="sensor"><span>Refill controller</span><strong class="offline">Not connected</strong></div><div class="sensor"><span>Operating mode</span><strong style="color:var(--yellow)">Simulation</strong></div></section>
-</div><div class="foot">Ranchu Tank Monitor prototype · Simulated data only · No hardware control</div>
+    <section class="page" id="page-water">
+      <div class="grid">
+        <div class="card span-7"><div class="card-head"><h3>Water level & volume</h3><span class="badge" id="waterBadge">Normal</span></div><div class="big"><span id="waterGallons">172.8</span> <span class="unit">/ 240 gal</span></div><div class="progress"><span id="waterBar" style="width:72%"></span></div><div class="stat-row"><span class="hint">Estimated water level</span><b id="waterPercent">72%</b></div><div class="notice info" style="margin-top:16px">This is a simulated estimate. A real sensor must be installed and calibrated before these values can be used for aquarium operation.</div></div>
+        <div class="card span-5"><div class="card-head"><h3>Refill mode</h3><span class="badge off">Simulation only</span></div><div class="segment"><button id="manualWaterBtn" class="selected" onclick="setWaterMode('manual')">Manual</button><button id="autoWaterBtn" onclick="setWaterMode('automatic')">Automatic</button></div><div id="waterModeText" class="hint" style="margin-top:12px">Manual mode: choose a simulated amount and start a pretend refill.</div><div class="field"><label for="refillAmount">Refill amount</label><select id="refillAmount"><option value="1">1 gallon</option><option value="2">2 gallons</option><option value="3">3 gallons</option><option value="5" selected>5 gallons</option><option value="10">10 gallons</option><option value="custom">Custom amount</option></select></div><div class="field" id="customAmountWrap" style="display:none"><label for="customAmount">Custom gallons</label><input id="customAmount" type="number" min="0.1" max="30" step="0.1" value="5"></div><div class="actions"><button class="btn green" id="startRefill">Start simulated refill</button><button class="btn danger" id="stopRefill">Stop</button></div><div class="hint" id="refillStatus" style="margin-top:12px">Status: Idle · Simulation only</div></div>
+        <div class="card span-12"><div class="card-head"><h3>Refill history</h3><span class="hint">This session only</span></div><div id="refillHistory" class="hint">No simulated refills yet.</div></div>
+        <div class="card span-12"><div class="notice">Automatic refill is a planned feature, not an active control. Real automatic operation will require a prepared-water reservoir, calibrated level sensor, flow meter, independent high-level cutoff, maximum volume/runtime limits, and physical emergency stop. Never connect an untested pump to this website.</div></div>
+      </div>
+    </section>
+
+    <section class="page" id="page-feeding">
+      <div class="grid">
+        <div class="card span-7"><div class="card-head"><h3>Feeding control</h3><span class="badge off">No feeder connected</span></div><div class="segment"><button id="manualFeedBtn" class="selected" onclick="setFeedMode('manual')">Manual</button><button id="autoFeedBtn" onclick="setFeedMode('automatic')">Automatic</button></div><p id="feedModeText" class="hint" style="margin-top:12px">Manual mode: simulate dispensing one measured portion.</p><div class="field"><label for="portion">Portion setting (prototype)</label><select id="portion"><option value="small">Small</option><option value="medium" selected>Medium</option><option value="large">Large</option></select></div><div class="actions"><button class="btn green" id="feedNow">Simulate feeding</button><button class="btn secondary" id="pauseFeed">Pause schedule</button></div><div class="notice info" style="margin-top:16px">No food will actually be dispensed. The physical feeder and portion size must be tested with the exact food before live operation.</div></div>
+        <div class="card span-5"><div class="card-head"><h3>Feeding schedule</h3><span class="badge off">Not active</span></div><div class="field"><label for="feedTime1">Feeding time 1</label><input type="time" id="feedTime1" value="08:00"></div><div class="field"><label for="feedTime2">Feeding time 2</label><input type="time" id="feedTime2" value="18:00"></div><div class="field"><label for="dailyFeedLimit">Maximum portions per day (prototype)</label><select id="dailyFeedLimit"><option>1</option><option selected>2</option><option>3</option><option>4</option></select></div><button class="btn" id="saveSchedule">Save simulated schedule</button><p class="hint" id="scheduleStatus" style="margin-top:10px">Schedule is not connected to a feeder.</p></div>
+        <div class="card span-12"><div class="card-head"><h3>Feeding history</h3><span class="hint">This session only</span></div><div id="feedingHistory" class="hint">No simulated feedings yet.</div></div>
+        <div class="card span-12"><div class="notice">The planned feeder will use a small motorized dispenser controlled by a local ESP32. We'll choose the exact feeder mechanism and food-safe materials before purchasing parts. Daily limits and a local schedule will help prevent repeated feeding if Wi-Fi fails.</div></div>
+      </div>
+    </section>
+
+    <section class="page" id="page-conditions">
+      <div class="grid">
+        <div class="card span-12"><div class="card-head"><h3>Water condition records</h3><span class="badge off">Manual entries · No probes connected</span></div><p class="hint">Enter results from aquarium test kits. These values are saved only in the current browser session in this prototype; they are not yet stored in Firebase.</p><div class="grid">
+          <div class="span-4"><div class="field"><label for="temperature">Temperature (°F)</label><input id="temperature" type="number" step="0.1" placeholder="e.g. 72"></div></div>
+          <div class="span-4"><div class="field"><label for="ph">pH</label><input id="ph" type="number" step="0.1" placeholder="e.g. 7.2"></div></div>
+          <div class="span-4"><div class="field"><label for="ammonia">Ammonia (ppm)</label><input id="ammonia" type="number" step="0.01" min="0" placeholder="e.g. 0"></div></div>
+          <div class="span-4"><div class="field"><label for="nitrite">Nitrite (ppm)</label><input id="nitrite" type="number" step="0.01" min="0" placeholder="e.g. 0"></div></div>
+          <div class="span-4"><div class="field"><label for="nitrate">Nitrate (ppm)</label><input id="nitrate" type="number" step="1" min="0" placeholder="e.g. 10"></div></div>
+          <div class="span-4" style="display:flex;align-items:end;padding-bottom:12px"><button class="btn" id="saveConditions">Add test record</button></div>
+        </div><div id="conditionStatus" class="hint"></div></div>
+        <div class="card span-12"><div class="card-head"><h3>Recent test records</h3><span class="hint">This session only</span></div><div id="conditionHistory" class="hint">No test records entered.</div></div>
+        <div class="card span-12"><div class="notice">These fields are record-keeping only, not automatic water-quality measurements. For reliable readings, use appropriate aquarium test kits. Any future automated probes must be selected and validated separately.</div></div>
+      </div>
+    </section>
+
+    <section class="page" id="page-status">
+      <div class="grid">
+        <div class="card span-12">
+          <div class="card-head"><h3>Project overview</h3><span class="badge warn">Preparation stage</span></div>
+          <div class="stat-row"><div><div class="stat-label">Planned aquarium</div><div class="big">240 <span class="unit">gallons</span></div><div class="hint">Ranchu aquarium · final setup planned</div></div><span class="badge warn">Awaiting arrival</span></div>
+          <p class="hint" style="margin-top:14px">The aquarium has not arrived yet. No monitoring sensors, refill equipment, feeder, or camera have been installed. The website is currently a prototype and all controls are simulations.</p>
+        </div>
+        <div class="card span-12">
+          <div class="card-head"><h3>Equipment checklist & preliminary budget</h3><span class="hint">Planning estimates · USD</span></div>
+          <div class="notice info">These are rough budgeting ranges, not live quotes or confirmed product prices. Exact parts, compatibility, shipping, and final costs must be checked before purchasing. Mark items as purchased or installed only when that has actually happened.</div>
+          <div class="list" style="margin-top:12px">
+            <div class="list-row"><span><b>ESP32 Wi-Fi controller</b><br><span class="muted">Main local controller</span></span><span style="text-align:right"><b>$8–$18</b><br><span class="badge off">Not purchased</span></span></div>
+            <div class="list-row"><span><b>Water-level sensor</b><br><span class="muted">Waterproof sensor, selected for tank mounting</span></span><span style="text-align:right"><b>$10–$25</b><br><span class="badge off">Not purchased</span></span></div>
+            <div class="list-row"><span><b>Independent float switches</b><br><span class="muted">Separate high-level safety cutoff and backup sensing</span></span><span style="text-align:right"><b>$8–$20</b><br><span class="badge off">Not purchased</span></span></div>
+            <div class="list-row"><span><b>Low-voltage DC water pump</b><br><span class="muted">Moves prepared refill water</span></span><span style="text-align:right"><b>$18–$40</b><br><span class="badge off">Not purchased</span></span></div>
+            <div class="list-row"><span><b>Flow meter</b><br><span class="muted">Measures water delivered</span></span><span style="text-align:right"><b>$8–$18</b><br><span class="badge off">Not purchased</span></span></div>
+            <div class="list-row"><span><b>Pump driver, fuse, and cutoff hardware</b><br><span class="muted">Electrical control and independent protection</span></span><span style="text-align:right"><b>$15–$35</b><br><span class="badge off">Not purchased</span></span></div>
+            <div class="list-row"><span><b>Power supply and low-voltage wiring</b><br><span class="muted">Properly rated supply, connectors, and cable</span></span><span style="text-align:right"><b>$20–$40</b><br><span class="badge off">Not purchased</span></span></div>
+            <div class="list-row"><span><b>Prepared-water reservoir, tubing, and check valve</b><br><span class="muted">Water storage and safe delivery path</span></span><span style="text-align:right"><b>$25–$60</b><br><span class="badge off">Not purchased</span></span></div>
+            <div class="list-row"><span><b>Automatic feeder mechanism</b><br><span class="muted">Food-safe hopper and controlled motor/servo</span></span><span style="text-align:right"><b>$15–$40</b><br><span class="badge off">Not purchased</span></span></div>
+            <div class="list-row"><span><b>Enclosures, mounting, and water protection</b><br><span class="muted">Keep electronics safely away from splashes</span></span><span style="text-align:right"><b>$15–$35</b><br><span class="badge off">Not purchased</span></span></div>
+            <div class="list-row"><span><b>Wi-Fi camera</b><br><span class="muted">Future live aquarium viewing</span></span><span style="text-align:right"><b>$25–$60</b><br><span class="badge off">Not purchased</span></span></div>
+            <div class="list-row"><span><b>Aquarium water test kits</b><br><span class="muted">Manual checks for ammonia, nitrite, nitrate, and pH</span></span><span style="text-align:right"><b>$25–$60</b><br><span class="badge off">To verify</span></span></div>
+          </div>
+          <div class="mini-stats">
+            <div class="mini"><b>$172</b><span>Estimated low end</span></div>
+            <div class="mini"><b>$431</b><span>Estimated high end</span></div>
+            <div class="mini"><b>Pending</b><span>Exact parts & quotes</span></div>
+          </div>
+          <p class="hint" style="margin-top:12px">Budget estimate for the listed monitoring, refill, feeder, camera, and test equipment only. It excludes the aquarium itself, stand, filtration, lighting, substrate, plants, fish, delivery, taxes, and any equipment already owned. The total is a planning allowance, not a shopping cart.</p>
+        </div>
+        <div class="card span-6">
+          <div class="card-head"><h3>Project milestones</h3><span class="badge warn">In progress</span></div>
+          <div class="list">
+            <div class="list-row"><span>Website prototype & navigation</span><span class="badge">Built</span></div>
+            <div class="list-row"><span>Google sign-in & database security</span><span class="badge">Configured</span></div>
+            <div class="list-row"><span>240-gallon aquarium arrival</span><span class="badge warn">Awaiting</span></div>
+            <div class="list-row"><span>Firebase live data integration</span><span class="badge off">Planned</span></div>
+            <div class="list-row"><span>Water-level monitoring</span><span class="badge off">Planned</span></div>
+            <div class="list-row"><span>Safe automatic/manual refill</span><span class="badge off">Planned</span></div>
+            <div class="list-row"><span>Automatic/manual feeding</span><span class="badge off">Planned</span></div>
+            <div class="list-row"><span>Camera integration</span><span class="badge off">Planned</span></div>
+            <div class="list-row"><span>Full safety testing</span><span class="badge off">Not started</span></div>
+          </div>
+        </div>
+        <div class="card span-6">
+          <div class="card-head"><h3>Safety-first build plan</h3><span class="badge warn">Required</span></div>
+          <div class="list">
+            <div class="list-row"><span>Use low-voltage DC hardware where practical</span><span class="badge warn">Design rule</span></div>
+            <div class="list-row"><span>Independent physical pump cutoff</span><span class="badge off">Required</span></div>
+            <div class="list-row"><span>Maximum refill volume and runtime</span><span class="badge off">Required</span></div>
+            <div class="list-row"><span>Prepared, temperature-compatible water only</span><span class="badge warn">Design rule</span></div>
+            <div class="list-row"><span>Feeder portion calibration and daily cap</span><span class="badge off">Required</span></div>
+            <div class="list-row"><span>Test hardware without relying on fish</span><span class="badge warn">Required</span></div>
+          </div>
+          <p class="hint" style="margin-top:12px">No automatic pump or feeder operation will be enabled until components are selected, wired correctly, and independently safety-tested.</p>
+        </div>
+        <div class="card span-12">
+          <div class="card-head"><h3>Project notes</h3><span class="hint">Current planning record</span></div>
+          <p class="hint">This page is a planning overview. It does not track actual purchases automatically and its preliminary costs are not vendor quotes. We can update the equipment list, prices, and progress as each decision is made.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="page-camera">
+      <div class="grid"><div class="card span-12"><div class="card-head"><h3>Tank camera</h3><span class="badge off">Not connected</span></div><div class="camera"><div><div style="font-size:32px">▣</div><b>Camera feed unavailable</b><span class="hint">A compatible Wi-Fi IP camera will be integrated in a future stage.</span></div></div><p class="hint" style="margin-top:14px">The camera should support a stable local stream, preferably RTSP or another compatible integration. We'll avoid exposing the camera directly to the public internet.</p></div></div>
+    </section>
+
+    <section class="page" id="page-devices">
+      <div class="grid">
+        <div class="card span-6"><div class="card-head"><h3>Hardware connections</h3><span class="badge off">Not installed</span></div><div class="list"><div class="list-row"><span>Water-level sensor</span><span class="badge off">Not connected</span></div><div class="list-row"><span>ESP32 controller</span><span class="badge off">Not configured</span></div><div class="list-row"><span>Refill pump & flow meter</span><span class="badge off">Not connected</span></div><div class="list-row"><span>High-water safety cutoff</span><span class="badge off">Not installed</span></div><div class="list-row"><span>Automatic feeder</span><span class="badge off">Not connected</span></div><div class="list-row"><span>Tank camera</span><span class="badge off">Not connected</span></div></div></div>
+        <div class="card span-6"><div class="card-head"><h3>Operating safeguards</h3><span class="badge warn">Design stage</span></div><div class="list"><div class="list-row"><span>Independent pump cutoff</span><span class="muted">Planned</span></div><div class="list-row"><span>Maximum refill volume/runtime</span><span class="muted">Planned</span></div><div class="list-row"><span>Manual emergency stop</span><span class="muted">Planned</span></div><div class="list-row"><span>Feeding daily limit</span><span class="muted">Planned</span></div><div class="list-row"><span>Safe restart after power loss</span><span class="muted">Planned</span></div></div></div>
+        <div class="card span-12"><div class="card-head"><h3>Account & Firebase</h3><span class="badge" id="deviceAuthBadge">Checking</span></div><div id="deviceAuthStatus" class="hint">Checking sign-in status…</div><p class="hint">Authentication is connected. This version intentionally does not access the Realtime Database. Database integration will be added in a separate step after the data structure and security rules are reviewed.</p><div class="notice">All pump, feeder, and sensor functions on this website are prototypes. No physical device is being controlled. Do not use the simulated controls as a substitute for checking the aquarium.</div></div>
+      </div>
+    </section>
+    <footer>Ranchu Tank Monitor · Prototype build · Simulated controls only · Hardware not connected</footer>
+  </main>
 </div>
 
+<div class="modal-backdrop" id="warningModal" role="dialog" aria-modal="true" aria-labelledby="warningTitle">
+  <div class="modal"><div style="font-size:28px;margin-bottom:8px">⚠️</div><h3 id="warningTitle">Aquarium warning</h3><p id="warningMessage"></p><div class="actions"><button class="btn secondary" id="dismissWarning">Dismiss</button><button class="btn" id="goWarningPage">Open relevant page</button></div></div>
+</div>
+<div class="toast" id="toast"></div>
+
 <script>
-let gallons=172.8,selected=1,active=false,added=0,goal=0,timer=null,history=[165,168,166,171,170,174,172.8];
-const $=id=>document.getElementById(id);
-function render(){let pct=gallons/240*100;$('gallons').textContent=gallons.toFixed(1);$('pct').textContent=pct.toFixed(1)+'%';$('tankpct').textContent=Math.round(pct)+'%';$('water').style.height=pct+'%';$('status').textContent=pct>65?'Normal':pct>45?'Low':'Critical';$('status').className=pct>65?'status':'offline';$('change').textContent=(gallons-172.8>=0?'+':'')+(gallons-172.8).toFixed(1)+' gal';$('chart').innerHTML='';history.forEach((v,i)=>{let bar=document.createElement('div');bar.className='bar';bar.style.height=(v/240*100)+'%';let label=document.createElement('span');label.textContent=i===history.length-1?'Now':i===0?'Old':' ';bar.appendChild(label);$('chart').appendChild(bar)});}
-function amount(){let c=parseFloat($('custom').value);return Number.isFinite(c)&&c>0?c:selected}
-document.querySelectorAll('.preset').forEach(b=>b.onclick=()=>{if(active)return;document.querySelectorAll('.preset').forEach(x=>x.classList.remove('active'));b.classList.add('active');selected=Number(b.dataset.amount);$('custom').value='';});
-$('start').onclick=()=>{if(active)return;goal=amount();if(!Number.isFinite(goal)||goal<=0||goal>50){$('refillstate').textContent='Please choose an amount between 0.1 and 50 gallons.';return}if(gallons>=240){$('refillstate').textContent='Tank is already at simulated capacity.';return}goal=Math.min(goal,240-gallons);active=true;added=0;$('start').disabled=true;$('stop').disabled=false;$('refillstate').textContent='Status: Filling (simulation)';timer=setInterval(()=>{let step=Math.min(.25,goal-added);added+=step;gallons=Math.min(240,gallons+step);history.push(gallons);history=history.slice(-12);$('progress').style.width=Math.min(100,added/goal*100)+'%';render();if(added>=goal||gallons>=240)finish('Completed')},500)};
-function finish(status){clearInterval(timer);active=false;$('start').disabled=false;$('stop').disabled=true;$('refillstate').textContent='Status: '+status+' · '+added.toFixed(1)+' gal added (simulation)';$('progress').style.width=status==='Completed'?'100%':Math.min(100,added/goal*100)+'%';if(added>0){let logs=$('logs');if(logs.innerHTML.includes('No refills yet'))logs.innerHTML='';let row=document.createElement('div');row.className='log';row.innerHTML='<div>Simulated refill<br><span>'+new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})+'</span></div><strong>'+added.toFixed(1)+' gal · '+status+'</strong>';logs.prepend(row)}}
-$('stop').onclick=()=>finish('Stopped');render();
+const CAPACITY=240;
+let gallons=172.8,waterMode='manual',feedMode='manual',refillLog=[],feedLog=[],conditionLog=[],paused=false;
+const pageInfo={
+ overview:['Overview','Your aquarium at a glance.'],
+ water:['Water Management','Water level, refill planning, and refill history.'],
+ feeding:['Feeding Center','Manual feeding controls and automatic schedule planning.'],
+ conditions:['Water Conditions','Record and review aquarium water tests.'],
+ camera:['Tank Camera','Future live viewing of your aquarium.'],
+ devices:['Devices & Settings','Hardware status, safety design, and account connection.'],
+ status:['Project Status','Aquarium arrival, equipment checklist, estimated costs, and project milestones.']
+};
+function $(id){return document.getElementById(id)}
+function showPage(name){
+ if(!pageInfo[name])return;
+ document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+ $('page-'+name).classList.add('active');
+ document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.page===name));
+ $('pageTitle').textContent=pageInfo[name][0];$('pageSubtitle').textContent=pageInfo[name][1];
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+document.querySelectorAll('.nav-btn').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));
+function levelState(){return gallons<0.9*CAPACITY?'critical':gallons<0.95*CAPACITY?'caution':'normal'}
+function updateLevel(){
+ const pct=Math.max(0,Math.min(100,gallons/CAPACITY*100)),state=levelState();
+ ['gallons','waterGallons'].forEach(id=>$(id).textContent=gallons.toFixed(1));
+ ['percent','waterPercent'].forEach(id=>$(id).textContent=pct.toFixed(1)+'%');
+ ['levelBar','waterBar'].forEach(id=>$(id).style.width=pct+'%');
+ ['tankBadge','waterBadge'].forEach(id=>{$(id).textContent=state==='normal'?'Normal':state==='caution'?'Caution':'Critical';$(id).className='badge'+(state==='normal'?'':state==='caution'?' warn':' off')});
+ $('alertBadge').textContent=state==='normal'?'Clear':state==='caution'?'Caution':'Critical';
+ $('alertBadge').className='badge'+(state==='normal'?'':state==='caution'?' warn':' off');
+ $('headerStatus').textContent=state==='normal'?'● No active alerts':state==='caution'?'● Water level low':'● Critical water level';
+ $('overviewAlert').className='notice '+(state==='normal'?'good':state==='caution'?'':'danger');
+ $('overviewAlert').textContent=state==='normal'?'No simulated water-level warnings. Hardware monitoring is not connected.':state==='caution'?'CAUTION: The simulated water level is below 95% of tank capacity. Open Water Management to review.':'CRITICAL: The simulated water level is below 90% of tank capacity. Check the aquarium in person; simulated values are not real measurements.';
+ drawChart();
+}
+function drawChart(){
+ const values=[169,170,171,172,171.5,172.2,gallons],labels=['-6','-5','-4','-3','-2','-1','Now'];
+ $('historyChart').innerHTML=values.map((v,i)=>`<div class="bar-wrap"><div class="bar" style="height:${Math.max(5,v/CAPACITY*100)}%"></div><small>${labels[i]}</small></div>`).join('');
+}
+function setWaterMode(mode){
+ waterMode=mode;$('manualWaterBtn').classList.toggle('selected',mode==='manual');$('autoWaterBtn').classList.toggle('selected',mode==='automatic');
+ $('waterModeText').textContent=mode==='manual'?'Manual mode: choose a simulated amount and start a pretend refill.':'Automatic mode preview: the prototype can demonstrate a target level, but no pump or sensor is connected. Real automatic refill remains disabled until safety hardware is installed and tested.';
+ $('startRefill').textContent=mode==='manual'?'Start simulated refill':'Run automatic refill simulation';
+}
+$('refillAmount').addEventListener('change',()=>{$('customAmountWrap').style.display=$('refillAmount').value==='custom'?'grid':'none'});
+$('startRefill').addEventListener('click',()=>{
+ let amount=$('refillAmount').value==='custom'?Number($('customAmount').value):Number($('refillAmount').value);
+ if(!Number.isFinite(amount)||amount<=0||amount>30){toast('Enter a simulated amount between 0.1 and 30 gallons.');return}
+ const added=Math.min(amount,CAPACITY-gallons);if(added<=0){toast('The simulated tank is already at capacity.');return}
+ gallons+=added;refillLog.unshift({amount:added,time:new Date().toLocaleString(),mode:waterMode});
+ $('refillStatus').textContent=`Status: Complete · ${added.toFixed(1)} simulated gallons added`;
+ $('refillHistory').innerHTML=refillLog.map(x=>`<div class="list-row"><span>${x.amount.toFixed(1)} gal · ${x.mode==='manual'?'Manual simulation':'Automatic simulation'}</span><span class="muted">${x.time}</span></div>`).join('');
+ $('todayChange').textContent='+'+refillLog.reduce((a,x)=>a+x.amount,0).toFixed(1)+' gal';updateLevel();toast('Simulated refill complete. No real water was moved.');
+});
+$('stopRefill').addEventListener('click',()=>{$('refillStatus').textContent='Status: Stopped · Simulation only';toast('Simulation stopped. No hardware is connected.')});
+function setFeedMode(mode){feedMode=mode;$('manualFeedBtn').classList.toggle('selected',mode==='manual');$('autoFeedBtn').classList.toggle('selected',mode==='automatic');$('feedModeText').textContent=mode==='manual'?'Manual mode: simulate dispensing one measured portion.':'Automatic mode preview: configure feeding times below. This prototype does not run a real-time schedule or control a feeder.';$('feedNow').textContent=mode==='manual'?'Simulate feeding':'Simulate one scheduled portion'}
+$('feedNow').addEventListener('click',()=>{
+ if(paused&&feedMode==='automatic'){toast('The simulated feeding schedule is paused.');return}
+ const portion=$('portion').value;feedLog.unshift({portion,time:new Date().toLocaleString(),mode:feedMode});
+ $('feedingHistory').innerHTML=feedLog.map(x=>`<div class="list-row"><span>${x.portion} portion · ${x.mode==='manual'?'Manual simulation':'Automatic simulation'}</span><span class="muted">${x.time}</span></div>`).join('');
+ toast('Simulated feeding recorded. No food was dispensed.');
+});
+$('pauseFeed').addEventListener('click',()=>{paused=!paused;$('pauseFeed').textContent=paused?'Resume schedule':'Pause schedule';toast(paused?'Simulated schedule paused.':'Simulated schedule resumed.')});
+$('saveSchedule').addEventListener('click',()=>{$('scheduleStatus').textContent=`Simulated schedule saved: ${$('feedTime1').value} and ${$('feedTime2').value}, up to ${$('dailyFeedLimit').value} portions/day. No feeder is connected.`;toast('Simulated feeding schedule saved for this session.')});
+$('saveConditions').addEventListener('click',()=>{
+ const fields=['temperature','ph','ammonia','nitrite','nitrate'];const vals=fields.map(id=>$(id).value.trim());
+ if(vals.every(v=>v==='')){toast('Enter at least one test result.');return}
+ const record={time:new Date().toLocaleString(),values:fields.map((k,i)=>vals[i]?`${k}: ${vals[i]}`:null).filter(Boolean)};
+ conditionLog.unshift(record);$('conditionHistory').innerHTML=conditionLog.map(r=>`<div class="list-row"><span>${r.values.join(' · ')}</span><span class="muted">${r.time}</span></div>`).join('');
+ $('conditionStatus').textContent='Test record added to this session.';toast('Water test record added.');
+});
+function toast(message){$('toast').textContent=message;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),2800)}
+function checkOpeningWarning(){
+ const state=levelState();
+ if(state!=='normal'){
+  $('warningTitle').textContent=state==='critical'?'CRITICAL WATER-LEVEL WARNING':'WATER-LEVEL CAUTION';
+  $('warningMessage').textContent=state==='critical'?'The simulated water level is critically low. Check the actual aquarium immediately. The website is not connected to a real sensor.':'The simulated water level is below the configured normal range. Review Water Management and check the actual aquarium.';
+  $('goWarningPage').onclick=()=>{$('warningModal').classList.remove('show');showPage('water')};
+  $('warningModal').classList.add('show');
+ }
+}
+$('dismissWarning').addEventListener('click',()=>$('warningModal').classList.remove('show'));
+$('goWarningPage').addEventListener('click',()=>{$('warningModal').classList.remove('show');showPage('water')});
+updateLevel();
 </script>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-auth.js";
-import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAc0PMkwT5eY675MQTyErTLhi9W2Draajo",
@@ -59,63 +335,27 @@ const firebaseConfig = {
   messagingSenderId: "951677196106",
   appId: "1:951677196106:web:3ecbcd9a516ce42f3793b3"
 };
-
-const status = document.getElementById("firebaseStatus");
-const signInButton = document.getElementById("signin");
-const signOutButton = document.getElementById("signout");
-const heading = document.getElementById("authheading");
-const detail = document.getElementById("authdetail");
-
-try {
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const database = getDatabase(app);
-  const provider = new GoogleAuthProvider();
-  provider.setCustomParameters({ prompt: "select_account" });
-
-  signInButton.addEventListener("click", async () => {
-    signInButton.disabled = true;
-    status.textContent = "Firebase: opening Google sign-in…";
-    try {
-      await signInWithPopup(auth, provider);
-    } catch (error) {
-      status.textContent = "Firebase sign-in error: " + (error.message || error.code);
-      signInButton.disabled = false;
-    }
-  });
-
-  signOutButton.addEventListener("click", async () => {
-    try {
-      await signOut(auth);
-    } catch (error) {
-      status.textContent = "Sign-out error: " + (error.message || error.code);
-    }
-  });
-
-  onAuthStateChanged(auth, user => {
-    if (user) {
-      heading.textContent = "Signed in";
-      detail.textContent = user.displayName || user.email || "Google account";
-      signInButton.hidden = true;
-      signInButton.disabled = false;
-      signOutButton.hidden = false;
-      status.textContent = "Firebase: Google authentication connected. Database access is intentionally not enabled yet; readings and refills are still simulated.";
-    } else {
-      heading.textContent = "Not signed in";
-      detail.textContent = "Sign in with the Google account authorized for this project.";
-      signInButton.hidden = false;
-      signInButton.disabled = false;
-      signOutButton.hidden = true;
-      status.textContent = "Firebase: app initialized. Sign in to test Google authentication. Database remains locked.";
-    }
-  });
-
-  // Prepare the database connection object without reading or writing data.
-  // Realtime Database rules remain locked until secure rules are configured.
-  void database;
-} catch (error) {
-  status.textContent = "Firebase could not initialize: " + (error.message || error);
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const provider=new GoogleAuthProvider();
+const signInBtn=document.getElementById('signInBtn');
+const signOutBtn=document.getElementById('signOutBtn');
+function updateAuth(user){
+ const text=user?`Signed in as ${user.displayName||user.email}. Firebase Google authentication connected.`:'Not signed in. Sign in with the Google account authorized for this project.';
+ document.getElementById('authStatus').textContent=text;
+ document.getElementById('deviceAuthStatus').textContent=text;
+ document.getElementById('deviceAuthBadge').textContent=user?'Authenticated':'Not signed in';
+ document.getElementById('deviceAuthBadge').className='badge'+(user?'':' off');
+ signInBtn.style.display=user?'none':'inline-block';
+ signOutBtn.style.display=user?'inline-block':'none';
 }
+signInBtn.addEventListener('click',async()=>{
+ try{await signInWithPopup(auth,provider)}catch(e){document.getElementById('authStatus').textContent='Sign-in error: '+e.message}
+});
+signOutBtn.addEventListener('click',async()=>{
+ try{await signOut(auth)}catch(e){document.getElementById('authStatus').textContent='Sign-out error: '+e.message}
+});
+onAuthStateChanged(auth,updateAuth);
 </script>
 </body>
 </html>
