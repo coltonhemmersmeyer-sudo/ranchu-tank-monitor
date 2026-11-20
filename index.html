@@ -415,28 +415,31 @@ updateLevel(false);renderQuality();renderOther();renderFish();renderJournal();re
  let introRestartedForSound=false;
  function playIntroSound(){
   if(introSoundPlayed)return;
-  const ctx=getAudio();if(!ctx)return;
+  const AudioCtx=window.AudioContext||window.webkitAudioContext;
+  if(!AudioCtx)return;
+  if(!audioContext)audioContext=new AudioCtx();
+  const ctx=audioContext;
   const schedule=()=>{
    if(introSoundPlayed||ctx.state!=='running')return;
    introSoundPlayed=true;
    const start=ctx.currentTime+.04;
-   const master=ctx.createGain();master.gain.setValueAtTime(.13,start);master.connect(ctx.destination);
+   const master=ctx.createGain();master.gain.setValueAtTime(.32,start);master.connect(ctx.destination);
    const notes=[523.25,659.25,783.99,1046.5,783.99,987.77,1174.66,1318.51,1567.98,1318.51,1567.98];
    notes.forEach((frequency,i)=>{
     const when=start+i*.27,osc=ctx.createOscillator(),gain=ctx.createGain();
     osc.type='sine';osc.frequency.setValueAtTime(frequency,when);
     gain.gain.setValueAtTime(.0001,when);
-    gain.gain.exponentialRampToValueAtTime(.24,when+.025);
+    gain.gain.exponentialRampToValueAtTime(.28,when+.025);
     gain.gain.exponentialRampToValueAtTime(.0001,when+.25);
     osc.connect(gain);gain.connect(master);osc.start(when);osc.stop(when+.27);
    });
    const end=ctx.createOscillator(),endGain=ctx.createGain();
    end.type='triangle';end.frequency.setValueAtTime(1046.5,start+2.72);
    endGain.gain.setValueAtTime(.0001,start+2.72);
-   endGain.gain.exponentialRampToValueAtTime(.16,start+2.76);
+   endGain.gain.exponentialRampToValueAtTime(.20,start+2.76);
    endGain.gain.exponentialRampToValueAtTime(.0001,start+3.02);
    end.connect(endGain);endGain.connect(master);end.start(start+2.72);end.stop(start+3.05);
-   master.gain.setValueAtTime(.13,start+2.85);
+   master.gain.setValueAtTime(.32,start+2.85);
    master.gain.exponentialRampToValueAtTime(.0001,start+3.12);
   };
   if(ctx.state==='running')schedule();
@@ -447,8 +450,6 @@ updateLevel(false);renderQuality();renderOther();renderFish();renderJournal();re
  function syncIntroSoundToVideo(){
   if(!introOverlay||introOverlay.classList.contains('is-done')||introRestartedForSound)return;
   introRestartedForSound=true;
-  const ctx=getAudio();
-  if(ctx&&ctx.state==='suspended')ctx.resume().catch(()=>{});
   if(introVideo){
    try{introVideo.currentTime=0;}catch(e){}
    introVideo.muted=false;
