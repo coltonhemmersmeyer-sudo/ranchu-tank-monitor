@@ -92,9 +92,78 @@ textarea{min-height:88px;resize:vertical}input:focus,select:focus,textarea:focus
 .warning-level{border-left:5px solid var(--yellow)}.warning-level.orange{border-left-color:var(--orange)}.warning-level.red{border-left-color:var(--red)}
 @media(max-width:900px){.app{grid-template-columns:1fr}.sidebar{padding:12px 14px;border-right:0;border-bottom:1px solid var(--line);gap:10px}.brand{padding:0 4px 9px}.nav-label,.sidebar-bottom{display:none}nav{display:flex;overflow-x:auto;overscroll-behavior-x:contain;padding:2px 0 8px;gap:7px;scrollbar-width:thin}.nav-btn{white-space:nowrap;flex:0 0 auto;padding:11px 13px;font-size:13px}.main{padding:20px 18px 40px}.span-8,.span-7,.span-5,.span-4{grid-column:span 6}}
 @media(max-width:600px){.sidebar{padding:11px 10px}.brand h1{font-size:17px}.brand p{font-size:12px}.logo{width:44px;height:44px}.nav-label,nav,.sidebar-bottom{display:none!important}.mobile-nav-label{display:block;color:var(--muted);font-size:11px;margin:0 2px 5px}.mobile-page-select{display:block;width:100%;min-height:48px;padding:12px 42px 12px 13px;border-radius:12px;font-size:16px;background:#f5fcfd;border:1px solid #c6e4ec;color:var(--text)}.main{padding:16px 11px calc(28px + env(safe-area-inset-bottom))}.topbar{align-items:flex-start;flex-direction:column;gap:10px;margin-bottom:15px}h2{font-size:25px}.pills{justify-content:flex-start}.pill{white-space:normal;line-height:1.3}.grid{grid-template-columns:minmax(0,1fr);gap:10px}.span-12,.span-8,.span-7,.span-6,.span-5,.span-4{grid-column:1/-1}.card{padding:15px;border-radius:16px}.card-head{align-items:flex-start;flex-wrap:wrap}.stat-row{align-items:flex-start;flex-wrap:wrap}.big{font-size:31px;overflow-wrap:anywhere}.mini-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.actions{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}.actions .btn{width:100%;min-height:45px}.segment{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.segment button{min-width:0;min-height:44px}.list-row{gap:8px;flex-wrap:wrap}.modal-backdrop{align-items:flex-end;padding:10px}.modal{max-height:85dvh;overflow-y:auto;padding:18px;width:100%}.toast{left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));text-align:center}}
+
+/* ranchu-additive-ui-polish-v1: warm dividers, startup screen, and sound controls */
+:root{
+ --bg:#fff4d6;--surface:#fffdf6;--surface2:#fff8e7;--line:#efd9a8;
+ --text:#65451f;--muted:#96764e;--blue:#e9a63a;--blue2:#bd7425;
+ --teal:#d98a2d;--orange:#ed982d;--yellow:#f2c34c;--red:#d96b4b;
+ --shadow:0 9px 24px rgba(151,96,28,.13);
+}
+body{color:var(--text);background:radial-gradient(ellipse at 15% 0%,#ffe9a9 0,transparent 44%),linear-gradient(180deg,#fff4d6,#fffaf0 66%,#f8e8c4)}
+.sidebar{background:rgba(255,250,235,.94);border-color:#efd9a8}
+.brand{border-color:#efd9a8}
+.nav-btn{color:#76532c}
+.nav-btn:hover,.nav-btn.active{background:#ffedc5;border-color:#f0d18a;color:#9a5d1b}
+.sidebar-bottom,.mini{background:#fff7e4;border-color:#efd9a8}
+.card{background:rgba(255,253,246,.96);border-color:#efd9a8;box-shadow:0 9px 24px rgba(151,96,28,.12)}
+.pill{background:#fffdf6;border-color:#efd9a8;color:#79572d}
+.btn{background:linear-gradient(135deg,#f0b34a,#dc872b);border-color:#d88a2e;color:#fff}
+.btn.secondary{background:#fff5dc;border-color:#ebd39e;color:#79572d}
+.btn.danger{background:#fff0e9;border-color:#e8b49c;color:#a64b35}
+.btn.green{background:linear-gradient(135deg,#e7ad45,#c77c29);border-color:#c77c29}
+.progress{background:#f4e6c7}
+.progress>span{background:linear-gradient(90deg,#f2ca57,#ed982d,#d96b4b)}
+input,select,textarea{background:#fffdf6;border-color:#e8d5ac;color:var(--text)}
+.notice{background:#fff5dc;border-color:#efd69b;color:#875b22}
+.notice.info{background:#fff8e8;border-color:#e8d9b7;color:#80613a}
+.notice.good{background:#f8f4df;border-color:#dfd29b;color:#6f672e}
+.notice.danger,.notice.critical{background:#fff0e9;border-color:#e8b49c;color:#a64b35}
+.list-row{border-color:#f0e2c5}
+.badge{background:#f8f0d8;border-color:#e7d29b;color:#80601f}
+.badge.warn,.badge.orange{background:#fff0cf;border-color:#edcf88;color:#98631d}
+.badge.red{background:#fff0e9;border-color:#e8b49c;color:#a64b35}
+.badge.off{background:#f7f0e2;border-color:#e7dbc3;color:#887657}
+.chart{border-color:#e6d3a8}
+.bar{background:linear-gradient(180deg,#f4ca58,#df8b31)}
+.camera{background:repeating-linear-gradient(135deg,#fff8e8,#fff8e8 12px,#f8edcf 12px,#f8edcf 24px);border-color:#e6cf9d}
+.modal{background:#fffdf6;border-color:#e8d2a0;box-shadow:0 20px 70px rgba(121,78,26,.22)}
+.modal p{color:#80613a}
+.toast{background:#f8f3df;border-color:#ded09a;color:#6d642e}
+.card-head{padding-bottom:11px;border-bottom:1px solid rgba(205,151,65,.28)}
+.auth-line{border-color:#efd9a8}
+#startupScreen{
+ position:fixed;inset:0;z-index:1000;display:grid;place-items:center;
+ padding:24px;background:radial-gradient(circle at 50% 30%,#ffe6a0 0,#fff2ce 48%,#f5dfae 100%);
+ opacity:1;visibility:visible;transition:opacity .45s ease,visibility .45s ease;
+}
+#startupScreen.is-done{opacity:0;visibility:hidden;pointer-events:none}
+.startup-card{width:min(420px,100%);padding:30px 26px;border:1px solid #e8cc8c;border-radius:24px;background:rgba(255,253,245,.92);box-shadow:0 18px 55px rgba(146,93,28,.18);text-align:center}
+.startup-logo{width:76px;height:76px;margin:0 auto 16px;border-radius:22px;overflow:hidden;background:#f7d66e;box-shadow:0 7px 20px rgba(179,119,36,.18)}
+.startup-logo img{width:100%;height:100%;object-fit:cover;display:block}
+.startup-title{font-size:20px;font-weight:850;color:#75491f;letter-spacing:-.4px}
+.startup-caption{margin-top:7px;color:#98764a;font-size:12px}
+.startup-track{height:12px;margin-top:25px;border-radius:99px;overflow:hidden;background:#f1e3c4;border:1px solid #e8d5aa}
+#startupProgress{display:block;width:0%;height:100%;border-radius:99px;background:linear-gradient(90deg,#f2cb58,#ec9a30,#d96b4b);transition:width .16s ease}
+.startup-meta{display:flex;justify-content:space-between;gap:12px;margin-top:9px;color:#96764e;font-size:11px}
+.sound-toggle{cursor:pointer;font:inherit}
+.sound-toggle:focus-visible{outline:3px solid #e8ad43;outline-offset:3px}
+@media(prefers-reduced-motion:reduce){#startupScreen,.page,.progress>span,#startupProgress{transition:none;animation:none}}
+
 </style>
 </head>
 <body>
+
+<div id="startupScreen" role="status" aria-live="polite" aria-label="Loading Ranchu Tank Monitor">
+ <div class="startup-card">
+  <div class="startup-logo"><img src="assets/ranchu-icon.png.png" alt=""></div>
+  <div class="startup-title">Ranchu Tank Monitor</div>
+  <div class="startup-caption" id="startupMessage">Preparing your aquarium dashboard…</div>
+  <div class="startup-track"><span id="startupProgress"></span></div>
+  <div class="startup-meta"><span>Loading interface</span><b id="startupPercent">0%</b></div>
+ </div>
+</div>
+
 <div class="app">
 <aside class="sidebar">
  <div class="brand">
@@ -127,7 +196,7 @@ textarea{min-height:88px;resize:vertical}input:focus,select:focus,textarea:focus
  <div class="sidebar-bottom"><strong>System operating mode</strong><span>Simulation only · No hardware connected</span></div>
 </aside>
 <main class="main">
-<header class="topbar"><div><div class="eyebrow">Aquarium management center</div><h2 id="pageTitle">Overview</h2><p class="sub" id="pageSubtitle">Your aquarium at a glance.</p></div><div class="pills"><span class="pill sim">● SIMULATION MODE</span><span class="pill" id="headerStatus">● No active alerts</span></div></header>
+<header class="topbar"><div><div class="eyebrow">Aquarium management center</div><h2 id="pageTitle">Overview</h2><p class="sub" id="pageSubtitle">Your aquarium at a glance.</p></div><div class="pills"><span class="pill sim">● SIMULATION MODE</span><span class="pill" id="headerStatus">● No active alerts</span><button type="button" class="pill sound-toggle" id="soundToggle" aria-pressed="true" title="Turn interface sounds on or off">♫ Sound On</button></div></header>
 
 <section class="page active" id="page-overview"><div class="grid">
  <div class="card span-8"><div class="card-head"><h3>Tank water level</h3><span class="badge" id="tankBadge">Normal</span></div><div class="stat-row"><div><div class="stat-label">Current estimated volume</div><div class="big"><span id="gallons">240.0</span> <span class="unit">gal</span></div><div class="hint">of 240 gallons · simulated reading</div></div><div style="text-align:right"><div class="big" style="font-size:28px" id="percent">100.0%</div><div class="hint">water level</div></div></div><div class="progress"><span id="levelBar" style="width:100%"></span></div><div class="mini-stats"><div class="mini"><b>240 gal</b><span>Tank capacity</span></div><div class="mini"><b id="todayChange">+0.0 gal</b><span>Change today</span></div><div class="mini"><b>Offline</b><span>Physical sensor</span></div></div><div class="actions"><button class="btn" onclick="showPage('water')">Open Water</button><button class="btn secondary" onclick="showPage('conditions')">View Conditions</button></div></div>
@@ -232,7 +301,7 @@ $('dismissWarning').addEventListener('click',()=>$('warningModal').classList.rem
 $('goWarningPage').addEventListener('click',()=>{$('warningModal').classList.remove('show');showPage('water')});
 function setWaterMode(mode){waterMode=mode;$('manualWaterBtn').classList.toggle('selected',mode==='manual');$('autoWaterBtn').classList.toggle('selected',mode==='automatic');$('waterModeText').textContent=mode==='manual'?'Manual mode: choose a simulated amount and start a pretend refill.':'Automatic mode preview only. No sensor or pump is connected; this mode cannot run real equipment.';$('startRefill').textContent=mode==='manual'?'Start simulated refill':'Run refill preview'}
 $('refillAmount').addEventListener('change',()=>$('customAmountWrap').style.display=$('refillAmount').value==='custom'?'grid':'none');
-$('startRefill').addEventListener('click',()=>{if(emergencyLock){toast('Emergency lock: restore and inspect the simulated level first.');return}let amount=$('refillAmount').value==='custom'?Number($('customAmount').value):Number($('refillAmount').value);if(!Number.isFinite(amount)||amount<=0||amount>30){toast('Enter a simulated amount between 0.1 and 30 gallons.');return}const added=Math.min(amount,CAPACITY-gallons);if(added<=0){toast('Simulated tank is already full.');return}gallons+=added;refillLog.unshift({amount:added,time:new Date().toLocaleString(),mode:waterMode});$('refillStatus').textContent=`Complete · ${added.toFixed(1)} simulated gallons added`;$('refillHistory').innerHTML=refillLog.map(x=>`<div class="list-row"><span>${x.amount.toFixed(1)} gal · ${x.mode==='manual'?'Manual':'Automatic preview'}</span><span class="muted">${safe(x.time)}</span></div>`).join('');$('todayChange').textContent='+'+refillLog.reduce((a,x)=>a+x.amount,0).toFixed(1)+' gal';updateLevel(true);addNotification('water','Simulated refill',`${added.toFixed(1)} gallons added in simulation.`);toast('Simulated refill complete. No real water was moved.')});
+$('startRefill').addEventListener('click',()=>{if(emergencyLock){toast('Emergency lock: restore and inspect the simulated level first.');return}let amount=$('refillAmount').value==='custom'?Number($('customAmount').value):Number($('refillAmount').value);if(!Number.isFinite(amount)||amount<=0||amount>30){toast('Enter a simulated amount between 0.1 and 30 gallons.');return}const added=Math.min(amount,CAPACITY-gallons);if(added<=0){toast('Simulated tank is already full.');return}gallons+=added;refillLog.unshift({amount:added,time:new Date().toLocaleString(),mode:waterMode});$('refillStatus').textContent=`Complete · ${added.toFixed(1)} simulated gallons added`;$('refillHistory').innerHTML=refillLog.map(x=>`<div class="list-row"><span>${x.amount.toFixed(1)} gal · ${x.mode==='manual'?'Manual':'Automatic preview'}</span><span class="muted">${safe(x.time)}</span></div>`).join('');$('todayChange').textContent='+'+refillLog.reduce((a,x)=>a+x.amount,0).toFixed(1)+' gal';updateLevel(true);addNotification('water','Simulated refill',`${added.toFixed(1)} gallons added in simulation.`);window.playRefillChime?.();toast('Simulated refill complete. No real water was moved.')});
 $('stopRefill').addEventListener('click',()=>{$('refillStatus').textContent='Stopped · Simulation only';toast('Simulation stopped. No hardware is connected.')});
 function setFeedMode(mode){feedMode=mode;$('manualFeedBtn').classList.toggle('selected',mode==='manual');$('autoFeedBtn').classList.toggle('selected',mode==='automatic');$('feedModeText').textContent=mode==='manual'?'Manual mode: record a feeding. No food will be dispensed.':'Automatic schedule preview: save times and enable the interface state. No feeder is connected.';$('feedNow').textContent=mode==='manual'?'Record manual feeding':'Record scheduled feeding'}
 $('feedNow').addEventListener('click',()=>{if(feedMode==='automatic'&&(!autoFeedEnabled||paused)){toast('Automatic schedule is disabled or paused.');return}const todayCount=feedLog.filter(x=>x.date===today()).length,limit=Number($('dailyFeedLimit').value);if(todayCount>=limit){toast('Daily simulated feeding limit reached.');addNotification('feeding','Daily feeding limit reached','No additional simulated feeding was recorded.','warning');return}const portion=$('portion').value;feedLog.unshift({portion,time:new Date().toLocaleString(),date:today(),mode:feedMode});renderFeedLog();addNotification('feeding','Feeding recorded',`${portion} portion · ${feedMode==='manual'?'Manual':'Scheduled'} simulation.`);toast('Feeding recorded. No food was dispensed.')});
@@ -257,6 +326,97 @@ $('testResetBtn').addEventListener('click',()=>{setTestVolume(240,true);emergenc
 $('rapidLossBtn').addEventListener('click',()=>{const before=gallons;setTestVolume(Math.max(0,gallons-105),true);addNotification('warning','Rapid water-loss simulation',`${before.toFixed(1)} to ${gallons.toFixed(1)} gallons in one simulated event.`,'emergency');toast('Rapid water-loss simulation complete. Refill remains locked if emergency threshold was reached.')});
 $('showLowPopup').addEventListener('click',()=>showAlertPopup('low'));$('showCriticalPopup').addEventListener('click',()=>showAlertPopup('critical'));$('showEmergencyPopup').addEventListener('click',()=>showAlertPopup('emergency'));
 updateLevel(false);renderQuality();renderOther();renderFish();renderJournal();renderFeedLog();renderNotifications();
+
+/* Additive startup progress and interface sound effects */
+(function(){
+ const overlay=document.getElementById('startupScreen');
+ const progress=document.getElementById('startupProgress');
+ const percent=document.getElementById('startupPercent');
+ const message=document.getElementById('startupMessage');
+ let audioContext=null;
+ let soundEnabled=true;
+ let lastHoverTarget=null;
+ let lastHoverTime=0;
+ const soundToggle=document.getElementById('soundToggle');
+ function getAudio(){
+  const AudioCtx=window.AudioContext||window.webkitAudioContext;
+  if(!AudioCtx)return null;
+  if(!audioContext)audioContext=new AudioCtx();
+  if(audioContext.state==='suspended')audioContext.resume().catch(()=>{});
+  return audioContext;
+ }
+ function tone(frequency,start,duration,volume,type){
+  const ctx=getAudio();if(!ctx)return;
+  const osc=ctx.createOscillator(),gain=ctx.createGain();
+  osc.type=type||'sine';osc.frequency.setValueAtTime(frequency,start);
+  gain.gain.setValueAtTime(.0001,start);
+  gain.gain.exponentialRampToValueAtTime(volume||.018,start+.008);
+  gain.gain.exponentialRampToValueAtTime(.0001,start+duration);
+  osc.connect(gain);gain.connect(ctx.destination);osc.start(start);osc.stop(start+duration+.015);
+ }
+ function tick(kind){
+  if(!soundEnabled)return;
+  const ctx=getAudio();if(!ctx)return;
+  const now=ctx.currentTime;
+  if(kind==='click'){tone(1180,now,.055,.025,'sine');tone(1580,now+.012,.045,.012,'sine')}
+  else tone(920,now,.035,.010,'sine');
+ }
+ window.playRefillChime=function(){
+  if(!soundEnabled)return;
+  const ctx=getAudio();if(!ctx)return;
+  const now=ctx.currentTime;
+  // Original, synthesized bubbly rising chime; no external game audio is used.
+  [523.25,659.25,783.99,987.77,1174.66].forEach((f,i)=>{
+   const t=now+i*.105;
+   tone(f,t,.20,.025,'sine');
+   tone(f*2,t+.025,.12,.006,'triangle');
+  });
+  [660,880,1046].forEach((f,i)=>tone(f,now+.48+i*.075,.16,.009,'sine'));
+ };
+ const interactive='button,select,input[type="checkbox"],input[type="radio"],a,[role="button"]';
+ document.addEventListener('pointerover',event=>{
+  const target=event.target.closest?.(interactive);
+  if(!target||target===soundToggle||target===lastHoverTarget)return;
+  const now=performance.now();
+  if(now-lastHoverTime<85)return;
+  lastHoverTarget=target;lastHoverTime=now;tick('hover');
+ },true);
+ document.addEventListener('pointerout',event=>{
+  const target=event.target.closest?.(interactive);
+  if(target&&(!event.relatedTarget||!target.contains(event.relatedTarget))&&target===lastHoverTarget)lastHoverTarget=null;
+ },true);
+ document.addEventListener('click',event=>{
+  const target=event.target.closest?.(interactive);
+  if(target&&target!==soundToggle)tick('click');
+ },true);
+ if(soundToggle){
+  soundToggle.addEventListener('click',()=>{
+   soundEnabled=!soundEnabled;
+   soundToggle.textContent=soundEnabled?'♫ Sound On':'♫ Sound Off';
+   soundToggle.setAttribute('aria-pressed',String(soundEnabled));
+   if(soundEnabled)tick('click');
+  });
+ }
+ if(overlay&&progress&&percent){
+  const started=performance.now();let finished=false;
+  const paint=value=>{const n=Math.max(0,Math.min(100,Math.round(value)));progress.style.width=n+'%';percent.textContent=n+'%'};
+  const progressTimer=setInterval(()=>{
+   if(finished)return;
+   const elapsed=performance.now()-started;
+   paint(Math.min(92,8+84*(1-Math.exp(-elapsed/850))));
+  },45);
+  const finish=()=>{
+   if(finished)return;finished=true;clearInterval(progressTimer);
+   if(message)message.textContent='Dashboard ready';
+   paint(100);
+   setTimeout(()=>{overlay.classList.add('is-done');setTimeout(()=>overlay.remove(),550)},260);
+  };
+  window.addEventListener('load',finish,{once:true});
+  if(document.readyState==='complete')setTimeout(finish,120);
+  setTimeout(finish,6500);
+ }
+})();
+
 </script>
 
 <script type="module">
