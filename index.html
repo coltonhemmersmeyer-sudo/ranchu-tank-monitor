@@ -8,11 +8,15 @@
 /* Play the video intro once per browser tab; keep the Ranchu loader on refreshes. */
 (function(){
  const root=document.documentElement;
+ const key='ranchuIntroPlayedInTab';
+ const navigation=performance.getEntriesByType?.('navigation')?.[0];
+ const isRefresh=navigation?.type==='reload';
  try{
-  const key='ranchuIntroPlayedInTab';
-  if(sessionStorage.getItem(key)==='1')root.classList.add('skip-intro-video');
+  if(isRefresh||sessionStorage.getItem(key)==='1')root.classList.add('skip-intro-video');
   else{sessionStorage.setItem(key,'1');root.classList.add('waiting-for-intro');}
- }catch(e){root.classList.add('waiting-for-intro');}
+ }catch(e){
+  root.classList.add(isRefresh?'skip-intro-video':'waiting-for-intro');
+ }
 })();
 </script>
 <style>
@@ -285,7 +289,7 @@ input,select,textarea{background:#fffdf6;border-color:#e8d5ac;color:var(--text)}
 <section class="page" id="page-testing"><div class="grid"><div class="card span-12"><div class="card-head"><h3>Alert & warning test center</h3><span class="badge warn">Simulation only</span></div><div class="notice info">All controls on this page change simulated values only. They cannot activate real equipment.</div></div>
 <div class="card span-7"><div class="card-head"><h3>Simulated tank volume</h3><span class="badge" id="testLevelBadge">Normal</span></div><div class="big"><span id="testGallons">240.0</span> <span class="unit">/ 240 gal</span></div><div class="progress"><span id="testLevelBar" style="width:100%"></span></div><div class="stat-row"><span class="hint">Current simulated level</span><b id="testPercent">100.0%</b></div><div class="field"><label for="testVolume">Adjust water volume (gallons)</label><input id="testVolume" type="range" min="0" max="240" step="1" value="240"></div><div class="field"><label for="testVolumeNumber">Or enter an exact volume</label><input id="testVolumeNumber" type="number" min="0" max="240" step="0.1" value="240"></div><div class="actions"><button class="btn secondary" id="testLowBtn">Set low water (220 gal)</button><button class="btn" id="testCriticalBtn">Set critical (200 gal)</button><button class="btn danger" id="testEmergencyBtn">Set emergency (140 gal)</button><button class="btn secondary" id="testResetBtn">Restore full (240 gal)</button></div><p class="hint" style="margin-top:12px">Thresholds: Low Water at 220 gal, Critical Level at 200 gal, Emergency Water Loss at 140 gal.</p></div>
 <div class="card span-5"><div class="card-head"><h3>Current alert state</h3><span class="badge" id="testStateBadge">Normal</span></div><div id="testStateNotice" class="notice good">The simulated water level is in the normal range.</div><p class="hint" id="refillLockStatus" style="margin-top:12px">Automatic refill simulation is not locked.</p><div class="notice info" style="margin-top:12px">Rapid-loss test: use the button below to generate a simulated sudden drop and verify the emergency response.</div><button class="btn danger" id="rapidLossBtn" style="margin-top:12px">Simulate rapid water loss</button></div>
-<div class="card span-12"><div class="card-head"><h3>Preview every warning popup</h3><span class="hint">Independent preview</span></div><div class="actions"><button class="btn secondary" id="showLowPopup">Preview yellow warning</button><button class="btn" id="showCriticalPopup">Preview orange warning</button><button class="btn danger" id="showEmergencyPopup">Preview red emergency</button></div><p class="hint" style="margin-top:12px">Restoring the simulated volume clears the simulated emergency lock. No real equipment is connected or triggered.</p></div></div></section>
+<div class="card span-12"><div class="card-head"><h3>Preview every warning popup</h3><span class="hint">Independent preview</span></div><div class="actions"><button class="btn secondary" id="showLowPopup">Preview yellow warning</button><button class="btn" id="showCriticalPopup">Preview orange warning</button><button class="btn danger" id="showEmergencyPopup">Preview red emergency</button></div><p class="hint" style="margin-top:12px">Restoring the simulated volume clears the simulated emergency lock. No real equipment is connected or triggered.</p></div><div class="card span-12"><div class="card-head"><h3>Dashboard controls</h3><span class="badge off">Testing utility</span></div><p class="hint">Reload the dashboard to check that browser-saved records and settings are restored correctly.</p><button class="btn secondary" id="refreshDashboard">Refresh dashboard</button></div></div></section>
 
 <section class="page" id="page-settings"><div class="grid"><div class="card span-12"><div class="card-head"><h3>Data & storage</h3><span class="badge">Browser storage</span></div><div class="notice good">Automatic saving is enabled. Records and dashboard settings are saved in this browser and restored when the app is reopened.</div><p class="hint" style="margin-top:12px">This storage is local to this browser and device. It does not synchronize between devices or Google accounts yet. Clearing browser site data can erase these records.</p><p class="hint" id="storageStatus">Checking saved data…</p></div><div class="card span-12"><div class="card-head"><h3>Reset to default</h3><span class="badge red">Destructive action</span></div><p>This clears saved status reports, notifications, journal entries, notes, test records, feeding and refill history, fish profiles, and dashboard settings. The dashboard returns to its original 240-gallon starting state.</p><div class="notice critical">This action cannot be undone. Copy anything important before resetting.</div><button class="btn danger" id="resetAllData" style="margin-top:12px">Reset everything to default</button></div></div></section>
 
@@ -302,7 +306,7 @@ const STORAGE_KEY='ranchuTankMonitorData_v1';let statusReports=[];
 function saveAppData(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify({gallons,waterMode,feedMode,refillLog,feedLog,conditionLog,qualityNotes,otherNotes,fishProfiles,journalEntries,notifications,statusReports,paused,autoFeedEnabled,emergencyLock,settings:{feedTime1:$('feedTime1')?.value,feedTime2:$('feedTime2')?.value,dailyFeedLimit:$('dailyFeedLimit')?.value,portion:$('portion')?.value,refillAmount:$('refillAmount')?.value,customAmount:$('customAmount')?.value}}));if($('storageStatus'))$('storageStatus').textContent='All changes saved locally · '+new Date().toLocaleTimeString()}catch(e){if($('storageStatus'))$('storageStatus').textContent='Could not save: browser storage may be full (large photos can use significant space).';console.warn('Local save failed',e)}}
 function loadAppData(){try{const d=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');if(!d)return;if(Number.isFinite(Number(d.gallons)))gallons=Math.max(0,Math.min(CAPACITY,Number(d.gallons)));for(const k of ['refillLog','feedLog','conditionLog','qualityNotes','otherNotes','fishProfiles','journalEntries','notifications','statusReports'])if(Array.isArray(d[k])){if(k==='refillLog')refillLog=d[k];else if(k==='feedLog')feedLog=d[k];else if(k==='conditionLog')conditionLog=d[k];else if(k==='qualityNotes')qualityNotes=d[k];else if(k==='otherNotes')otherNotes=d[k];else if(k==='fishProfiles')fishProfiles=d[k];else if(k==='journalEntries')journalEntries=d[k];else if(k==='notifications')notifications=d[k];else statusReports=d[k]}if(['manual','automatic'].includes(d.waterMode))waterMode=d.waterMode;if(['manual','automatic'].includes(d.feedMode))feedMode=d.feedMode;if(typeof d.paused==='boolean')paused=d.paused;if(typeof d.autoFeedEnabled==='boolean')autoFeedEnabled=d.autoFeedEnabled;if(typeof d.emergencyLock==='boolean')emergencyLock=d.emergencyLock;const s=d.settings||{};for(const id of ['feedTime1','feedTime2','dailyFeedLimit','portion','refillAmount','customAmount'])if($(id)&&s[id]!==undefined)$(id).value=s[id]}catch(e){console.warn('Could not load saved dashboard data',e)}}
 
-const pageInfo={overview:['Overview','Your aquarium at a glance.'],water:['Water','Water level, warning thresholds, and refill planning.'],feeding:['Feeding','Manual feeding and automatic feeder schedule.'],conditions:['Conditions','Water-quality notes, other observations, and test records.'],fish:['Fish','Individual Ranchu profiles and observations.'],journal:['Journal','A chronological record of aquarium events.'],notifications:['Notifications','Warnings, logs, and system activity.'],camera:['Camera','Future live viewing of your aquarium.'],devices:['Devices','Hardware connections and communication status.'],status:['Project Status','Equipment, completed steps, and development roadmap.'],testing:['Testing','Safely preview warnings and simulate water-level changes.']};
+const pageInfo={overview:['Overview','Your aquarium at a glance.'],water:['Water','Water level, warning thresholds, and refill planning.'],feeding:['Feeding','Manual feeding and automatic feeder schedule.'],conditions:['Conditions','Water-quality notes, other observations, and test records.'],fish:['Fish','Individual Ranchu profiles and observations.'],journal:['Journal','A chronological record of aquarium events.'],notifications:['Notifications','Warnings, logs, and system activity.'],camera:['Camera','Future live viewing of your aquarium.'],devices:['Devices','Hardware connections and communication status.'],status:['Project Status','Equipment, completed steps, and development roadmap.'],testing:['Testing','Safely preview warnings and simulate water-level changes.'],settings:['Settings','Saved dashboard data, browser storage, and reset options.']};
 const $=id=>document.getElementById(id);
 const today=()=>new Date().toISOString().slice(0,10);
 loadAppData();
@@ -312,7 +316,7 @@ document.querySelectorAll('.nav-btn').forEach(b=>b.addEventListener('click',()=>
 $('mobilePageSelect').addEventListener('change',e=>showPage(e.target.value));
 function toast(message){$('toast').textContent=message;$('toast').classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>$('toast').classList.remove('show'),3000)}
 function safe(text){return String(text??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function addNotification(category,title,detail,type='info'){notifications.unshift({category,title,detail,time:new Date().toLocaleString(),type});renderNotifications()}
+function addNotification(category,title,detail,type='info'){notifications.unshift({category,title,detail,time:new Date().toLocaleString(),type});renderNotifications();saveAppData()}
 function stateFor(v){return v<=140?'emergency':v<=200?'critical':v<=220?'low':'normal'}
 function stateLabel(s){return ({normal:'Normal',low:'Low Water',critical:'Critical Level',emergency:'Emergency Water Loss'})[s]}
 function stateClass(s){return ({normal:'',low:' warn',critical:' orange',emergency:' red'})[s]}
@@ -375,9 +379,9 @@ function renderRefillLog(){$('refillHistory').innerHTML=refillLog.length?refillL
 function renderConditionLog(){$('conditionHistory').innerHTML=conditionLog.length?conditionLog.map(x=>'<div class="list-row"><span>'+safe((x.values||[]).join(' · '))+'</span><span class="muted">'+safe(x.time)+'</span></div>').join(''):'<div class="empty">No test records yet.</div>'}
 function renderStatusReports(){$('statusReportHistory').innerHTML=statusReports.length?statusReports.map(x=>'<div class="list-row"><div><b>'+safe(x.date)+'</b><div>'+safe(x.text)+'</div></div><span class="badge">Status report</span></div>').join(''):'<div class="empty">No status reports yet.</div>'}
 $('saveStatusReport').addEventListener('click',()=>{const text=$('statusReportText').value.trim();if(!text){toast('Write a status report first.');return}statusReports.unshift({text,date:new Date().toLocaleString()});$('statusReportText').value='';renderStatusReports();addNotification('system','Status report saved',text);saveAppData();toast('Status report saved.')});
-$('resetAllData').addEventListener('click',()=>{if(!window.confirm('Reset the entire Ranchu Tank Monitor to default? All saved records and settings in this browser will be permanently cleared.'))return;localStorage.removeItem(STORAGE_KEY);window.location.reload()});
+$('resetAllData').addEventListener('click',()=>{if(!window.confirm('Reset the entire Ranchu Tank Monitor to default? All saved records and settings in this browser will be permanently cleared.'))return;localStorage.removeItem(STORAGE_KEY);window.location.reload()});$('refreshDashboard').addEventListener('click',()=>{saveAppData();window.location.reload()});
 ['feedTime1','feedTime2','dailyFeedLimit','portion','refillAmount','customAmount'].forEach(id=>$(id)?.addEventListener('change',saveAppData));
-document.addEventListener('click',()=>setTimeout(saveAppData,0));document.addEventListener('change',saveAppData);document.addEventListener('input',e=>{if(e.target.matches('#testVolume,#testVolumeNumber'))saveAppData()});
+document.addEventListener('click',()=>setTimeout(saveAppData,0));document.addEventListener('change',saveAppData);document.addEventListener('input',e=>{if(e.target.matches('#testVolume,#testVolumeNumber'))saveAppData()});window.addEventListener('pagehide',saveAppData);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')saveAppData()});
 updateLevel(false);renderQuality();renderOther();renderFish();renderJournal();renderFeedLog();renderRefillLog();renderConditionLog();renderNotifications();renderStatusReports();saveAppData();
 
 /* Additive startup progress and interface sound effects */
@@ -429,7 +433,6 @@ updateLevel(false);renderQuality();renderOther();renderFish();renderJournal();re
  // Browsers block automatic sound in many cases. If the first gesture is needed,
  // restart the muted intro from frame zero so its sound and picture begin together.
  let introSoundPlayed=false;
- let introRestartedForSound=false;
  function playIntroSound(){
   if(introSoundPlayed)return;
   const AudioCtx=window.AudioContext||window.webkitAudioContext;
@@ -464,16 +467,24 @@ updateLevel(false);renderQuality();renderOther();renderFish();renderJournal();re
  }
  const introOverlay=document.getElementById('introVideoScreen');
  const introVideo=document.getElementById('introVideo');
+ let introAudioActive=!!introOverlay&&introOverlay.isConnected&&!document.documentElement.classList.contains('skip-intro-video');
  function syncIntroSoundToVideo(){
-  if(!introOverlay||introOverlay.classList.contains('is-done')||introRestartedForSound)return;
-  introRestartedForSound=true;
+  if(!introAudioActive||!introOverlay?.isConnected||introOverlay.classList.contains('is-done'))return;
   playIntroSound();
  }
- document.addEventListener('pointerdown',syncIntroSoundToVideo,{capture:true,passive:true});
- document.addEventListener('keydown',event=>{
+ function onIntroAudioKeydown(event){
   if(event.key==='Enter'||event.key===' ')syncIntroSoundToVideo();
- },{capture:true});
- if(introOverlay&&!introOverlay.classList.contains('is-done'))playIntroSound();
+ }
+ function stopIntroAudioGate(){
+  introAudioActive=false;
+  document.removeEventListener('pointerdown',syncIntroSoundToVideo,true);
+  document.removeEventListener('keydown',onIntroAudioKeydown,true);
+ }
+ if(introAudioActive){
+  document.addEventListener('pointerdown',syncIntroSoundToVideo,{capture:true,passive:true});
+  document.addEventListener('keydown',onIntroAudioKeydown,true);
+  playIntroSound();
+ }
  const interactive='button,select,input[type="checkbox"],input[type="radio"],a,[role="button"]';
  document.addEventListener('pointerover',event=>{
   const target=event.target.closest?.(interactive);
@@ -506,7 +517,7 @@ updateLevel(false);renderQuality();renderOther();renderFish();renderJournal();re
  }else if(introVideoScreen){
   let introFinished=false;
   const finishIntro=()=>{
-   if(introFinished)return;introFinished=true;
+   if(introFinished)return;introFinished=true;stopIntroAudioGate();
    if(introVideo){introVideo.pause();try{introVideo.currentTime=0;}catch(e){}}
    introVideoScreen.classList.add('is-done');
    document.documentElement.classList.remove('waiting-for-intro');
