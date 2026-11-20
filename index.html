@@ -557,7 +557,7 @@ updateLevel(false);renderQuality();renderOther();renderFish();renderJournal();re
     if(finished)return;finished=true;clearInterval(progressTimer);
     if(message)message.textContent='Dashboard ready';
     paint(100);
-    setTimeout(()=>{overlay.classList.add('is-done');setTimeout(()=>overlay.remove(),550)},260);
+    setTimeout(()=>{overlay.classList.add('is-done');setTimeout(()=>{overlay.remove();window.dispatchEvent(new Event('ranchuStartupComplete'))},550)},260);
    };
    const tryFinish=()=>{
     if(pageLoaded&&performance.now()-started>=introMinimum)finish();
@@ -572,9 +572,11 @@ updateLevel(false);renderQuality();renderOther();renderFish();renderJournal();re
  if(!introVideoScreen||document.documentElement.classList.contains('skip-intro-video'))startStartupProgress();
 })();
 
-/* Re-show an active water-level warning after saved data has loaded on refresh. */
-const startupWaterState=stateFor(gallons);
-if(startupWaterState!=='normal')showAlertPopup(startupWaterState);
+/* Re-show an active water-level warning only after the intro and startup loader finish. */
+window.addEventListener('ranchuStartupComplete',()=>{
+ const startupWaterState=stateFor(gallons);
+ if(startupWaterState!=='normal')showAlertPopup(startupWaterState);
+},{once:true});
 
 </script>
 
