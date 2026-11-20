@@ -161,9 +161,12 @@ input,select,textarea{background:#fffdf6;border-color:#e8d5ac;color:var(--text)}
 #introVideoScreen.is-done video{transform:translateY(-115vh) scale(.72) rotate(7deg);opacity:0}
 #startupScreen{
  position:fixed;inset:0;z-index:1000;display:grid;place-items:center;
- padding:24px;background:radial-gradient(circle at 50% 30%,#ffe6a0 0,#fff2ce 48%,#f5dfae 100%);
- opacity:1;visibility:visible;transition:opacity .45s ease,visibility .45s ease;
+ padding:24px;background:#080706;
+ opacity:1;visibility:visible;transition:background .65s ease,opacity .45s ease,visibility .45s ease;
 }
+#startupScreen.show{background:radial-gradient(circle at 50% 30%,#ffe6a0 0,#fff2ce 48%,#f5dfae 100%)}
+#startupScreen .startup-card{opacity:0;transform:translateY(12px) scale(.97);transition:opacity .55s ease,transform .55s ease}
+#startupScreen.show .startup-card{opacity:1;transform:translateY(0) scale(1)}
 #startupScreen.is-done{opacity:0;visibility:hidden;pointer-events:none}
 .startup-card{width:min(420px,100%);padding:30px 26px;border:1px solid #e8cc8c;border-radius:24px;background:rgba(255,253,245,.92);box-shadow:0 18px 55px rgba(146,93,28,.18);text-align:center}
 .startup-logo{width:76px;height:76px;margin:0 auto 16px;border-radius:22px;overflow:hidden;background:#f7d66e;box-shadow:0 7px 20px rgba(179,119,36,.18)}
@@ -182,7 +185,7 @@ input,select,textarea{background:#fffdf6;border-color:#e8d5ac;color:var(--text)}
 <body>
 
 <div id="introVideoScreen" aria-label="Ranchu Tank Monitor introduction">
- <video id="introVideo" autoplay muted playsinline preload="auto">
+ <video id="introVideo" autoplay playsinline preload="auto">
   <source src="assets/3DAF03EF-4A26-4E97-AD12-C5E369524A92%20%281%29.mp4" type="video/mp4">
  </video>
 </div>
@@ -445,13 +448,14 @@ updateLevel(false);renderQuality();renderOther();renderFish();renderJournal();re
   if(!introOverlay||introOverlay.classList.contains('is-done')||introRestartedForSound)return;
   introRestartedForSound=true;
   const ctx=getAudio();
-  const resume=ctx&&ctx.state==='suspended'?ctx.resume():Promise.resolve();
-  Promise.resolve(resume).catch(()=>{}).then(()=>{
-   if(introOverlay.classList.contains('is-done'))return;
-   if(introVideo){try{introVideo.currentTime=0;}catch(e){}}
-   playIntroSound();
-   if(introVideo){const p=introVideo.play();if(p&&p.catch)p.catch(()=>{});}
-  });
+  if(ctx&&ctx.state==='suspended')ctx.resume().catch(()=>{});
+  if(introVideo){
+   try{introVideo.currentTime=0;}catch(e){}
+   introVideo.muted=false;
+   introVideo.volume=1;
+   const p=introVideo.play();if(p&&p.catch)p.catch(()=>{});
+  }
+  playIntroSound();
  }
  document.addEventListener('pointerdown',syncIntroSoundToVideo,{capture:true,passive:true});
  document.addEventListener('keydown',event=>{
@@ -490,17 +494,20 @@ updateLevel(false);renderQuality();renderOther();renderFish();renderJournal();re
   let introFinished=false;
   const finishIntro=()=>{
    if(introFinished)return;introFinished=true;
+   if(introVideo){introVideo.pause();try{introVideo.currentTime=0;}catch(e){}}
    introVideoScreen.classList.add('is-done');
    document.documentElement.classList.remove('waiting-for-intro');
-   setTimeout(()=>introVideoScreen.remove(),520);
-   startStartupProgress?.();
+   setTimeout(()=>{introVideoScreen.remove();startStartupProgress?.();},420);
   };
   introVideo?.addEventListener('ended',finishIntro,{once:true});
-  setTimeout(finishIntro,3800);
+  introVideo?.addEventListener('error',finishIntro,{once:true});
+  setTimeout(finishIntro,4500);
   if(introVideo){const attempt=introVideo.play();if(attempt&&attempt.catch)attempt.catch(()=>{});}
  }
  startStartupProgress=function(){
  if(overlay&&progress&&percent){
+  overlay.classList.remove('show');
+  requestAnimationFrame(()=>requestAnimationFrame(()=>overlay.classList.add('show')));
   {
    const started=performance.now();let finished=false,pageLoaded=document.readyState==='complete';
    const introMinimum=6500;
