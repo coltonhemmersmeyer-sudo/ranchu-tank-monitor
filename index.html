@@ -373,6 +373,9 @@ updateLevel(false);renderQuality();renderOther();renderFish();renderJournal();re
   });
   [660,880,1046].forEach((f,i)=>tone(f,now+.48+i*.075,.16,.009,'sine'));
  };
+ // Unlock/resume Web Audio during a trusted user gesture before the click sound is scheduled.
+ document.addEventListener('pointerdown',()=>{getAudio()},{capture:true,passive:true});
+ document.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' ')getAudio()},{capture:true});
  const interactive='button,select,input[type="checkbox"],input[type="radio"],a,[role="button"]';
  document.addEventListener('pointerover',event=>{
   const target=event.target.closest?.(interactive);
