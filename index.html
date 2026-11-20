@@ -4,6 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ranchu Tank Monitor</title>
+<script>
+/* Show the intro only once per browser tab session; refreshes skip it. */
+(function(){
+ try{
+  const key='ranchuIntroPlayedInTab';
+  if(sessionStorage.getItem(key)==='1')document.documentElement.classList.add('skip-startup');
+  else sessionStorage.setItem(key,'1');
+ }catch(e){}
+})();
+</script>
 <style>
 :root{
  --bg:#eaf8fc;--surface:#fff;--surface2:#f3fbfd;--line:#cce8ef;
@@ -94,6 +104,7 @@ textarea{min-height:88px;resize:vertical}input:focus,select:focus,textarea:focus
 @media(max-width:600px){.sidebar{padding:11px 10px}.brand h1{font-size:17px}.brand p{font-size:12px}.logo{width:44px;height:44px}.nav-label,nav,.sidebar-bottom{display:none!important}.mobile-nav-label{display:block;color:var(--muted);font-size:11px;margin:0 2px 5px}.mobile-page-select{display:block;width:100%;min-height:48px;padding:12px 42px 12px 13px;border-radius:12px;font-size:16px;background:#f5fcfd;border:1px solid #c6e4ec;color:var(--text)}.main{padding:16px 11px calc(28px + env(safe-area-inset-bottom))}.topbar{align-items:flex-start;flex-direction:column;gap:10px;margin-bottom:15px}h2{font-size:25px}.pills{justify-content:flex-start}.pill{white-space:normal;line-height:1.3}.grid{grid-template-columns:minmax(0,1fr);gap:10px}.span-12,.span-8,.span-7,.span-6,.span-5,.span-4{grid-column:1/-1}.card{padding:15px;border-radius:16px}.card-head{align-items:flex-start;flex-wrap:wrap}.stat-row{align-items:flex-start;flex-wrap:wrap}.big{font-size:31px;overflow-wrap:anywhere}.mini-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.actions{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}.actions .btn{width:100%;min-height:45px}.segment{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.segment button{min-width:0;min-height:44px}.list-row{gap:8px;flex-wrap:wrap}.modal-backdrop{align-items:flex-end;padding:10px}.modal{max-height:85dvh;overflow-y:auto;padding:18px;width:100%}.toast{left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));text-align:center}}
 
 /* ranchu-additive-ui-polish-v1: warm dividers, startup screen, and sound controls */
+html.skip-startup #startupScreen{display:none!important}
 :root{
  --bg:#fff4d6;--surface:#fffdf6;--surface2:#fff8e7;--line:#efd9a8;
  --text:#65451f;--muted:#96764e;--blue:#e9a63a;--blue2:#bd7425;
@@ -373,9 +384,51 @@ updateLevel(false);renderQuality();renderOther();renderFish();renderJournal();re
   });
   [660,880,1046].forEach((f,i)=>tone(f,now+.48+i*.075,.16,.018,'sine'));
  };
- // Unlock/resume Web Audio during a trusted user gesture before the click sound is scheduled.
- document.addEventListener('pointerdown',()=>{getAudio()},{capture:true,passive:true});
- document.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' ')getAudio()},{capture:true});
+ // Unlock browser audio from a real user gesture. If autoplay was blocked,
+ // the intro sound starts on the first interaction while the intro is visible.
+ let introSoundPlayed=false;
+ function playIntroSound(){
+  if(introSoundPlayed)return;
+  const ctx=getAudio();if(!ctx)return;
+  const schedule=()=>{
+   if(introSoundPlayed||ctx.state!=='running')return;
+   introSoundPlayed=true;
+   const start=ctx.currentTime+.04;
+   const master=ctx.createGain();master.gain.setValueAtTime(.13,start);master.connect(ctx.destination);
+   const notes=[523.25,659.25,783.99,1046.5,783.99,987.77,1174.66,1318.51,1567.98,1318.51,1567.98];
+   notes.forEach((frequency,i)=>{
+    const when=start+i*.27,osc=ctx.createOscillator(),gain=ctx.createGain();
+    osc.type='sine';osc.frequency.setValueAtTime(frequency,when);
+    gain.gain.setValueAtTime(.0001,when);
+    gain.gain.exponentialRampToValueAtTime(.24,when+.025);
+    gain.gain.exponentialRampToValueAtTime(.0001,when+.25);
+    osc.connect(gain);gain.connect(master);osc.start(when);osc.stop(when+.27);
+   });
+   const end=ctx.createOscillator(),endGain=ctx.createGain();
+   end.type='triangle';end.frequency.setValueAtTime(1046.5,start+2.72);
+   endGain.gain.setValueAtTime(.0001,start+2.72);
+   endGain.gain.exponentialRampToValueAtTime(.16,start+2.76);
+   endGain.gain.exponentialRampToValueAtTime(.0001,start+3.02);
+   end.connect(endGain);endGain.connect(master);end.start(start+2.72);end.stop(start+3.05);
+   master.gain.setValueAtTime(.13,start+2.85);
+   master.gain.exponentialRampToValueAtTime(.0001,start+3.12);
+  };
+  if(ctx.state==='running')schedule();
+  else ctx.resume().then(schedule).catch(()=>{});
+ }
+ const introOverlay=document.getElementById('startupScreen');
+ document.addEventListener('pointerdown',()=>{
+  getAudio();
+  if(introOverlay&&!introOverlay.classList.contains('is-done'))playIntroSound();
+ },{capture:true,passive:true});
+ document.addEventListener('keydown',event=>{
+  if(event.key==='Enter'||event.key===' '){
+   getAudio();
+   if(introOverlay&&!introOverlay.classList.contains('is-done'))playIntroSound();
+  }
+ },{capture:true});
+ // Attempt autoplay; browsers that block it will wait for the first interaction.
+ if(introOverlay&&!document.documentElement.classList.contains('skip-startup'))setTimeout(playIntroSound,0);
  const interactive='button,select,input[type="checkbox"],input[type="radio"],a,[role="button"]';
  document.addEventListener('pointerover',event=>{
   const target=event.target.closest?.(interactive);
@@ -401,22 +454,31 @@ updateLevel(false);renderQuality();renderOther();renderFish();renderJournal();re
   });
  }
  if(overlay&&progress&&percent){
-  const started=performance.now();let finished=false;
-  const paint=value=>{const n=Math.max(0,Math.min(100,Math.round(value)));progress.style.width=n+'%';percent.textContent=n+'%'};
-  const progressTimer=setInterval(()=>{
-   if(finished)return;
-   const elapsed=performance.now()-started;
-   paint(Math.min(92,8+84*(1-Math.exp(-elapsed/850))));
-  },45);
-  const finish=()=>{
-   if(finished)return;finished=true;clearInterval(progressTimer);
-   if(message)message.textContent='Dashboard ready';
-   paint(100);
-   setTimeout(()=>{overlay.classList.add('is-done');setTimeout(()=>overlay.remove(),550)},260);
-  };
-  window.addEventListener('load',finish,{once:true});
-  if(document.readyState==='complete')setTimeout(finish,120);
-  setTimeout(finish,6500);
+  if(document.documentElement.classList.contains('skip-startup')){
+   overlay.remove();
+  }else{
+   const started=performance.now();let finished=false,pageLoaded=document.readyState==='complete';
+   const introMinimum=3000;
+   const paint=value=>{const n=Math.max(0,Math.min(100,Math.round(value)));progress.style.width=n+'%';percent.textContent=n+'%'};
+   const progressTimer=setInterval(()=>{
+    if(finished)return;
+    const elapsed=performance.now()-started;
+    paint(Math.min(92,8+84*(1-Math.exp(-elapsed/850))));
+   },45);
+   const finish=()=>{
+    if(finished)return;finished=true;clearInterval(progressTimer);
+    if(message)message.textContent='Dashboard ready';
+    paint(100);
+    setTimeout(()=>{overlay.classList.add('is-done');setTimeout(()=>overlay.remove(),550)},260);
+   };
+   const tryFinish=()=>{
+    if(pageLoaded&&performance.now()-started>=introMinimum)finish();
+   };
+   window.addEventListener('load',()=>{pageLoaded=true;tryFinish()},{once:true});
+   setTimeout(tryFinish,introMinimum);
+   if(pageLoaded)setTimeout(tryFinish,introMinimum);
+   setTimeout(()=>{pageLoaded=true;tryFinish()},6500);
+  }
  }
 })();
 
