@@ -345,7 +345,7 @@ function updateLevel(showPopup=false){
 let lastAlertState='normal';
 function drawChart(){const vals=[238,237,239,236,238,240,gallons],labels=['-6','-5','-4','-3','-2','-1','Now'];$('historyChart').innerHTML=vals.map((v,i)=>`<div class="bar-wrap"><div class="bar" style="height:${Math.max(4,v/CAPACITY*100)}%"></div><small>${labels[i]}</small></div>`).join('')}
 function setTestVolume(value,showPopup=true){const next=Number(value);if(!Number.isFinite(next))return;const old=gallons;gallons=Math.max(0,Math.min(CAPACITY,next));lastVolumeChange={time:Date.now(),value:gallons};updateLevel(showPopup);if(old-gallons>=10)addNotification('warning','Rapid water-loss pattern',`${(old-gallons).toFixed(1)} simulated gallons dropped in one test action.`,'emergency')}
-function showAlertPopup(state){const titles={low:'LOW WATER WARNING',critical:'CRITICAL WATER-LEVEL WARNING',emergency:'EMERGENCY WATER LOSS'};const messages={low:'The simulated aquarium volume is at or below 220 gallons. Yellow reminder: review the water level and inspect the aquarium in person.',critical:'The simulated aquarium volume is at or below 200 gallons. Orange critical warning: inspect the aquarium. No real sensor is connected.',emergency:'The simulated aquarium volume is at or below 140 gallons. Red emergency warning: the simulated refill control is locked until the test is restored and inspected. No real hardware is controlled.'};$('warningTitle').textContent=titles[state]||'Water level normal';$('warningMessage').textContent=messages[state]||'The simulated water level is normal.';$('warningModal').classList.add('show')}
+function showAlertPopup(state){const titles={low:'LOW WATER WARNING',critical:'CRITICAL WATER-LEVEL WARNING',emergency:'EMERGENCY WATER LOSS'};const messages={low:'The simulated aquarium volume is at or below 220 gallons. Yellow reminder: review the water level and inspect the aquarium in person.',critical:'The simulated aquarium volume is at or below 200 gallons. Orange critical warning: inspect the aquarium. No real sensor is connected.',emergency:'The simulated aquarium volume is at or below 140 gallons. Red emergency warning: the simulated refill control is locked until the test is restored and inspected. No real hardware is controlled.'};$('warningTitle').textContent=titles[state]||'Water level normal';$('warningMessage').textContent=messages[state]||'The simulated water level is normal.';$('warningModal').classList.add('show');window.playWarningSound?.(state)}
 $('dismissWarning').addEventListener('click',()=>$('warningModal').classList.remove('show'));
 $('goWarningPage').addEventListener('click',()=>{$('warningModal').classList.remove('show');showPage('water')});
 function setWaterMode(mode){waterMode=mode;$('manualWaterBtn').classList.toggle('selected',mode==='manual');$('autoWaterBtn').classList.toggle('selected',mode==='automatic');$('waterModeText').textContent=mode==='manual'?'Manual mode: choose a simulated amount and start a pretend refill.':'Automatic mode preview only. No sensor or pump is connected; this mode cannot run real equipment.';$('startRefill').textContent=mode==='manual'?'Start simulated refill':'Run refill preview'}
@@ -429,6 +429,18 @@ updateLevel(false);renderQuality();renderOther();renderFish();renderJournal();re
    tone(f*2,t+.025,.12,.012,'triangle');
   });
   [660,880,1046].forEach((f,i)=>tone(f,now+.48+i*.075,.16,.018,'sine'));
+ };
+ window.playWarningSound=function(level){
+  if(!soundEnabled)return;
+  const ctx=getAudio();if(!ctx)return;
+  const now=ctx.currentTime+.015;
+  // Original synthesized alert tones; each warning has a distinct urgency pattern.
+  const patterns={
+   low:[[660,0,.16,.055],[784,.19,.20,.055]],
+   critical:[[740,0,.17,.065],[587,.20,.17,.065],[740,.40,.22,.065]],
+   emergency:[[880,0,.16,.075],[660,.19,.16,.075],[880,.38,.16,.075],[660,.57,.24,.075]]
+  };
+  (patterns[level]||patterns.low).forEach(([f,t,d,v])=>tone(f,now+t,d,v,'triangle'));
  };
  // Browsers block automatic sound in many cases. If the first gesture is needed,
  // restart the muted intro from frame zero so its sound and picture begin together.
@@ -559,6 +571,10 @@ updateLevel(false);renderQuality();renderOther();renderFish();renderJournal();re
  };
  if(!introVideoScreen||document.documentElement.classList.contains('skip-intro-video'))startStartupProgress();
 })();
+
+/* Re-show an active water-level warning after saved data has loaded on refresh. */
+const startupWaterState=stateFor(gallons);
+if(startupWaterState!=='normal')showAlertPopup(startupWaterState);
 
 </script>
 
