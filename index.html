@@ -485,7 +485,7 @@ updateLevel(false);renderQuality();renderOther();renderFish();renderJournal();re
  if(overlay&&progress&&percent){
   {
    const started=performance.now();let finished=false,pageLoaded=document.readyState==='complete';
-   const introMinimum=3000;
+   const introMinimum=6500;
    const paint=value=>{const n=Math.max(0,Math.min(100,Math.round(value)));progress.style.width=n+'%';percent.textContent=n+'%'};
    const progressTimer=setInterval(()=>{
     if(finished)return;
