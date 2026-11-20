@@ -358,8 +358,8 @@ updateLevel(false);renderQuality();renderOther();renderFish();renderJournal();re
   if(!soundEnabled)return;
   const ctx=getAudio();if(!ctx)return;
   const now=ctx.currentTime;
-  if(kind==='click'){tone(1180,now,.055,.025,'sine');tone(1580,now+.012,.045,.012,'sine')}
-  else tone(920,now,.035,.010,'sine');
+  if(kind==='click'){tone(1180,now,.055,.045,'sine');tone(1580,now+.012,.045,.022,'sine')}
+  else tone(920,now,.035,.024,'sine');
  }
  window.playRefillChime=function(){
   if(!soundEnabled)return;
@@ -368,10 +368,10 @@ updateLevel(false);renderQuality();renderOther();renderFish();renderJournal();re
   // Original, synthesized bubbly rising chime; no external game audio is used.
   [523.25,659.25,783.99,987.77,1174.66].forEach((f,i)=>{
    const t=now+i*.105;
-   tone(f,t,.20,.025,'sine');
-   tone(f*2,t+.025,.12,.006,'triangle');
+   tone(f,t,.20,.042,'sine');
+   tone(f*2,t+.025,.12,.012,'triangle');
   });
-  [660,880,1046].forEach((f,i)=>tone(f,now+.48+i*.075,.16,.009,'sine'));
+  [660,880,1046].forEach((f,i)=>tone(f,now+.48+i*.075,.16,.018,'sine'));
  };
  // Unlock/resume Web Audio during a trusted user gesture before the click sound is scheduled.
  document.addEventListener('pointerdown',()=>{getAudio()},{capture:true,passive:true});
