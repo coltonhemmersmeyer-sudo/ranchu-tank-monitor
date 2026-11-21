@@ -973,130 +973,112 @@ window.addEventListener('ranchuStartupComplete',()=>{
 },{once:true});
 
 
-/* Interactive 2D particle-fluid approximation: gravity, local particle interaction,
-   container collisions, and pointer impulses. Independent of tank-volume controls. */
+/* Continuous shallow-water simulation.
+   A height-field solver models a connected liquid surface with wave propagation,
+   damping, volume-preserving slosh, and pointer-driven impulses. */
 (()=>{
  const canvas=document.getElementById('waterPhysicsCanvas'),frame=canvas?.parentElement;
  const resetButton=document.getElementById('waterPhysicsReset'),status=document.getElementById('waterPhysicsStatus');
  const waterPage=document.getElementById('page-water');
  if(!canvas||!frame||!waterPage)return;
  const ctx=canvas.getContext('2d');if(!ctx)return;
- const fluidCanvas=document.createElement('canvas'),fluidCtx=fluidCanvas.getContext('2d');
- let fluidWidth=0,fluidHeight=0;
- const particles=[],radius=4.15,diameter=radius*2,cellSize=diameter*2.45;
- let width=0,height=0,dpr=1,lastTime=0,raf=0,active=false,pointerDown=false,statusUntil=0;
+ const N=220,offsets=new Float32Array(N),velocities=new Float32Array(N);
+ let width=0,height=0,dpr=1,lastTime=0,raf=0,active=false,pointerDown=false,statusUntil=0,elapsed=0;
  let pointer={x:0,y:0,px:0,py:0};
  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+ const dx=()=>width/(N-1);
  function resize(){
-  const rect=frame.getBoundingClientRect();if(rect.width<20||rect.height<20)return;
-  const oldW=width,oldH=height;width=rect.width;height=rect.height;dpr=Math.min(window.devicePixelRatio||1,2);
-  canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);
-  if(!particles.length){seed();return}
-  const sx=oldW?width/oldW:1,sy=oldH?height/oldH:1;
-  particles.forEach(p=>{p.x*=sx;p.y*=sy;p.px*=sx;p.py*=sy});keepInside();
+  const r=frame.getBoundingClientRect();if(r.width<20||r.height<20)return;
+  width=r.width;height=r.height;dpr=Math.min(window.devicePixelRatio||1,2);
+  canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
  }
- function seed(){
-  particles.length=0;const spacing=diameter*1.72,left=18,right=Math.max(left+20,width-18),top=height*.43,bottom=height-15;
-  let row=0;
-  for(let y=top;y<bottom-radius;y+=spacing){const offset=(row%2)*spacing*.5;for(let x=left+offset;x<right-radius;x+=spacing)particles.push({x,y,px:x,py:y,vx:0,vy:0});row++}
-  if(particles.length>460)particles.length=460;
- }
- function keepInside(){for(const p of particles){p.x=clamp(p.x,8+radius,width-radius-8);p.y=clamp(p.y,8+radius,height-radius-7);p.px=p.x-p.vx;p.py=p.y-p.vy}}
- function setStatus(message){if(status)status.textContent=message;statusUntil=performance.now()+1500}
- function disturb(x,y,dx,dy){
-  const reach=66,reach2=reach*reach;
-  for(const p of particles){const ox=p.x-x,oy=p.y-y,d2=ox*ox+oy*oy;if(d2>reach2)continue;const d=Math.sqrt(d2)||.01,falloff=1-d/reach,push=falloff*2.9;p.vx=clamp(p.vx+ox/d*push+dx*.12*falloff,-12,12);p.vy=clamp(p.vy+oy/d*push+dy*.12*falloff-1.3*falloff,-12,12)}
-  setStatus('Water disturbed — particles are moving and settling.');
+ function setStatus(message){if(status)status.textContent=message;statusUntil=performance.now()+1800}
+ function disturb(x,y,moveX,moveY){
+  const center=clamp(Math.round(x/Math.max(1,dx())),0,N-1),reach=Math.max(5,Math.round(48/Math.max(1,dx())));
+  const strength=clamp((-moveY*.95+moveX*.22),-95,95);
+  for(let i=Math.max(1,center-reach*2);i<Math.min(N-1,center+reach*2);i++){
+   const q=(i-center)/reach,weight=Math.exp(-q*q*1.35);
+   velocities[i]+=strength*weight;
+   offsets[i]+=clamp(-moveY*.045*weight,-10,10);
+  }
+  setStatus('Wave energy spreading through the water.');
  }
  function physics(dt){
-  const substeps=2,step=dt/substeps;
-  for(let sub=0;sub<substeps;sub++){
-   for(const p of particles){
-    p.vx*=.994;p.vy*=.994;p.vy+=520*step;p.x+=p.vx*step;p.y+=p.vy*step;
-    if(p.x<radius+7){p.x=radius+7;p.vx=Math.abs(p.vx)*.38}
-    if(p.x>width-radius-7){p.x=width-radius-7;p.vx=-Math.abs(p.vx)*.38}
-    if(p.y<radius+7){p.y=radius+7;p.vy=Math.abs(p.vy)*.28}
-    if(p.y>height-radius-7){p.y=height-radius-7;p.vy=-Math.abs(p.vy)*.22;p.vx*=.985}
+  const steps=3,step=dt/steps,spacing=Math.max(1,dx()),waveSpeed=175;
+  const coupling=(waveSpeed*waveSpeed)/(spacing*spacing);
+  for(let sub=0;sub<steps;sub++){
+   elapsed+=step;
+   // Small background surface motion keeps the water from looking frozen.
+   for(let i=1;i<N-1;i++){
+    const lap=offsets[i-1]-2*offsets[i]+offsets[i+1];
+    const ambient=.8*Math.sin(elapsed*1.25+i*.026)+.32*Math.sin(elapsed*1.9-i*.043);
+    const acceleration=coupling*lap-5.2*velocities[i]+ambient;
+    velocities[i]+=acceleration*step;
+    offsets[i]+=velocities[i]*step;
+    offsets[i]=clamp(offsets[i],-height*.22,height*.22);
    }
-   const buckets=new Map();
-   for(let i=0;i<particles.length;i++){const p=particles[i],key=Math.floor(p.x/cellSize)+','+Math.floor(p.y/cellSize);let b=buckets.get(key);if(!b){b=[];buckets.set(key,b)}b.push(i)}
-   for(let i=0;i<particles.length;i++){
-    const a=particles[i],cx=Math.floor(a.x/cellSize),cy=Math.floor(a.y/cellSize);
-    for(let oy=-1;oy<=1;oy++)for(let ox=-1;ox<=1;ox++){
-     const bucket=buckets.get((cx+ox)+','+(cy+oy));if(!bucket)continue;
-     for(const j of bucket){if(j<=i)continue;const b=particles[j],dx=b.x-a.x,dy=b.y-a.y,d2=dx*dx+dy*dy,min=diameter*1.02;if(d2<.0001||d2>cellSize*cellSize)continue;
-      const d=Math.sqrt(d2),nx=dx/d,ny=dy/d;
-      if(d<min){const correction=(min-d)*.5;a.x-=nx*correction;a.y-=ny*correction;b.x+=nx*correction;b.y+=ny*correction;const rel=(b.vx-a.vx)*nx+(b.vy-a.vy)*ny;if(rel<0){const impulse=rel*.085;a.vx+=nx*impulse;a.vy+=ny*impulse;b.vx-=nx*impulse;b.vy-=ny*impulse}}
-      else if(d<diameter*2.05){const blend=(1-(d-diameter*1.02)/(diameter*1.03))*.0035,avx=(a.vx+b.vx)*.5,avy=(a.vy+b.vy)*.5;a.vx+=(avx-a.vx)*blend;a.vy+=(avy-a.vy)*blend;b.vx+=(avx-b.vx)*blend;b.vy+=(avy-b.vy)*blend}
-     }
-    }
-   }
+   // Closed side walls: no energy escapes through the container edges.
+   offsets[0]=offsets[1]*.78;offsets[N-1]=offsets[N-2]*.78;
+   velocities[0]=velocities[1]*.55;velocities[N-1]=velocities[N-2]*.55;
+  }
+ }
+ function smoothPath(points){
+  ctx.beginPath();ctx.moveTo(0,points[0]);
+  for(let i=1;i<points.length;i++){
+   const x=i*dx(),midX=x-dx()*.5,midY=(points[i-1]+points[i])*.5;
+   ctx.quadraticCurveTo(midX,points[i-1],x,points[i]);
   }
  }
  function render(){
   ctx.clearRect(0,0,width,height);
-  const left=7,top=7,w=width-14,h=height-14;
-  ctx.save();ctx.beginPath();ctx.roundRect(left,top,w,h,12);ctx.clip();
-  // Build a smooth density field around the moving fluid particles. Overlapping
-  // kernels merge into one continuous liquid body instead of visible beads.
-  const pixel=2,gw=Math.ceil(width/pixel),gh=Math.ceil(height/pixel);
-  if(gw!==fluidWidth||gh!==fluidHeight){fluidWidth=gw;fluidHeight=gh;fluidCanvas.width=gw;fluidCanvas.height=gh}
-  const field=new Float32Array(gw*gh),kernel=diameter*1.43,kernel2=kernel*kernel;
-  for(const p of particles){
-   const minX=Math.max(0,Math.floor((p.x-kernel)/pixel)),maxX=Math.min(gw-1,Math.ceil((p.x+kernel)/pixel));
-   const minY=Math.max(0,Math.floor((p.y-kernel)/pixel)),maxY=Math.min(gh-1,Math.ceil((p.y+kernel)/pixel));
-   for(let gy=minY;gy<=maxY;gy++){
-    const dy=(gy*pixel+pixel*.5)-p.y,dy2=dy*dy,row=gy*gw;
-    for(let gx=minX;gx<=maxX;gx++){
-     const dx=(gx*pixel+pixel*.5)-p.x,d2=dx*dx+dy2;
-     if(d2<kernel2)field[row+gx]+=1-d2/kernel2;
-    }
-   }
+  const left=7,top=7,right=width-7,bottom=height-7,base=height*.48;
+  ctx.save();ctx.beginPath();ctx.roundRect(left,top,right-left,bottom-top,12);ctx.clip();
+  const surface=new Float32Array(N);
+  for(let i=0;i<N;i++)surface[i]=clamp(base+offsets[i],height*.22,height*.82);
+  // Fill one continuous water volume beneath the simulated free surface.
+  smoothPath(surface);ctx.lineTo(width,bottom);ctx.lineTo(0,bottom);ctx.closePath();
+  const water=ctx.createLinearGradient(0,base-20,0,bottom);
+  water.addColorStop(0,'rgba(135,218,221,.91)');
+  water.addColorStop(.22,'rgba(76,177,194,.96)');
+  water.addColorStop(.68,'rgba(43,139,166,.98)');
+  water.addColorStop(1,'rgba(26,105,139,1)');
+  ctx.fillStyle=water;ctx.fill();
+  // Subtle depth shading stays clipped to the liquid silhouette.
+  ctx.save();ctx.globalCompositeOperation='source-atop';
+  const depth=ctx.createLinearGradient(0,base,0,bottom);
+  depth.addColorStop(0,'rgba(233,255,250,.05)');depth.addColorStop(.55,'rgba(13,90,126,.04)');depth.addColorStop(1,'rgba(7,62,105,.24)');
+  ctx.fillStyle=depth;ctx.fillRect(0,base-30,width,bottom-base+40);ctx.restore();
+  // Soft moving surface highlight and a second refracted line.
+  smoothPath(surface);ctx.strokeStyle='rgba(238,255,250,.9)';ctx.lineWidth=2.2;ctx.stroke();
+  const shimmer=new Float32Array(N);
+  for(let i=0;i<N;i++)shimmer[i]=surface[i]+5+Math.sin(elapsed*2.1+i*.045)*1.4;
+  smoothPath(shimmer);ctx.strokeStyle='rgba(231,255,255,.28)';ctx.lineWidth=1.5;ctx.stroke();
+  // Broad, faint light bands drift through the water volume.
+  ctx.save();ctx.globalCompositeOperation='screen';
+  for(let k=0;k<3;k++){
+   const y=base+42+k*42+Math.sin(elapsed*.75+k*1.7)*5;
+   const grad=ctx.createLinearGradient(0,y-8,0,y+8);
+   grad.addColorStop(0,'rgba(255,255,255,0)');grad.addColorStop(.5,'rgba(220,255,255,.075)');grad.addColorStop(1,'rgba(255,255,255,0)');
+   ctx.fillStyle=grad;ctx.fillRect(0,y-8,width,16);
   }
-  const image=fluidCtx.createImageData(gw,gh),data=image.data;
-  for(let i=0;i<field.length;i++){
-   const density=field[i];if(density<.56)continue;
-   const t=clamp((density-.56)/.32,0,1),alpha=Math.round((t*t*(3-2*t))*247);
-   const shade=clamp(Math.round(202-density*5),166,202),j=i*4;
-   data[j]=Math.round(48+shade*.22);data[j+1]=Math.round(shade);data[j+2]=Math.round(174+shade*.30);data[j+3]=alpha;
-  }
-  fluidCtx.putImageData(image,0,0);
-  ctx.imageSmoothingEnabled=true;ctx.drawImage(fluidCanvas,0,0,gw,gh,0,0,width,height);
-  // Soft depth tint at the bottom gives the connected body a sense of volume.
-  const depth=ctx.createLinearGradient(0,height*.48,0,height);
-  depth.addColorStop(0,'rgba(227,251,247,.03)');depth.addColorStop(.42,'rgba(34,129,154,.08)');depth.addColorStop(1,'rgba(20,99,132,.23)');
-  ctx.save();ctx.globalCompositeOperation='source-atop';ctx.fillStyle=depth;ctx.fillRect(0,0,width,height);ctx.restore();
-  // A continuous, gently moving highlight traces the free surface.
-  const bins=new Array(Math.ceil(width/5)+1).fill(height);
-  for(const p of particles){const ix=clamp(Math.round(p.x/5),0,bins.length-1);if(p.y<bins[ix])bins[ix]=p.y}
-  const surface=[];
-  for(let i=0;i<bins.length;i++){
-   let total=0,count=0;
-   for(let k=-2;k<=2;k++){const value=bins[clamp(i+k,0,bins.length-1)];if(value<height){total+=value;count++}}
-   surface.push(count?Math.max(height*.25,total/count-radius*.8):height*.39);
-  }
-  ctx.beginPath();
-  for(let i=0;i<surface.length;i++){const x=Math.min(width-1,i*5),y=surface[i];if(i===0)ctx.moveTo(x,y);else{const px=(i-.5)*5,py=(surface[i-1]+y)*.5;ctx.quadraticCurveTo(px,surface[i-1],x,y)}}
-  ctx.strokeStyle='rgba(232,255,250,.72)';ctx.lineWidth=2.1;ctx.stroke();
-  ctx.beginPath();
-  for(let i=0;i<surface.length;i++){const x=Math.min(width-1,i*5),y=surface[i]+3;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)}
-  ctx.strokeStyle='rgba(35,132,155,.22)';ctx.lineWidth=1;ctx.stroke();
-  // Small specular glints follow the moving surface, not individual particles.
-  for(let i=8;i<surface.length-8;i+=Math.max(18,Math.floor(surface.length/9))){
-   if(surface[i]>=height)continue;
-   const x=i*5,y=surface[i]-5;
-   ctx.beginPath();ctx.moveTo(x-5,y);ctx.quadraticCurveTo(x,y-2,x+6,y);
-   ctx.strokeStyle='rgba(255,255,255,.38)';ctx.lineWidth=1.2;ctx.stroke();
-  }
-  ctx.restore();
-  ctx.strokeStyle='rgba(174,132,66,.45)';ctx.lineWidth=1.3;ctx.beginPath();ctx.roundRect(left,top,w,h,12);ctx.stroke();
+  ctx.restore();ctx.restore();
+  ctx.strokeStyle='rgba(174,132,66,.45)';ctx.lineWidth=1.3;ctx.beginPath();ctx.roundRect(left,top,right-left,bottom-top,12);ctx.stroke();
  }
- function loop(now){if(!active){raf=0;return}const dt=Math.min(.022,Math.max(.001,(now-lastTime)/1000||.016));lastTime=now;if(waterPage.classList.contains('active')){physics(dt);render();if(status&&now>statusUntil)status.textContent='Water is settling under gravity.'}raf=requestAnimationFrame(loop)}
+ function loop(now){
+  if(!active){raf=0;return}
+  const dt=Math.min(.022,Math.max(.001,(now-lastTime)/1000||.016));lastTime=now;
+  if(waterPage.classList.contains('active')){
+   physics(dt);render();
+   if(status&&now>statusUntil)status.textContent='Water is gently moving. Drag across it to create waves.';
+  }
+  raf=requestAnimationFrame(loop);
+ }
  function start(){if(active)return;active=true;resize();lastTime=performance.now();raf=requestAnimationFrame(loop)}
  function stop(){active=false;if(raf)cancelAnimationFrame(raf);raf=0}
- function reset(){seed();setStatus('Water reset — particles are settling under gravity.');if(!active)start()}
+ function reset(){offsets.fill(0);velocities.fill(0);elapsed=0;setStatus('Water surface reset.');if(!active)start()}
  function point(e){const r=canvas.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}
- canvas.addEventListener('pointerdown',e=>{const p=point(e);pointer={...p,px:p.x,py:p.y};pointerDown=true;try{canvas.setPointerCapture(e.pointerId)}catch(_){}disturb(p.x,p.y,0,0);e.preventDefault()});
+ canvas.addEventListener('pointerdown',e=>{const p=point(e);pointer={...p,px:p.x,py:p.y};pointerDown=true;try{canvas.setPointerCapture(e.pointerId)}catch(_){}disturb(p.x,p.y,0,-12);e.preventDefault()});
  canvas.addEventListener('pointermove',e=>{if(!pointerDown)return;const p=point(e);disturb(p.x,p.y,p.x-pointer.px,p.y-pointer.py);pointer.px=p.x;pointer.py=p.y});
  const release=()=>{pointerDown=false};canvas.addEventListener('pointerup',release);canvas.addEventListener('pointercancel',release);canvas.addEventListener('lostpointercapture',release);
  resetButton?.addEventListener('click',reset);
