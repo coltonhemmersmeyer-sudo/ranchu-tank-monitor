@@ -1308,11 +1308,12 @@ window.addEventListener('ranchuStartupComplete',()=>{
   g.fillStyle='#e9a06b';g.beginPath();g.ellipse(-7,13,10,4,-.28,0,Math.PI*2);g.ellipse(-1,-14,8,3,.2,0,Math.PI*2);g.fill();
   const body=g.createRadialGradient(7,-9,2,0,0,35);body.addColorStop(0,'#fff4d8');body.addColorStop(.48,'#ffd89b');body.addColorStop(.82,'#f4b56e');body.addColorStop(1,'#d98449');
   g.fillStyle=body;g.beginPath();g.ellipse(0,0,30,20,0,0,Math.PI*2);g.fill();
-  g.fillStyle='rgba(225,132,67,.84)';g.beginPath();g.moveTo(-10,-15);g.quadraticCurveTo(-5,-22,5,-21);g.quadraticCurveTo(15,-22,22,-15);g.quadraticCurveTo(19,-9,10,-8);g.quadraticCurveTo(-2,-7,-10,-15);g.fill();
-  g.fillStyle='rgba(255,220,168,.55)';g.beginPath();g.ellipse(3,-18,4,1.5,-.18,0,Math.PI*2);g.fill();
+  g.fillStyle='rgba(225,132,67,.88)';g.beginPath();g.moveTo(-8,-17);g.quadraticCurveTo(5,-24,19,-15);g.quadraticCurveTo(13,-8,0,-8);g.quadraticCurveTo(-7,-9,-8,-17);g.fill();
+  g.fillStyle='#e99559';g.beginPath();g.arc(19,-13,8,0,Math.PI*2);g.arc(25,-10,6.5,0,Math.PI*2);g.arc(16,-18,5.8,0,Math.PI*2);g.arc(22,-20,5.5,0,Math.PI*2);g.fill();
+  g.fillStyle='rgba(255,220,168,.72)';g.beginPath();g.arc(17,-19,2.3,0,Math.PI*2);g.arc(25,-12,1.8,0,Math.PI*2);g.fill();
   g.strokeStyle='rgba(167,91,53,.6)';g.lineWidth=1.2;g.beginPath();g.arc(12,1,7,-1.05,1.05);g.stroke();
   g.fillStyle='#392a22';g.beginPath();g.arc(23,-3,2.15,0,Math.PI*2);g.fill();
-  g.fillStyle='rgba(221,116,91,.38)';g.beginPath();g.arc(18,8,2.2,0,Math.PI*2);g.fill();
+  g.fillStyle='rgba(221,116,91,.55)';g.beginPath();g.arc(24,8,3.1,0,Math.PI*2);g.fill();
   if(slurp>0){g.fillStyle='#6e382e';g.beginPath();g.ellipse(24,9,2.2+slurp*2.2,1.4+slurp*2.8,0,0,Math.PI*2);g.fill();g.fillStyle='rgba(255,244,218,.9)';g.beginPath();g.arc(29,-1,1.5,0,Math.PI*2);g.arc(32,-5,1,0,Math.PI*2);g.fill()}else{g.strokeStyle='#925536';g.beginPath();g.moveTo(21,8);g.quadraticCurveTo(25,10,27,8);g.stroke()}
   g.strokeStyle='rgba(255,245,218,.34)';g.lineWidth=.75;
   for(let row=-1;row<=1;row++)for(let col=-1;col<=1;col++){const sx=-7+col*8,sy=row*7;if(sx*sx/780+sy*sy/360<.8){g.beginPath();g.arc(sx,sy,3.2,.25,2.4);g.stroke()}}
