@@ -118,11 +118,12 @@ textarea{min-height:88px;resize:vertical}input:focus,select:focus,textarea:focus
 #warningModal.warning-modal-critical .modal{border:2px solid #e68b31;background:#fff4e7}
 #warningModal.warning-modal-emergency .modal{border:2px solid #d7473e;background:#fff0ed}
 #emergencyBanner{position:fixed;z-index:1100;top:calc(10px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);width:min(920px,calc(100vw - 22px));padding:7px;border-radius:16px;background:repeating-linear-gradient(135deg,#d51f2a 0 13px,#171717 13px 26px);background-size:52px 52px;box-shadow:0 12px 36px rgba(90,20,20,.32);animation:emergencyTapeTravel 1.7s linear infinite}
-#emergencyBanner::before,#emergencyBanner::after{content:"";position:absolute;top:-43px;width:3px;height:50px;border-radius:3px;background:repeating-linear-gradient(180deg,#9a784b 0 5px,#d9bd87 5px 9px);box-shadow:0 -3px 0 2px #bd985d,0 -3px 0 3px rgba(91,61,29,.18);transform-origin:top center;pointer-events:none}
+#emergencyRopes{position:fixed;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:1099}
+#emergencyRopes path{fill:none;stroke-linecap:round;stroke-linejoin:round}
+#emergencyRopes .rope-shadow{stroke:rgba(74,48,23,.22);stroke-width:5}
+#emergencyRopes .rope-main{stroke:url(#emergencyRopeGradient);stroke-width:3.2}
+#emergencyRopes .rope-highlight{stroke:rgba(255,232,184,.78);stroke-width:1;transform:translateX(-.8px)}
 #emergencyBanner{rotate:var(--emergency-swing,0deg);transform-origin:50% -43px;will-change:rotate}
-#emergencyBanner::before,#emergencyBanner::after{transform:rotate(calc(var(--emergency-swing,0deg)*.72))}
-#emergencyBanner::before{left:14%}
-#emergencyBanner::after{right:14%}
 #emergencyBanner[hidden]{display:none!important}
 #emergencyBanner.is-retracting{animation:emergencySignWindUp .52s cubic-bezier(.55,.05,.8,.35) both!important;pointer-events:none}
 @keyframes emergencySignWindUp{0%{opacity:1;transform:translate(-50%,0) rotate(0) scale(1)}45%{opacity:1;transform:translate(-50%,-12px) rotate(-1.2deg) scale(.99)}100%{opacity:0;transform:translate(-50%,-115%) rotate(2deg) scale(.94)}}
@@ -479,6 +480,7 @@ input,select,textarea{background:#fffdf6;border-color:#e8d5ac;color:var(--text)}
 <footer>Ranchu Tank Monitor · Redesigned prototype · Browser-stored records · Hardware not connected</footer>
 </main></div>
 
+<svg id="emergencyRopes" aria-hidden="true" focusable="false"><defs><linearGradient id="emergencyRopeGradient" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8a663c"/><stop offset=".48" stop-color="#d9bd87"/><stop offset="1" stop-color="#8a663c"/></linearGradient></defs><path class="rope-shadow" id="emergencyRopeShadowLeft"/><path class="rope-main" id="emergencyRopeLeft"/><path class="rope-highlight" id="emergencyRopeHighlightLeft"/><path class="rope-shadow" id="emergencyRopeShadowRight"/><path class="rope-main" id="emergencyRopeRight"/><path class="rope-highlight" id="emergencyRopeHighlightRight"/></svg>
 <div id="emergencyBanner" role="alert" aria-live="assertive" hidden><div class="emergency-banner-inner"><span aria-hidden="true" style="font-size:26px">⚠</span><div class="emergency-banner-copy"><strong>EMERGENCY WATER-LEVEL ALERT</strong><p>The simulated water level has reached the emergency threshold. Immediate inspection is required. Refill controls remain locked until the level is restored and inspected.</p></div><button class="btn" id="emergencyBannerWater" type="button">View water status</button></div></div>
 <div class="modal-backdrop" id="warningModal" role="dialog" aria-modal="true" aria-labelledby="warningTitle"><div class="modal"><div id="warningIcon" style="font-size:30px;margin-bottom:8px">⚠️</div><h3 id="warningTitle">Aquarium warning</h3><p id="warningMessage"></p><div class="actions"><button class="btn secondary" id="dismissWarning">Dismiss</button><button class="btn" id="goWarningPage">Open Water</button></div></div></div>
 <div class="toast" id="toast" role="status"></div>
@@ -921,40 +923,64 @@ signInBtn.addEventListener('click',async()=>{try{await signInWithPopup(auth,prov
 signOutBtn.addEventListener('click',async()=>{try{await signOut(auth)}catch(e){document.getElementById('authStatus').textContent='Sign-out error: '+e.message}});
 onAuthStateChanged(auth,updateAuth);
 
-// emergency-hanging-sign-physics-v3: lighter hanging sign with visible rope anchors
+// emergency-hanging-sign-physics-v4: flexible ropes anchored beyond the top of the screen
 (()=>{
  const sign=document.getElementById('emergencyBanner');
- if(!sign)return;
+ const ropeIds=['emergencyRopeLeft','emergencyRopeRight','emergencyRopeShadowLeft','emergencyRopeShadowRight','emergencyRopeHighlightLeft','emergencyRopeHighlightRight'];
+ const ropes=ropeIds.map(id=>document.getElementById(id));
+ if(!sign||ropes.some(path=>!path))return;
  if(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)return;
- let angle=0,angularVelocity=0,frame=0,lastX=0,lastTime=0,lastPointerType='';
+ let angle=0,angularVelocity=0,frame=0,lastX=0,lastPointerType='';
  const MAX_ANGLE=10*Math.PI/180;
  const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
+ function ropePath(side){
+  const width=sign.offsetWidth||920;
+  const left=window.innerWidth/2-width/2;
+  const top=parseFloat(getComputedStyle(sign).top)||10;
+  const pivotX=window.innerWidth/2,pivotY=top-43;
+  const localX=side*width*.36,localY=43;
+  const c=Math.cos(angle),sn=Math.sin(angle);
+  const endX=pivotX+c*localX-sn*localY;
+  const endY=pivotY+sn*localX+c*localY;
+  // The upper ends remain fixed beyond the viewport; the cable bows as the sign swings.
+  const anchorX=left+width*(side<0?.14:.86);
+  const anchorY=-28;
+  const dx=endX-anchorX,dy=endY-anchorY;
+  const bend=clamp(angle*95,-22,22);
+  return 'M '+anchorX.toFixed(1)+' '+anchorY+' C '+(anchorX+dx*.18+bend).toFixed(1)+' '+(anchorY+dy*.34).toFixed(1)+', '+(anchorX+dx*.78+bend*.35).toFixed(1)+' '+(anchorY+dy*.78).toFixed(1)+', '+endX.toFixed(1)+' '+endY.toFixed(1);
+ }
+ function drawRopes(){
+  if(sign.hidden)return;
+  const left=ropePath(-1),right=ropePath(1);
+  const paths=[left,right,left,right,left,right];
+  ropes.forEach((path,index)=>path.setAttribute('d',paths[index]));
+ }
  function impulse(value){
   angularVelocity=clamp(angularVelocity+value,-.48,.48);
   if(!frame){lastTime=performance.now();frame=requestAnimationFrame(step)}
  }
+ let lastTime=0;
  function step(now){
   const dt=Math.min(.032,Math.max(.001,(now-lastTime)/1000));
   lastTime=now;
-  // Slightly lighter feel: more responsive movement, with enough damping to settle naturally.
   const acceleration=-2.8*Math.sin(angle)-1.55*angularVelocity;
   angularVelocity+=acceleration*dt;
   angle+=angularVelocity*dt;
   if(angle>MAX_ANGLE){angle=MAX_ANGLE;angularVelocity=Math.min(0,angularVelocity)*.4}
   if(angle< -MAX_ANGLE){angle=-MAX_ANGLE;angularVelocity=Math.max(0,angularVelocity)*.4}
+  sign.style.setProperty('--emergency-swing',(angle*180/Math.PI).toFixed(2)+'deg');
+  drawRopes();
   if(Math.abs(angle)<.0008&&Math.abs(angularVelocity)<.0025){
    angle=0;angularVelocity=0;
    sign.style.setProperty('--emergency-swing','0deg');
-   frame=0;return;
+   drawRopes();frame=0;return;
   }
-  sign.style.setProperty('--emergency-swing',(angle*180/Math.PI).toFixed(2)+'deg');
   frame=requestAnimationFrame(step);
  }
  sign.addEventListener('pointerenter',e=>{
   if(e.pointerType!=='mouse'||sign.hidden)return;
   const r=sign.getBoundingClientRect();
-  const side=e.clientX<r.left+r.width/2?1:-1;
-  impulse(side*.065);
+  impulse((e.clientX<r.left+r.width/2?1:-1)*.065);
   lastX=e.clientX;lastPointerType=e.pointerType;
  });
  sign.addEventListener('pointerdown',e=>{
@@ -968,13 +994,15 @@ onAuthStateChanged(auth,updateAuth);
  sign.addEventListener('pointermove',e=>{
   if(sign.hidden||!(e.buttons||e.pressure>0||e.pointerType==='mouse'))return;
   if(lastPointerType!==e.pointerType){lastX=e.clientX;lastPointerType=e.pointerType;return}
-  const dx=e.clientX-lastX;
-  lastX=e.clientX;
+  const dx=e.clientX-lastX;lastX=e.clientX;
   if(Math.abs(dx)<1)return;
   const width=Math.max(220,sign.getBoundingClientRect().width);
-  const transfer=e.pointerType==='mouse'?1.25:2;
-  impulse(clamp(dx/width*transfer,-.17,.17));
+  impulse(clamp(dx/width*(e.pointerType==='mouse'?1.25:2),-.17,.17));
  });
+ const observer=new MutationObserver(()=>{if(!sign.hidden)drawRopes()});
+ observer.observe(sign,{attributes:true,attributeFilter:['hidden','class']});
+ window.addEventListener('resize',drawRopes,{passive:true});
+ drawRopes();
 })();
 
 </script>
