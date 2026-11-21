@@ -135,6 +135,32 @@ textarea{min-height:88px;resize:vertical}input:focus,select:focus,textarea:focus
  .mobile-nav-btn:focus-visible{outline:3px solid rgba(224,157,54,.35);outline-offset:2px}
 }
 
+/* Mobile side drawer: compact launcher with a slide-in grouped navigation panel */
+.mobile-menu-toggle,.mobile-nav-backdrop{display:none}
+@media(max-width:600px){
+ .mobile-menu-toggle{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;margin-top:9px;padding:9px 12px;border:1px solid #e7d2a4;border-radius:14px;background:linear-gradient(135deg,#fffdf7,#fff3d8);color:#805a2c;box-shadow:0 3px 10px rgba(151,96,28,.07);font-size:12px;font-weight:800;text-align:left}
+ .mobile-menu-icon{font-size:18px;color:#b4772c}
+ .mobile-menu-current{margin-left:auto;max-width:42%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#a47c48;font-weight:650}
+ .mobile-menu-chevron{font-size:23px;line-height:16px;color:#b4772c}
+ .mobile-nav-backdrop{display:block;position:fixed;inset:0;z-index:1090;border:0;padding:0;background:rgba(43,29,12,.38);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .24s ease,visibility .24s ease}
+ .mobile-navigation{display:flex;position:fixed;z-index:1091;left:0;top:0;bottom:0;width:min(86vw,340px);max-width:calc(100vw - 48px);padding:calc(17px + env(safe-area-inset-top)) 14px calc(16px + env(safe-area-inset-bottom));border:0;border-right:1px solid #e6cf9d;border-radius:0 22px 22px 0;background:linear-gradient(180deg,#fffaf0,#fff3d7);box-shadow:12px 0 36px rgba(70,45,14,.18);transform:translateX(-105%);visibility:hidden;pointer-events:none;transition:transform .27s cubic-bezier(.2,.8,.2,1),visibility .27s;gap:0;flex-direction:column}
+ .mobile-navigation.is-open{transform:translateX(0);visibility:visible;pointer-events:auto}
+ .mobile-nav-backdrop.is-open{opacity:1;visibility:visible;pointer-events:auto}
+ .mobile-navigation-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 3px 15px;border-bottom:1px solid #ead7ad;color:#815b2d;letter-spacing:0}
+ .mobile-navigation-heading>div{display:grid;gap:4px}
+ .mobile-navigation-heading strong{font-size:20px;letter-spacing:-.4px;color:#68451f}
+ .mobile-drawer-kicker{font-size:9px;font-weight:850;letter-spacing:1.4px;color:#ae854e}
+ .mobile-drawer-close{width:37px;height:37px;border:1px solid #ead6aa;border-radius:12px;background:#fff8e8;color:#92632a;font-size:25px;line-height:1}
+ .mobile-navigation-scroll{display:grid;align-content:start;gap:15px;overflow-y:auto;overscroll-behavior:contain;padding:15px 2px 20px}
+ .mobile-nav-group{display:grid;gap:8px}
+ .mobile-nav-group-title{font-size:10px}
+ .mobile-nav-grid{grid-template-columns:1fr;gap:6px}
+ .mobile-nav-btn{min-height:46px;padding:10px 12px;font-size:13px;border-radius:13px}
+ .mobile-nav-btn>span{width:24px;flex-basis:24px;font-size:18px}
+ body.mobile-nav-open{overflow:hidden}
+}
+@media(prefers-reduced-motion:reduce){.mobile-navigation,.mobile-nav-backdrop{transition:none}}
+
 /* ranchu-additive-ui-polish-v1: warm dividers, startup screen, and sound controls */
 html.skip-intro-video #introVideoScreen{display:none!important}
 html.waiting-for-intro #startupScreen{visibility:hidden;opacity:0;pointer-events:none}
@@ -286,8 +312,13 @@ input,select,textarea{background:#fffdf6;border-color:#e8d5ac;color:var(--text)}
    <button class="nav-btn" data-page="settings"><span class="nav-icon">⚙</span>Settings</button>
   </div>
  </nav>
- <div class="mobile-navigation" aria-label="Dashboard navigation">
-  <div class="mobile-navigation-heading"><span>QUICK NAVIGATION</span><span class="mobile-navigation-hint">Tap a section</span></div>
+ <button type="button" class="mobile-menu-toggle" id="mobileMenuToggle" aria-expanded="false" aria-controls="mobileNavigationDrawer">
+  <span class="mobile-menu-icon" aria-hidden="true">☰</span><span>Sections</span><span class="mobile-menu-current" id="mobileMenuCurrent">Overview</span><span class="mobile-menu-chevron" aria-hidden="true">›</span>
+ </button>
+ <button type="button" class="mobile-nav-backdrop" id="mobileNavBackdrop" aria-label="Close navigation"></button>
+ <div class="mobile-navigation" id="mobileNavigationDrawer" aria-label="Dashboard navigation" aria-hidden="true">
+  <div class="mobile-navigation-heading"><div><span class="mobile-drawer-kicker">RANCHU TANK MONITOR</span><strong>Navigation</strong></div><button type="button" class="mobile-drawer-close" id="mobileDrawerClose" aria-label="Close navigation">×</button></div>
+  <div class="mobile-navigation-scroll">
   <div class="mobile-nav-group"><div class="mobile-nav-group-title">Dashboard</div><div class="mobile-nav-grid">
    <button class="mobile-nav-btn active" data-page="overview"><span>⌂</span>Overview</button>
   </div></div>
@@ -303,6 +334,8 @@ input,select,textarea{background:#fffdf6;border-color:#e8d5ac;color:var(--text)}
   <div class="mobile-nav-group"><div class="mobile-nav-group-title">Tools</div><div class="mobile-nav-grid">
    <button class="mobile-nav-btn" data-page="testing"><span>🧪</span>Testing</button><button class="mobile-nav-btn" data-page="settings"><span>⚙</span>Settings</button>
   </div></div>
+ </div>
+  </div>
  </div>
  <div class="sidebar-bottom"><strong>System operating mode</strong><span>Simulation only · No hardware connected</span></div>
 </aside>
@@ -390,8 +423,11 @@ const $=id=>document.getElementById(id);
 const today=()=>new Date().toISOString().slice(0,10);
 loadAppData();
 ['qualityNoteDate','qualityTestDate','otherNoteDate','journalDate','fishArrival'].forEach(id=>{if($(id)&&!$(id).value)$(id).value=today()});
-function showPage(name){if(!pageInfo[name])return;document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));$('page-'+name).classList.add('active');document.querySelectorAll('.nav-btn,.mobile-nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.page===name));$('pageTitle').textContent=pageInfo[name][0];$('pageSubtitle').textContent=pageInfo[name][1];window.scrollTo({top:0,behavior:'smooth'});}
+function closeMobileNavigation(){const drawer=$('mobileNavigationDrawer'),backdrop=$('mobileNavBackdrop'),toggle=$('mobileMenuToggle');if(!drawer)return;drawer.classList.remove('is-open');backdrop?.classList.remove('is-open');drawer.setAttribute('aria-hidden','true');toggle?.setAttribute('aria-expanded','false');document.body.classList.remove('mobile-nav-open');}
+function openMobileNavigation(){const drawer=$('mobileNavigationDrawer'),backdrop=$('mobileNavBackdrop'),toggle=$('mobileMenuToggle');if(!drawer)return;drawer.classList.add('is-open');backdrop?.classList.add('is-open');drawer.setAttribute('aria-hidden','false');toggle?.setAttribute('aria-expanded','true');document.body.classList.add('mobile-nav-open');}
+function showPage(name){if(!pageInfo[name])return;document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));$('page-'+name).classList.add('active');document.querySelectorAll('.nav-btn,.mobile-nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.page===name));$('pageTitle').textContent=pageInfo[name][0];$('pageSubtitle').textContent=pageInfo[name][1];if($('mobileMenuCurrent'))$('mobileMenuCurrent').textContent=pageInfo[name][0];closeMobileNavigation();window.scrollTo({top:0,behavior:'smooth'});}
 document.querySelectorAll('.nav-btn,.mobile-nav-btn').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));
+$('mobileMenuToggle')?.addEventListener('click',openMobileNavigation);$('mobileDrawerClose')?.addEventListener('click',closeMobileNavigation);$('mobileNavBackdrop')?.addEventListener('click',closeMobileNavigation);document.addEventListener('keydown',event=>{if(event.key==='Escape')closeMobileNavigation()});
 function toast(message){$('toast').textContent=message;$('toast').classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>$('toast').classList.remove('show'),3000)}
 function safe(text){return String(text??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function addNotification(category,title,detail,type='info'){notifications.unshift({category,title,detail,time:new Date().toLocaleString(),type});renderNotifications();saveAppData()}
