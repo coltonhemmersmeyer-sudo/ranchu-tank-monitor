@@ -1502,15 +1502,24 @@ window.addEventListener('ranchuStartupComplete',()=>{
   }
   if(!target&&bubbleTrail.length){for(const b of bubbleTrail){const d=Math.hypot(b.x-fishX,b.y-fishY);if(d<62){target={x:b.x,y:b.y,isBubble:true};best=d;fishBubbleInterest=.55;break}}}
   fishSurfaceFeeding=!!(target&&!target.isBloodworm&&!target.isPlant&&!target.isBubble&&surfacePellet);
-  if(fishSurfaceFeeding){
-   fishFacing=target.x>=fishX?1:-1;
-   const aimX=target.x-fishFacing*25,aimY=surfaceBase()+9;
-   const tx=aimX-fishX,ty=aimY-fishY,d=Math.max(1,Math.hypot(tx,ty)),speed=Math.min(58,Math.max(18,d*.9));
+  const edibleTarget=!!(target&&!target.isPlant&&!target.isBubble);
+  if(edibleTarget){
+   const targetDX=target.x-fishX;
+   if(Math.abs(targetDX)>3)fishFacing=targetDX>=0?1:-1;
+   const visualScale=Math.min(1,width/700);
+   const approachTilt=fishSurfaceFeeding?.62:(target.y>fishY+8?-.42:0);
+   const rotation=-approachTilt*fishFacing;
+   const localHeadX=27*visualScale*fishFacing,localHeadY=-12*visualScale;
+   const headOffsetX=Math.cos(rotation)*localHeadX-Math.sin(rotation)*localHeadY;
+   const headOffsetY=Math.sin(rotation)*localHeadX+Math.cos(rotation)*localHeadY;
+   const aimX=target.x-headOffsetX,aimY=fishSurfaceFeeding?surfaceBase()+9:target.y-headOffsetY;
+   const tx=aimX-fishX,ty=aimY-fishY,d=Math.max(1,Math.hypot(tx,ty));
+   const speed=fishSurfaceFeeding?Math.min(58,Math.max(18,d*.9)):Math.min(target.isBloodworm?64:48,Math.max(target.isBloodworm?24:15,d*(target.isBloodworm?.9:.65)));
    desiredVX=tx/d*speed;desiredVY=ty/d*speed;
-  }else if(target){const tx=target.x-fishX,ty=target.y-fishY,d=Math.max(1,Math.hypot(tx,ty)),speed=target.isPlant?22:target.isBubble?20:Math.min(target.isBloodworm?64:48,Math.max(target.isBloodworm?24:15,d*(target.isBloodworm?.9:.65)));desiredVX=tx/d*speed;desiredVY=ty/d*speed}
+  }else if(target){const tx=target.x-fishX,ty=target.y-fishY,d=Math.max(1,Math.hypot(tx,ty)),speed=target.isPlant?22:20;desiredVX=tx/d*speed;desiredVY=ty/d*speed}
   else if(fishResting>0){desiredVX=Math.sin(now*.0002)*2.5;desiredVY=Math.min(5,Math.max(-3,(bottom()-34-fishY)*.12))}
   else{desiredVX=Math.sin(now*.00032)*13;const bottomSearch=Math.sin(now*.00019)>.35;desiredVY=bottomSearch?Math.min(17,(bottom()-fishY)*.12):Math.sin(now*.00021)*4}
-  if(cursorOnTank&&Math.hypot(pointer.x-fishX,pointer.y-fishY)<118&&!fishSurfaceFeeding){const lookX=pointer.x-fishX;fishFacing=lookX>=0?1:-1;desiredVX*=.12;desiredVY*=.12}
+  if(cursorOnTank&&Math.hypot(pointer.x-fishX,pointer.y-fishY)<118&&!edibleTarget){const lookX=pointer.x-fishX;fishFacing=lookX>=0?1:-1;desiredVX*=.12;desiredVY*=.12}
   if(target?.isPlant&&best<25)fishNibble=Math.max(fishNibble,.16);
   fishNibble=Math.max(0,fishNibble-dt);fishBubbleInterest=Math.max(0,fishBubbleInterest-dt);
   const response=1-Math.exp(-dt*(target?1.45:.65));
@@ -1520,7 +1529,7 @@ window.addEventListener('ranchuStartupComplete',()=>{
   const targetBelow=!!(target&&target.y>fishY+8&&!fishSurfaceFeeding);
   const desiredTilt=fishSurfaceFeeding?.62:targetBelow?-.42:0;
   fishTilt+=(desiredTilt-fishTilt)*(1-Math.exp(-dt*3.8));
-  if(!fishSurfaceFeeding){if(fishVX>7&&fishFacing!==1){fishFacing=1;fishTurnPause=.12}else if(fishVX< -7&&fishFacing!==-1){fishFacing=-1;fishTurnPause=.12}}
+  if(!edibleTarget&&!fishSurfaceFeeding){if(fishVX>7&&fishFacing!==1){fishFacing=1;fishTurnPause=.12}else if(fishVX< -7&&fishFacing!==-1){fishFacing=-1;fishTurnPause=.12}}
   fishTurnPause=Math.max(0,fishTurnPause-dt);fishFacingVisual+=(fishFacing-fishFacingVisual)*(1-Math.exp(-dt*(fishTurnPause>0?2.8:7.5)));
   const swimSpeed=Math.hypot(fishVX,fishVY);
   fishTailEnergy+=(swimSpeed-fishTailEnergy)*(1-Math.exp(-dt*3.5));
@@ -1530,8 +1539,14 @@ window.addEventListener('ranchuStartupComplete',()=>{
  function updateFood(dt){
   for(let i=food.length-1;i>=0;i--){const p=food[i];p.age+=dt;
    if(!p.settled){p.vy+=38*dt;p.y+=p.vy*dt;p.x+=p.vx||0;if(p.y>=bottom()-7){p.y=bottom()-7;p.vy=0;p.vx=0;p.settled=true}}
-   const headX=fishX+fishFacingVisual*27,headY=fishY-12;const surfaceBite=fishSurfaceFeeding&&p.y>=surfaceBase()-12&&p.y<=surfaceBase()+24&&Math.hypot(p.x-headX,p.y-headY)<23;
-   if(fishAdded&&tankPercent>0&&(surfaceBite||Math.hypot(p.x-fishX,p.y-fishY)<27)){addFeedingRipple(p.x,Math.max(surfaceBase(),p.y),surfaceBite?1.2:.72);food.splice(i,1);fishSlurp=.2;if(surfaceBite){disturb(p.x,surfaceBase(),0,-13,true);setStatus('Your Ranchu popped up and caught a falling pellet!')}else setStatus('Your Ranchu picked up and ate a pellet!');continue}
+   const visualScale=Math.min(1,width/700),rotation=-fishTilt*fishFacingVisual;
+   const localHeadX=27*visualScale*fishFacingVisual,localHeadY=-12*visualScale;
+   const headX=fishX+Math.cos(rotation)*localHeadX-Math.sin(rotation)*localHeadY;
+   const headY=fishY+Math.sin(rotation)*localHeadX+Math.cos(rotation)*localHeadY;
+   const headDistance=Math.hypot(p.x-headX,p.y-headY);
+   const surfaceBite=fishSurfaceFeeding&&p.y>=surfaceBase()-12&&p.y<=surfaceBase()+24&&headDistance<17;
+   const headBite=headDistance<14;
+   if(fishAdded&&tankPercent>0&&(surfaceBite||headBite)){addFeedingRipple(p.x,Math.max(surfaceBase(),p.y),surfaceBite?1.2:.72);food.splice(i,1);fishSlurp=.2;if(surfaceBite){disturb(p.x,surfaceBase(),0,-13,true);setStatus('Your Ranchu popped up and caught a falling pellet!')}else setStatus('Your Ranchu turned toward the pellet and ate it!');continue}
   }
   for(let i=feedingRipples.length-1;i>=0;i--){const q=feedingRipples[i];q.age+=dt;q.r=3+(q.max-3)*Math.min(1,q.age/.55);if(q.age>=q.life)feedingRipples.splice(i,1)}
   bubbleClock-=dt;if(tankPercent>0&&bubbleClock<=0){if(fishAdded&&Math.random()<.7){bubbleTrail.push({x:fishX-18+Math.random()*10,y:fishY+7,r:1.2+Math.random()*1.3,life:2.2+Math.random()*1.5,age:0})}bubbleClock=4+Math.random()*5}
