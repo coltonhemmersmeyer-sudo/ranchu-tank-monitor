@@ -486,8 +486,8 @@ updateLevel(false);renderQuality();renderOther();renderFish();renderJournal();re
   if(!soundEnabled)return;
   withAudioReady(ctx=>{
    const now=ctx.currentTime+.015;
-   if(kind==='click'){scheduleTone(ctx,1180,now,.06,.075,'sine');scheduleTone(ctx,1580,now+.014,.05,.038,'sine')}
-   else scheduleTone(ctx,920,now,.04,.042,'sine');
+   if(kind==='click'){scheduleTone(ctx,1180,now,.06,.045,'sine');scheduleTone(ctx,1580,now+.014,.05,.022,'sine')}
+   else scheduleTone(ctx,920,now,.04,.024,'sine');
   });
  }
  window.playRefillChime=function(){
@@ -497,10 +497,10 @@ updateLevel(false);renderQuality();renderOther();renderFish();renderJournal();re
    // Original, synthesized bubbly rising chime; no external game audio is used.
    [523.25,659.25,783.99,987.77,1174.66].forEach((f,i)=>{
     const t=now+i*.105;
-    scheduleTone(ctx,f,t,.20,.060,'sine');
-    scheduleTone(ctx,f*2,t+.025,.12,.018,'triangle');
+    scheduleTone(ctx,f,t,.20,.042,'sine');
+    scheduleTone(ctx,f*2,t+.025,.12,.012,'triangle');
    });
-   [660,880,1046].forEach((f,i)=>scheduleTone(ctx,f,now+.48+i*.075,.16,.028,'sine'));
+   [660,880,1046].forEach((f,i)=>scheduleTone(ctx,f,now+.48+i*.075,.16,.018,'sine'));
   });
  };
  window.playWarningSound=function(level){
@@ -509,9 +509,9 @@ updateLevel(false);renderQuality();renderOther();renderFish();renderJournal();re
    const now=ctx.currentTime+.02;
    // Original synthesized alert tones; each warning has a distinct urgency pattern.
    const patterns={
-    low:[[660,0,.16,.075],[784,.19,.20,.075]],
-    critical:[[740,0,.17,.085],[587,.20,.17,.085],[740,.40,.22,.085]],
-    emergency:[[880,0,.16,.095],[660,.19,.16,.095],[880,.38,.16,.095],[660,.57,.24,.095]]
+    low:[[660,0,.16,.055],[784,.19,.20,.055]],
+    critical:[[740,0,.17,.065],[587,.20,.17,.065],[740,.40,.22,.065]],
+    emergency:[[880,0,.16,.075],[660,.19,.16,.075],[880,.38,.16,.075],[660,.57,.24,.075]]
    };
    (patterns[level]||patterns.low).forEach(([f,t,d,v])=>scheduleTone(ctx,f,now+t,d,v,'triangle'));
   });
