@@ -485,6 +485,11 @@ input,select,textarea{background:#fffdf6;border-color:#e8d5ac;color:var(--text)}
 .equipment-list-item{background:#fff8e8;border:1px solid #eddbb5;border-radius:12px;padding:12px}
 .equipment-list-item b{display:block;font-size:11px;color:#81511e;margin-bottom:5px}
 .equipment-list-item span{display:block;font-size:10px;line-height:1.5;color:#98784f}
+#tankModelEquipment [data-tank-part]{cursor:pointer;outline:none}
+#tankModelEquipment [data-tank-part]:hover{filter:brightness(1.09)}
+#tankModelEquipment [data-tank-part]:focus-visible{filter:drop-shadow(0 0 4px #bd7425)}
+#tankModelEquipment text{pointer-events:none}
+@media(max-width:700px){.tank-view-tabs button{flex:1 1 auto}}
 @media(max-width:700px){.equipment-layout{grid-template-columns:1fr;gap:8px}.equipment-cable{padding:5px 18px}.equipment-cable:before{width:3px;height:22px;margin:0 auto 6px;background:repeating-linear-gradient(180deg,#b77b38 0 7px,transparent 7px 12px)}.equipment-list-grid{grid-template-columns:1fr}}
 
 @media(max-width:700px){.tank-blueprint{grid-template-columns:1fr}.tank-spec-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.tank-model-stage{padding:8px}}
@@ -596,7 +601,7 @@ input,select,textarea{background:#fffdf6;border-color:#e8d5ac;color:var(--text)}
    </div>
    <div class="tank-blueprint">
     <div class="tank-model-stage">
-     <div class="tank-view-tabs"><button type="button" class="active" data-tank-view="side">Side / 3D view</button><button type="button" data-tank-view="top">Top view</button></div>
+     <div class="tank-view-tabs"><button type="button" class="active" data-tank-view="side">Side / 3D view</button><button type="button" data-tank-view="top">Top view</button><button type="button" data-tank-view="equipment">Equipment plan</button></div>
      <svg id="tankModelSide" viewBox="0 0 620 360" role="group" aria-label="Interactive angled model of the MOGUOBIN wooden-frame aquarium">
       <defs><linearGradient id="tankWood" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b98245"/><stop offset="1" stop-color="#805027"/></linearGradient><linearGradient id="tankWater" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#83d5e7" stop-opacity=".85"/><stop offset="1" stop-color="#278eae" stop-opacity=".94"/></linearGradient><linearGradient id="tankLiner" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4b9dbd"/><stop offset="1" stop-color="#236783"/></linearGradient></defs>
       <ellipse cx="306" cy="318" rx="252" ry="22" fill="#79542d" opacity=".13"/>
@@ -614,6 +619,37 @@ input,select,textarea{background:#fffdf6;border-color:#e8d5ac;color:var(--text)}
       <g data-tank-part="crossbar" tabindex="0" role="button" aria-label="Top wooden crossbar"><rect x="291" y="50" width="28" height="260" rx="3" fill="#805027" stroke="#70451f" stroke-width="2"/><rect x="296" y="52" width="18" height="256" fill="#bd8950"/></g>
       <g data-tank-part="drain" tabindex="0" role="button" aria-label="Drain valve"><rect x="512" y="248" width="35" height="18" rx="4" fill="#aab3b2" stroke="#52666a" stroke-width="2"/><circle cx="550" cy="257" r="10" fill="#d4d9d8" stroke="#52666a" stroke-width="2"/></g>
       <g fill="#6b4a2a" font-size="12" font-weight="700"><text x="83" y="28">TOP VIEW · 47.2 × 31.5 IN EXTERIOR</text><text x="83" y="340" font-size="10" fill="#96764e">Equipment and sensor positions are preliminary</text></g>
+     </svg>
+     <svg id="tankModelEquipment" viewBox="0 0 620 420" role="group" aria-label="Interactive top-down equipment plan showing provisional filter, pump, sensors and aquarium components" style="display:none">
+      <defs><pattern id="equipmentWaterPattern" width="18" height="18" patternUnits="userSpaceOnUse"><path d="M0 9 Q4 5 9 9 T18 9" fill="none" stroke="#b8edf3" stroke-width="1" opacity=".55"/></pattern></defs>
+      <text x="78" y="30" fill="#6b4a2a" font-size="13" font-weight="800">TOP-DOWN EQUIPMENT PLAN · POSITIONS PROVISIONAL</text>
+      <rect x="72" y="54" width="382" height="286" rx="13" fill="#a8733e" stroke="#70451f" stroke-width="5"/>
+      <rect x="86" y="68" width="354" height="258" rx="7" fill="#2f7896" stroke="#205e79" stroke-width="3"/>
+      <rect x="96" y="78" width="334" height="238" rx="4" fill="#64bfd6"/>
+      <rect x="96" y="78" width="334" height="238" fill="url(#equipmentWaterPattern)"/>
+      <g data-tank-part="plants" tabindex="0" role="button" aria-label="Plant and smooth rock zones">
+       <path d="M115 100 Q150 82 185 102 L177 150 Q140 159 112 137 Z" fill="#83b96a" opacity=".8" stroke="#4f8544" stroke-width="2"/>
+       <path d="M320 250 Q362 224 410 250 L405 294 Q359 308 323 285 Z" fill="#83b96a" opacity=".8" stroke="#4f8544" stroke-width="2"/>
+       <g fill="#9c9a8c" stroke="#66685f" stroke-width="1.5"><ellipse cx="135" cy="124" rx="9" ry="6"/><ellipse cx="157" cy="137" rx="11" ry="7"/><ellipse cx="365" cy="270" rx="10" ry="7"/><ellipse cx="390" cy="282" rx="8" ry="6"/></g>
+      </g>
+      <g data-tank-part="intake" tabindex="0" role="button" aria-label="Filter intake and strainer"><path d="M105 176 H126" stroke="#344f59" stroke-width="7" stroke-linecap="round"/><circle cx="127" cy="176" r="11" fill="#c8d3d2" stroke="#405d64" stroke-width="3"/><path d="M121 170 L133 182 M133 170 L121 182" stroke="#526b70" stroke-width="2"/></g>
+      <g data-tank-part="return" tabindex="0" role="button" aria-label="Filter return outlet"><path d="M412 110 H432" stroke="#d5e1df" stroke-width="8" stroke-linecap="round"/><path d="M414 110 l-15 -8 M414 110 l-15 8" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M382 94 Q405 88 422 99" fill="none" stroke="#eaffff" stroke-width="3" stroke-linecap="round"/></g>
+      <g data-tank-part="sponge" tabindex="0" role="button" aria-label="Sponge filter and air stone"><rect x="378" y="180" width="28" height="43" rx="8" fill="#e8d6a7" stroke="#8e784d" stroke-width="2"/><path d="M384 188 l16 0 M384 196 l16 0 M384 204 l16 0 M384 212 l16 0" stroke="#9a8557" stroke-width="2"/><circle cx="392" cy="172" r="3" fill="#efffff"/><circle cx="400" cy="162" r="3" fill="#efffff"/></g>
+      <g data-tank-part="probe" tabindex="0" role="button" aria-label="Temperature probe"><path d="M275 84 V123" stroke="#354f59" stroke-width="4" stroke-linecap="round"/><circle cx="275" cy="127" r="7" fill="#f1a24b" stroke="#8d5722" stroke-width="2"/></g>
+      <g data-tank-part="level" tabindex="0" role="button" aria-label="Water-level sensor"><rect x="418" y="147" width="9" height="42" rx="4" fill="#f7f1df" stroke="#7b6b50" stroke-width="2"/><circle cx="422" cy="154" r="3" fill="#e2a63b"/></g>
+      <g data-tank-part="heater" tabindex="0" role="button" aria-label="Optional guarded heater location"><rect x="101" y="235" width="12" height="62" rx="6" fill="#f5d49b" stroke="#a65e22" stroke-width="2" stroke-dasharray="4 3"/><path d="M105 245 q5 5 0 10 t0 10 t0 10 t0 10" fill="none" stroke="#b36a2d" stroke-width="2"/></g>
+      <g data-tank-part="camera" tabindex="0" role="button" aria-label="Camera position above tank"><path d="M263 54 V40" stroke="#6b4a2a" stroke-width="3"/><rect x="249" y="18" width="28" height="19" rx="5" fill="#45545b" stroke="#243b44" stroke-width="2"/><circle cx="263" cy="27" r="5" fill="#b9e5ed" stroke="#243b44" stroke-width="1.5"/></g>
+      <g data-tank-part="drain" tabindex="0" role="button" aria-label="Existing tank drain fitting"><rect x="442" y="292" width="34" height="18" rx="5" fill="#aab3b2" stroke="#52666a" stroke-width="2"/><circle cx="480" cy="301" r="9" fill="#d4d9d8" stroke="#52666a" stroke-width="2"/></g>
+      <g data-tank-part="filter" tabindex="0" role="button" aria-label="External filter location, model not selected">
+       <rect x="490" y="92" width="105" height="98" rx="12" fill="#e7f0ee" stroke="#54757a" stroke-width="3"/><rect x="503" y="106" width="79" height="68" rx="8" fill="#c6d9d4" stroke="#78928c" stroke-width="2"/><path d="M515 119 H570 M515 130 H570 M515 141 H570 M515 152 H570" stroke="#7d9b92" stroke-width="4" stroke-linecap="round"/><text x="542" y="205" fill="#5d6c5e" font-size="10" text-anchor="middle" font-weight="800">FILTER TBD</text>
+      </g>
+      <g data-tank-part="airpump" tabindex="0" role="button" aria-label="External air pump location">
+       <rect x="502" y="246" width="82" height="49" rx="10" fill="#f4e5c8" stroke="#a8733e" stroke-width="2"/><circle cx="516" cy="261" r="5" fill="#d69b3c"/><path d="M530 259 H570 M530 270 H562" stroke="#9a7647" stroke-width="3" stroke-linecap="round"/><text x="543" y="310" fill="#785025" font-size="9" text-anchor="middle" font-weight="800">AIR PUMP</text>
+      </g>
+      <path d="M490 137 C470 137 470 110 432 110 M502 270 C465 270 455 201 405 201" fill="none" stroke="#8a704b" stroke-width="2.5" stroke-dasharray="6 5"/>
+      <path d="M490 155 C464 155 455 176 138 176" fill="none" stroke="#526d76" stroke-width="2" stroke-dasharray="5 5" opacity=".8"/>
+      <g data-tank-part="feeder" tabindex="0" role="button" aria-label="Optional automatic feeder position above tank rim"><rect x="300" y="4" width="74" height="29" rx="7" fill="#fff0cf" stroke="#c58b35" stroke-width="2" stroke-dasharray="4 3"/><text x="337" y="22" fill="#86571d" font-size="9" text-anchor="middle" font-weight="800">FEEDER</text></g>
+      <g fill="#6b4a2a" font-size="10" font-weight="700"><text x="76" y="365">FRONT / ACCESS SIDE</text><text x="490" y="224" font-size="9" fill="#96764e">External equipment</text><text x="76" y="390" font-size="9" fill="#96764e">Concept only · final positions depend on selected equipment and verified tank clearances</text></g>
      </svg>
      <div class="tank-model-legend"><span><i style="background:#a8733e"></i>Wood frame</span><span><i style="background:#2f7896"></i>PVC liner</span><span><i style="background:#64bfd6"></i>Water area</span><span><i style="background:#aab3b2"></i>Drain fitting</span></div>
     </div>
@@ -715,7 +751,18 @@ const tankPartInfo={
  liner:['Blue PVC liner','The blue PVC liner forms the waterproof interior. The listing dimensions shown here are the exterior measurements; exact interior liner measurements have not been independently confirmed.'],
  water:['Interior water area','The open interior holds the aquarium water. The advertised capacity for this selected model is 137 gallons; actual fill volume depends on water level and anything occupying the interior.'],
  crossbar:['Top wooden crossbar','A wooden crossbar spans the open top in the product reference. Its exact load rating and intended use should be confirmed with the manufacturer before attaching equipment.'],
- drain:['Drain valve','The product reference shows a drain fitting low on the side. Its thread size, flow rate, and compatible hose connection should be verified before plumbing it.']
+ drain:['Drain valve','The product reference shows a drain fitting low on the side. Its thread size, flow rate, and compatible hose connection should be verified before plumbing it.'],
+ filter:['External filter location · model TBD','This is a reserved equipment zone outside the tank, shown near the back-right side for planning. The filter type, footprint, hose routing, and service clearances must be confirmed before this position is finalized.'],
+ intake:['Filter intake / strainer','The intake is provisionally placed low on one end so water can be drawn from the tank. It must have a fish-safe intake guard and be positioned so Ranchu cannot become trapped or injured. Exact height and location depend on the selected filter and its manufacturer instructions.'],
+ return:['Filter return outlet','The return is provisionally placed near the opposite upper end to encourage broad circulation across the tank. Flow should be gentle and adjustable so the Ranchu is not forced to fight a strong current.'],
+ sponge:['Sponge filter / air stone','A secondary sponge filter or air stone is shown in a corner as a possible aeration and biological-filtration point. The actual pump, air line, check valve, and placement will be selected later.'],
+ airpump:['External air pump','The air pump belongs outside the tank in a dry, ventilated position above the floor. Airline routing should include a suitable check valve and avoid creating a trip or drip hazard.'],
+ probe:['Temperature probe','The temperature probe is shown in moving tank water, away from direct heater contact and not pressed against the liner. Its reading should be checked against an independent thermometer.'],
+ level:['Water-level sensor','A possible water-level sensor position is shown near the side wall. The final sensor must be suitable for the water environment and mounted securely without obstructing fish or maintenance.'],
+ heater:['Optional heater position','No heater is selected. Start by logging real water temperatures through cooler weather. If backup heating proves necessary, choose a properly guarded, thermostatically controlled unit sized for the measured conditions and install it exactly as specified by its manufacturer.'],
+ camera:['Camera position','A camera can be mounted above or beside the tank, aimed into the water. It should be secured independently of the wooden crossbar unless that bar is confirmed to support the camera safely. The camera connects over Wi-Fi separately from the ESP32.'],
+ feeder:['Future automatic feeder','A future feeder could sit above the tank rim where food falls into an open feeding area. It must be weather-protected, securely mounted, and kept away from splashes. Portion and schedule controls would be handled by the feeder system, not improvised through the ESP32.'],
+ plants:['Plants and smooth-rock zones','These are flexible layout areas for plants and smooth, fish-safe rocks. Keep the central swimming space open and leave clear access to the filter intake, return, drain, and sensors.']
 };
 document.querySelectorAll('[data-tank-part]').forEach(part=>{
  const activate=()=>{const item=tankPartInfo[part.dataset.tankPart];if(!item)return;$('tankPartTitle').textContent=item[0];$('tankPartDescription').textContent=item[1];};
@@ -723,8 +770,10 @@ document.querySelectorAll('[data-tank-part]').forEach(part=>{
  part.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();activate()}});
 });
 document.querySelectorAll('[data-tank-view]').forEach(button=>button.addEventListener('click',()=>{
- const top=button.dataset.tankView==='top';
- $('tankModelTop').style.display=top?'block':'none';$('tankModelSide').style.display=top?'none':'block';
+ const view=button.dataset.tankView;
+ $('tankModelSide').style.display=view==='side'?'block':'none';
+ $('tankModelTop').style.display=view==='top'?'block':'none';
+ $('tankModelEquipment').style.display=view==='equipment'?'block':'none';
  document.querySelectorAll('[data-tank-view]').forEach(b=>b.classList.toggle('active',b===button));
 }));
 
