@@ -366,30 +366,35 @@ input,select,textarea{background:#fffdf6;border-color:#e8d5ac;color:var(--text)}
 }
 
 
-/* ranchu-physics-effects-v1: small, tactile physical details */
-.water-surface-stage{
- position:relative;isolation:isolate;overflow:hidden;height:132px;margin-top:18px;
- border:1px solid #d8bd82;border-radius:15px;cursor:crosshair;touch-action:manipulation;
- background:linear-gradient(180deg,#fff8e6 0%,#f8e8c1 16%,#e8bd70 17%,#d99b45 100%);
- box-shadow:inset 0 3px 9px rgba(255,255,255,.7),inset 0 -8px 16px rgba(123,73,25,.12),0 4px 10px rgba(143,91,34,.08);
+/* ranchu-physics-effects-v2: pinned notification cards and tactile controls */
+#notificationHistory .list-row{
+ position:relative;margin:13px 2px 7px;padding:14px 13px 12px;
+ border:1px solid #e6d0a2;border-radius:12px;
+ background:linear-gradient(180deg,#fffdf6,#fff6df);
+ box-shadow:0 4px 9px rgba(130,86,34,.09);
+ transform-origin:50% 0;
+ transition:transform .28s cubic-bezier(.2,.8,.25,1),box-shadow .28s ease;
+ animation:notificationPinnedAppear .38s ease both;
 }
-.water-surface-stage:before{content:"";position:absolute;inset:17% -8% 0;background:repeating-linear-gradient(178deg,rgba(255,255,255,.28) 0 2px,transparent 2px 15px);opacity:.5;pointer-events:none}
-.water-surface-shine{position:absolute;top:19%;left:8%;width:34%;height:2px;border-radius:50%;background:rgba(255,255,255,.85);filter:blur(1px);box-shadow:85px 5px 0 rgba(255,255,255,.35),190px -2px 0 rgba(255,255,255,.45)}
-.water-surface-caption{position:absolute;left:13px;right:13px;bottom:10px;display:flex;justify-content:space-between;gap:10px;color:rgba(103,67,27,.78);font-size:9px;font-weight:850;letter-spacing:1.15px;pointer-events:none}
-.water-surface-caption span{font-size:9px;letter-spacing:.2px;font-weight:650;text-transform:none}
-.water-ripple{position:absolute;z-index:2;width:18px;height:18px;border:2px solid rgba(255,255,255,.82);border-radius:50%;transform:translate(-50%,-50%) scale(.25);opacity:.9;pointer-events:none;animation:waterRippleExpand 1.05s cubic-bezier(.12,.62,.28,1) forwards;box-shadow:0 0 7px rgba(255,255,255,.4)}
-.water-ripple:after{content:"";position:absolute;inset:5px;border:1px solid rgba(255,255,255,.5);border-radius:50%}
-@keyframes waterRippleExpand{to{transform:translate(-50%,-50%) scale(6.4);opacity:0}}
-.water-droplet{position:absolute;z-index:1;top:13%;width:7px;height:10px;border-radius:60% 40% 60% 45%;background:linear-gradient(135deg,rgba(255,255,255,.95),rgba(255,255,255,.18) 70%);box-shadow:0 1px 4px rgba(255,255,255,.45);opacity:0;animation:waterDropletDrift 5.8s ease-in infinite}
-.droplet-one{left:17%;animation-delay:.2s}.droplet-two{left:71%;width:5px;height:8px;animation-delay:2.2s}.droplet-three{left:88%;width:6px;height:9px;animation-delay:4s}
-@keyframes waterDropletDrift{0%{transform:translateY(-4px);opacity:0}12%{opacity:.75}78%{opacity:.65}100%{transform:translateY(82px);opacity:0}}
-#notificationHistory .list-row{position:relative;margin:13px 2px 5px;padding:14px 13px 12px;border:1px solid #e6d0a2;border-radius:12px;background:linear-gradient(180deg,#fffdf6,#fff6df);box-shadow:0 4px 9px rgba(130,86,34,.09);transform-origin:50% 0;animation:notificationTagSettle .72s cubic-bezier(.2,.8,.25,1) both}
-#notificationHistory .list-row:before,#notificationHistory .list-row:after{content:"";position:absolute;top:-14px;height:15px;width:1.5px;background:linear-gradient(90deg,#9d6b32,#e5c27d,#9d6b32);transform-origin:top center;z-index:1}
-#notificationHistory .list-row:before{left:16%}#notificationHistory .list-row:after{right:16%}
-#notificationHistory .list-row:nth-child(2n){animation-delay:.07s}#notificationHistory .list-row:nth-child(3n){animation-delay:.13s}
-#notificationHistory .list-row:hover{animation:notificationTagSwing 1.15s ease-in-out infinite alternate}
-@keyframes notificationTagSettle{0%{transform:translateY(-9px) rotate(-1.8deg);opacity:0}65%{transform:translateY(1px) rotate(.8deg);opacity:1}82%{transform:translateY(0) rotate(-.35deg)}100%{transform:translateY(0) rotate(0)}}
-@keyframes notificationTagSwing{from{transform:rotate(-.6deg)}to{transform:rotate(.6deg)}}
+#notificationHistory .list-row:before{
+ content:"";position:absolute;z-index:2;top:-6px;left:50%;
+ width:9px;height:9px;border-radius:50%;transform:translateX(-50%);
+ background:radial-gradient(circle at 30% 25%,#fff2c7 0 12%,#d49a42 38%,#80521f 100%);
+ border:1px solid rgba(119,76,27,.5);
+ box-shadow:0 1px 2px rgba(80,50,18,.28),0 0 0 2px rgba(255,249,230,.7);
+}
+#notificationHistory .list-row:after{
+ content:"";position:absolute;z-index:-1;top:-2px;left:50%;width:2px;height:7px;
+ transform:translateX(-50%);background:#98703c;box-shadow:0 0 2px rgba(92,58,22,.3);
+}
+#notificationHistory .list-row:nth-child(2n){animation-delay:.055s}
+#notificationHistory .list-row:nth-child(3n){animation-delay:.11s}
+#notificationHistory .list-row:hover{
+ transform:translateY(1px) rotate(.28deg);
+ box-shadow:0 5px 11px rgba(130,86,34,.13);
+}
+#notificationHistory .list-row:active{transform:translateY(2px) rotate(0deg)}
+@keyframes notificationPinnedAppear{from{opacity:0}to{opacity:1}}
 .mechanical-switch-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 14px;border:1px solid #e4cea0;border-radius:13px;background:linear-gradient(180deg,#fffdf7,#f8edcf);box-shadow:inset 0 1px 0 rgba(255,255,255,.95),0 3px 7px rgba(125,82,29,.07);font-size:12px;font-weight:750;color:#79572d}
 .mechanical-switch-row input[type="checkbox"]{appearance:none;-webkit-appearance:none;position:relative;flex:0 0 48px;width:48px;height:27px;margin:0;padding:0;border:1px solid #b99b67;border-radius:99px;background:linear-gradient(180deg,#d8c8a5,#eee2c7);box-shadow:inset 0 2px 4px rgba(94,62,25,.2);cursor:pointer;transition:background .22s ease,border-color .22s ease}
 .mechanical-switch-row input[type="checkbox"]:before{content:"";position:absolute;top:3px;left:3px;width:19px;height:19px;border-radius:50%;background:linear-gradient(145deg,#fff,#e9dfc8);border:1px solid #c8b58e;box-shadow:0 2px 4px rgba(79,52,23,.25);transition:transform .24s cubic-bezier(.2,.85,.25,1)}
@@ -398,8 +403,11 @@ input,select,textarea{background:#fffdf6;border-color:#e8d5ac;color:var(--text)}
 .mechanical-switch-row input[type="checkbox"]:focus-visible{outline:3px solid rgba(225,155,51,.35);outline-offset:3px}
 .segment button,.device-connect-btn,#startRefill,#stopRefill,#feedNow,#pauseFeed,#enableFeed{box-shadow:inset 0 1px 0 rgba(255,255,255,.85),0 3px 0 rgba(133,83,27,.14),0 5px 9px rgba(125,82,29,.08);transition:transform .16s ease,box-shadow .16s ease,filter .16s ease}
 .segment button:active,.device-connect-btn:active,#startRefill:active,#stopRefill:active,#feedNow:active,#pauseFeed:active,#enableFeed:active{transform:translateY(2px);box-shadow:inset 0 2px 4px rgba(103,67,27,.16),0 1px 0 rgba(133,83,27,.12)}
-@media(max-width:600px){.water-surface-stage{height:116px}.water-surface-caption{font-size:8px}#notificationHistory .list-row{align-items:flex-start}}
-@media(prefers-reduced-motion:reduce){.water-ripple,.water-droplet,#notificationHistory .list-row{animation:none!important}.water-droplet{opacity:.25}.mechanical-switch-row input[type="checkbox"],.segment button,.device-connect-btn{transition:none!important}}
+@media(max-width:600px){#notificationHistory .list-row{align-items:flex-start}}
+@media(prefers-reduced-motion:reduce){
+ #notificationHistory .list-row{animation:none!important;transition:none!important}
+ .mechanical-switch-row input[type="checkbox"],.segment button,.device-connect-btn{transition:none!important}
+}
 
 </style>
 </head>
@@ -466,7 +474,7 @@ input,select,textarea{background:#fffdf6;border-color:#e8d5ac;color:var(--text)}
 </div></section>
 
 <section class="page" id="page-water"><div class="grid">
- <div class="card span-7"><div class="card-head"><h3>Water level & volume</h3><span class="badge" id="waterBadge">Normal</span></div><div class="big"><span id="waterGallons">240.0</span> <span class="unit">/ 240 gal</span></div><div class="progress"><span id="waterBar" style="width:100%"></span></div><div class="stat-row"><span class="hint">Estimated water level</span><b id="waterPercent">100.0%</b></div><div class="water-surface-stage" id="waterSurfaceStage" role="img" aria-label="Decorative water surface. Click or touch to create ripples."><div class="water-surface-shine"></div><span class="water-droplet droplet-one"></span><span class="water-droplet droplet-two"></span><span class="water-droplet droplet-three"></span><div class="water-surface-caption">WATER SURFACE <span>Tap to make ripples</span></div></div><div class="notice info" style="margin-top:16px">Simulated estimate only. A real sensor must be installed, calibrated, and independently validated before readings can be used for aquarium operation.</div></div>
+ <div class="card span-7"><div class="card-head"><h3>Water level & volume</h3><span class="badge" id="waterBadge">Normal</span></div><div class="big"><span id="waterGallons">240.0</span> <span class="unit">/ 240 gal</span></div><div class="progress"><span id="waterBar" style="width:100%"></span></div><div class="stat-row"><span class="hint">Estimated water level</span><b id="waterPercent">100.0%</b></div><div class="notice info" style="margin-top:16px">Simulated estimate only. A real sensor must be installed, calibrated, and independently validated before readings can be used for aquarium operation.</div></div>
  <div class="card span-5"><div class="card-head"><h3>Refill controls</h3><span class="badge off">Simulation only</span></div><div class="segment"><button id="manualWaterBtn" class="selected" onclick="setWaterMode('manual')">Manual</button><button id="autoWaterBtn" onclick="setWaterMode('automatic')">Automatic preview</button></div><div id="waterModeText" class="hint" style="margin-top:12px">Manual mode: choose a simulated amount and start a pretend refill.</div><div class="field"><label for="refillAmount">Refill amount</label><select id="refillAmount"><option value="1">1 gallon</option><option value="2">2 gallons</option><option value="3">3 gallons</option><option value="5" selected>5 gallons</option><option value="10">10 gallons</option><option value="custom">Custom amount</option></select></div><div class="field" id="customAmountWrap" style="display:none"><label for="customAmount">Custom gallons</label><input id="customAmount" type="number" min="0.1" max="30" step="0.1" value="5"></div><div class="actions"><button class="btn green" id="startRefill">Start simulated refill</button><button class="btn danger" id="stopRefill">Stop</button></div><div class="hint" id="refillStatus" style="margin-top:12px">Status: Idle · Simulation only</div></div>
  <div class="card span-12"><div class="card-head"><h3>Three-level water warning system</h3><span class="hint">Initial thresholds for 240 gal</span></div><div class="grid"><div class="card span-4 warning-level"><span class="badge warn">Yellow · First warning</span><h3 style="margin-top:12px">Low Water</h3><div class="big">220 gal</div><div class="hint">20 gallons lost · Reminder</div></div><div class="card span-4 warning-level orange"><span class="badge orange">Orange · Critical warning</span><h3 style="margin-top:12px">Critical Level</h3><div class="big">200 gal</div><div class="hint">40 gallons lost · Critical</div></div><div class="card span-4 warning-level red"><span class="badge red">Red · Highest priority</span><h3 style="margin-top:12px">Emergency Water Loss</h3><div class="big">140 gal</div><div class="hint">100 gallons lost · Emergency</div></div></div><div class="notice info" style="margin-top:12px">Rapid-loss detection is simulated in the Testing page. Real automatic refill remains disabled. An emergency state locks out the refill simulation until you reset the test or inspect the simulated condition.</div></div>
  <div class="card span-12"><div class="card-head"><h3>Refill history</h3><span class="hint">Saved in this browser</span></div><div id="refillHistory" class="empty">No refills recorded.</div></div>
@@ -619,22 +627,7 @@ function renderJournal(){$('journalHistory').innerHTML=journalEntries.length?jou
 function renderNotifications(){const filter=$('notificationFilter')?.value||'all';const shown=notifications.filter(n=>filter==='all'||(filter==='warning'?n.category==='warning':n.category===filter));$('notificationCount').textContent=`${notifications.length} events`;$('notificationHistory').innerHTML=shown.length?shown.map(n=>`<div class="list-row"><div><b>${safe(n.title)}</b><div>${safe(n.detail)}</div><div class="hint">${safe(n.time)} · ${safe(n.category)}</div></div><span class="badge${n.type==='emergency'?' red':n.type==='critical'?' orange':n.type==='low'?' warn':''}">${safe(n.type||'info')}</span></div>`).join(''):'<div class="empty">No notifications in this category.</div>'}
 $('notificationFilter').addEventListener('change',renderNotifications);
 
-/* Interactive water surface: decorative ripples only; no readings are changed. */
-(()=>{
- const stage=$('waterSurfaceStage');if(!stage)return;
- if(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)return;
- let lastRipple=0;
- stage.addEventListener('pointerdown',event=>{
-  if(event.pointerType==='mouse'&&event.button!==0)return;
-  const now=performance.now();if(now-lastRipple<90)return;lastRipple=now;
-  const rect=stage.getBoundingClientRect(),ripple=document.createElement('span');
-  ripple.className='water-ripple';
-  ripple.style.left=(event.clientX-rect.left)+'px';
-  ripple.style.top=(event.clientY-rect.top)+'px';
-  stage.appendChild(ripple);
-  ripple.addEventListener('animationend',()=>ripple.remove(),{once:true});
- });
-})();
+
 
 $('testVolume').addEventListener('input',e=>setTestVolume(e.target.value,true));$('testVolumeNumber').addEventListener('change',e=>setTestVolume(e.target.value,true));
 $('testLowBtn').addEventListener('click',()=>setTestVolume(220,true));$('testCriticalBtn').addEventListener('click',()=>setTestVolume(200,true));$('testEmergencyBtn').addEventListener('click',()=>setTestVolume(140,true));
