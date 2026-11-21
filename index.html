@@ -1313,7 +1313,7 @@ window.addEventListener('ranchuStartupComplete',()=>{
   g.fillStyle='rgba(255,220,168,.72)';g.beginPath();g.arc(17,-19,2.3,0,Math.PI*2);g.arc(25,-12,1.8,0,Math.PI*2);g.fill();
   g.strokeStyle='rgba(167,91,53,.6)';g.lineWidth=1.2;g.beginPath();g.arc(12,1,7,-1.05,1.05);g.stroke();
   g.fillStyle='#392a22';g.beginPath();g.arc(23,-3,2.15,0,Math.PI*2);g.fill();
-  g.fillStyle='rgba(221,116,91,.55)';g.beginPath();g.arc(28,10,3.1,0,Math.PI*2);g.fill();
+  g.fillStyle='rgba(221,116,91,.55)';g.beginPath();g.arc(21,10,3.1,0,Math.PI*2);g.fill();
   if(slurp>0){g.fillStyle='#6e382e';g.beginPath();g.ellipse(24,9,2.2+slurp*2.2,1.4+slurp*2.8,0,0,Math.PI*2);g.fill();g.fillStyle='rgba(255,244,218,.9)';g.beginPath();g.arc(29,-1,1.5,0,Math.PI*2);g.arc(32,-5,1,0,Math.PI*2);g.fill()}else{g.strokeStyle='#925536';g.beginPath();g.moveTo(21,8);g.quadraticCurveTo(25,10,27,8);g.stroke()}
   g.strokeStyle='rgba(255,245,218,.34)';g.lineWidth=.75;
   for(let row=-1;row<=1;row++)for(let col=-1;col<=1;col++){const sx=-7+col*8,sy=row*7;if(sx*sx/780+sy*sy/360<.8){g.beginPath();g.arc(sx,sy,3.2,.25,2.4);g.stroke()}}
