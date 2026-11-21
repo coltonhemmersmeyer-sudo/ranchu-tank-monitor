@@ -1224,7 +1224,7 @@ window.addEventListener('ranchuStartupComplete',()=>{
  const N=220,offsets=new Float32Array(N),velocities=new Float32Array(N);
  let width=0,height=0,dpr=1,lastTime=0,raf=0,active=false,pointerDown=false,activePointerId=null,statusUntil=0,elapsed=0,spawnClock=0;
  let tankPercent=Number(window.ranchuTankWaterPercent??100),visualTankPercent=tankPercent,lastObservedTankPercent=tankPercent,fishAdded=false,fishDrag=null,heldWaveClock=0,fishX=0,fishY=0,fishVX=0,fishVY=0,fishPositionReady=false,fishFacing=1,fishFacingVisual=1,fillGainPerDrop=0;
- let bloodwormAdded=false,bloodwormX=0,bloodwormY=0,bloodwormVX=0,bloodwormVY=0,bloodwormPhase=0,bloodwormPointer=null,bloodwormGhost=null,fishSlurp=0,fishTilt=0,fishSurfaceFeeding=false,fishBehavior='cruise',fishBehaviorTimer=3,fishResting=0,fishPlantTarget=-1,fishNibble=0,fishBubbleInterest=0,fishTurnPause=0,fishTailEnergy=0,fishTailPhase=0;
+ let bloodwormAdded=false,bloodwormX=0,bloodwormY=0,bloodwormVX=0,bloodwormVY=0,bloodwormPhase=0,bloodwormPointer=null,bloodwormGhost=null,fishSlurp=0,fishEatingFlop=0,fishEatingFlopTime=0,fishTilt=0,fishSurfaceFeeding=false,fishBehavior='cruise',fishBehaviorTimer=3,fishResting=0,fishPlantTarget=-1,fishNibble=0,fishBubbleInterest=0,fishTurnPause=0,fishTailEnergy=0,fishTailPhase=0;
  let pointer={x:0,y:0,px:0,py:0},cursorOnTank=false;
  const droplets=[],food=[],tinyFillDrops=[],feedingRipples=[],bubbleTrail=[],debris=[];let fillStream=null,tinyFill=null,foodSelected=false,foodCursorGhost=null,bubbleClock=4;
  const pebbles=[],plants=[];let draggedPebble=null,bubblerClock=0;
@@ -1324,7 +1324,7 @@ window.addEventListener('ranchuStartupComplete',()=>{
  function drawFish(now){
   if(!fishAdded)return;
   const alive=tankPercent>0,x=alive?fishX:width*.5,y=alive?fishY:bottom()-Math.min(27,height*.105)*.72+Math.sin(now*.018)*2;
-  drawRanchu(ctx,x,y,Math.min(1,width/700),alive?fishFacingVisual:1,alive?fishTailPhase:now*.012,alive?0:Math.sin(now*.012)*.22,Math.max(fishSlurp,fishNibble),alive?fishTilt:0,fishTailEnergy);
+  drawRanchu(ctx,x,y,Math.min(1,width/700),alive?fishFacingVisual:1,alive?fishTailPhase:now*.012,alive?0:Math.sin(now*.012)*.22,Math.max(fishSlurp,fishNibble),alive?fishTilt+fishEatingFlop:0,fishTailEnergy);
   const noticesBloodworm=alive&&bloodwormAdded&&Math.hypot(bloodwormX-fishX,bloodwormY-fishY)<190;
   const expression=!alive?':(':noticesBloodworm?'!':fishSurfaceFeeding?'!':tankPercent>=75?':D':':|';
   drawExpression(expression,x+27,y-31);
@@ -1336,7 +1336,7 @@ window.addEventListener('ranchuStartupComplete',()=>{
   const mouthX=fishX+Math.cos(mouthRotation)*32*visualScale*fishFacingVisual-Math.sin(mouthRotation)*8*visualScale;
   const mouthY=fishY+Math.sin(mouthRotation)*32*visualScale*fishFacingVisual+Math.cos(mouthRotation)*8*visualScale;
   if(fishAdded&&Math.hypot(bloodwormX-mouthX,bloodwormY-mouthY)<19){
-   bloodwormAdded=false;fishSlurp=.42;fishVX+=fishFacingVisual*18;addFeedingRipple(bloodwormX,bloodwormY,1.25);playAquariumSound('food');setStatus('Your Ranchu slurped up the live bloodworm!');return;
+   bloodwormAdded=false;fishSlurp=.42;fishEatingFlopTime=.95;fishTailEnergy=Math.max(fishTailEnergy,18);fishVX+=fishFacingVisual*18;addFeedingRipple(bloodwormX,bloodwormY,1.25);playAquariumSound('food');setStatus('Your Ranchu slurped up the live bloodworm!');return;
   }
   let desiredX=Math.sin(now*.00037)*20,desiredY=Math.sin(now*.00061)*10;
   if(fishAdded){
@@ -1484,7 +1484,7 @@ window.addEventListener('ranchuStartupComplete',()=>{
   ctx.restore();
  }
  function updateFish(dt,now){
-  fishSlurp=Math.max(0,fishSlurp-dt);
+  fishSlurp=Math.max(0,fishSlurp-dt);fishEatingFlopTime=Math.max(0,fishEatingFlopTime-dt);fishEatingFlop=fishEatingFlopTime>0?Math.sin((.95-fishEatingFlopTime)*24)*.24*(fishEatingFlopTime/.95):0;
   if(!fishAdded||tankPercent<=0){fishSurfaceFeeding=false;fishTilt+=(0-fishTilt)*(1-Math.exp(-dt*3));fishVX*=Math.pow(.08,dt);fishVY*=Math.pow(.08,dt);fishFacingVisual+=(fishFacing-fishFacingVisual)*(1-Math.exp(-dt*5));return}
   const depth=Math.max(0,bottom()-surfaceBase());
   if(!fishPositionReady){fishX=width*.5;fishY=surfaceBase()+depth*.45;fishPositionReady=true}
