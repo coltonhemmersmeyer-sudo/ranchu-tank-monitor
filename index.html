@@ -1313,8 +1313,8 @@ window.addEventListener('ranchuStartupComplete',()=>{
   g.fillStyle='rgba(255,220,168,.72)';g.beginPath();g.arc(17,-19,2.3,0,Math.PI*2);g.arc(25,-12,1.8,0,Math.PI*2);g.fill();
   g.strokeStyle='rgba(167,91,53,.6)';g.lineWidth=1.2;g.beginPath();g.arc(12,1,7,-1.05,1.05);g.stroke();
   g.fillStyle='#392a22';g.beginPath();g.arc(23,-3,2.15,0,Math.PI*2);g.fill();
-  g.fillStyle='rgba(221,116,91,.55)';g.beginPath();g.arc(28,4,3.1,0,Math.PI*2);g.fill();
-  if(slurp>0){g.fillStyle='#6e382e';g.beginPath();g.ellipse(27,3,2.2+slurp*2.2,1.4+slurp*2.8,0,0,Math.PI*2);g.fill();g.fillStyle='rgba(255,244,218,.9)';g.beginPath();g.arc(32,-7,1.5,0,Math.PI*2);g.arc(35,-11,1,0,Math.PI*2);g.fill()}else{g.strokeStyle='#925536';g.beginPath();g.moveTo(24,2);g.quadraticCurveTo(28,4,30,2);g.stroke()}
+  g.fillStyle='rgba(221,116,91,.55)';g.beginPath();g.arc(28,10,3.1,0,Math.PI*2);g.fill();
+  if(slurp>0){g.fillStyle='#6e382e';g.beginPath();g.ellipse(27,9,2.2+slurp*2.2,1.4+slurp*2.8,0,0,Math.PI*2);g.fill();g.fillStyle='rgba(255,244,218,.9)';g.beginPath();g.arc(32,-1,1.5,0,Math.PI*2);g.arc(35,-5,1,0,Math.PI*2);g.fill()}else{g.strokeStyle='#925536';g.beginPath();g.moveTo(24,8);g.quadraticCurveTo(28,10,30,8);g.stroke()}
   g.strokeStyle='rgba(255,245,218,.34)';g.lineWidth=.75;
   for(let row=-1;row<=1;row++)for(let col=-1;col<=1;col++){const sx=-7+col*8,sy=row*7;if(sx*sx/780+sy*sy/360<.8){g.beginPath();g.arc(sx,sy,3.2,.25,2.4);g.stroke()}}
   if(flop){g.rotate(flop);g.fillStyle='#49342c';g.font='bold 15px Arial';g.textAlign='center';g.fillText(':(',2,-29)}
@@ -1336,7 +1336,7 @@ window.addEventListener('ranchuStartupComplete',()=>{
   drawExpression(expression,x+27,y-31);
  }
  function bloodwormMouthPosition(){
-  const scale=Math.min(1,width/700),rotation=-fishTilt,localX=28*scale*fishFacingVisual,localY=3*scale;
+  const scale=Math.min(1,width/700),rotation=-fishTilt,localX=28*scale*fishFacingVisual,localY=8*scale;
   return{x:fishX+Math.cos(rotation)*localX-Math.sin(rotation)*localY,y:fishY+Math.sin(rotation)*localX+Math.cos(rotation)*localY};
  }
  function beginBloodwormRagdoll(){
@@ -1587,7 +1587,7 @@ window.addEventListener('ranchuStartupComplete',()=>{
    const targetTiltLimit=(target.isBloodworm||surfacePellet)?.48:target.settled?.30:.16;
    const aimTilt=clamp(-aimFacing*Math.atan2(targetDY,Math.max(20,Math.abs(targetDX))),-targetTiltLimit,targetTiltLimit);
    const rotation=-aimTilt;
-   const localMouthX=28*visualScale*aimFacing,localMouthY=3*visualScale;
+   const localMouthX=28*visualScale*aimFacing,localMouthY=8*visualScale;
    const mouthOffsetX=Math.cos(rotation)*localMouthX-Math.sin(rotation)*localMouthY;
    const mouthOffsetY=Math.sin(rotation)*localMouthX+Math.cos(rotation)*localMouthY;
    const aimX=target.x-mouthOffsetX,aimY=target.y-mouthOffsetY;
