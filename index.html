@@ -1376,6 +1376,11 @@ window.addEventListener('ranchuStartupComplete',()=>{
   for(const p of plants){
    ctx.save();ctx.translate(p.x,floor-9);
    const livingHeight=p.height*(.18+.82*plantHealth),wilt=1-plantHealth;
+   // A visible root crown and buried roots make each plant feel firmly planted in the sand.
+   ctx.fillStyle='rgba(194,158,105,.92)';ctx.beginPath();ctx.ellipse(0,2,9,3.8,0,0,Math.PI*2);ctx.fill();
+   ctx.strokeStyle=plantHealth>.02?'#766348':'#806b4d';ctx.lineWidth=1.8;ctx.lineCap='round';
+   ctx.beginPath();ctx.moveTo(-1,0);ctx.quadraticCurveTo(-5,5,-8,8);ctx.moveTo(1,0);ctx.quadraticCurveTo(5,5,8,8);ctx.moveTo(0,1);ctx.quadraticCurveTo(-1,5,0,9);ctx.stroke();
+   ctx.strokeStyle='rgba(239,215,174,.72)';ctx.lineWidth=1.1;ctx.beginPath();ctx.moveTo(-7,1);ctx.lineTo(7,1);ctx.stroke();
    const stemColor=plantHealth>.72?'#4b9b70':plantHealth>.02?'#8b9160':'#79634a';
    ctx.strokeStyle=stemColor;ctx.lineWidth=plantHealth>.02?3:2.5;ctx.lineCap='round';
    for(let j=0;j<3;j++){
