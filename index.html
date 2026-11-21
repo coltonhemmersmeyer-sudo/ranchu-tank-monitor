@@ -120,16 +120,14 @@ textarea{min-height:88px;resize:vertical}input:focus,select:focus,textarea:focus
 #emergencyBanner{position:fixed;z-index:1100;top:calc(10px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);width:min(920px,calc(100vw - 22px));padding:7px;border-radius:16px;background:repeating-linear-gradient(135deg,#d51f2a 0 13px,#171717 13px 26px);background-size:52px 52px;box-shadow:0 12px 36px rgba(90,20,20,.32);animation:emergencyTapeTravel 1.7s linear infinite}
 #emergencyRopes{position:fixed;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:1099}
 #emergencyRopes path{fill:none;stroke-linecap:round;stroke-linejoin:round}
-#emergencyRopes .rope-shadow{stroke:rgba(45,28,13,.28);stroke-width:6}
-#emergencyRopes .rope-main{stroke:url(#emergencyRopeGradient);stroke-width:4.2}
-#emergencyRopes .rope-highlight{stroke:rgba(255,232,184,.82);stroke-width:1.15;transform:translateX(-.8px)}
-#emergencyRopes .rope-twist{stroke:#76502f;stroke-width:1.35;stroke-dasharray:2.5 2.1;stroke-linecap:round;opacity:.82}
-#emergencyRopes .rope-twist-light{stroke:#f1d5a0;stroke-width:.85;stroke-dasharray:1.8 3.1;stroke-linecap:round;opacity:.9}
+#emergencyRopes .rope-shadow{stroke:rgba(45,28,13,.42);stroke-width:7.2}
+#emergencyRopes .rope-main{stroke:url(#emergencyRopeGradient);stroke-width:5.2}
+#emergencyRopes .rope-highlight{stroke:rgba(255,232,184,.9);stroke-width:1.35;transform:translateX(-1.05px)}
+#emergencyRopes .rope-twist{stroke:#684326;stroke-width:1.65;stroke-dasharray:3.8 1.7;stroke-dashoffset:0;stroke-linecap:round;opacity:.94}
+#emergencyRopes .rope-twist-light{stroke:#f5dfb4;stroke-width:1.05;stroke-dasharray:3.8 1.7;stroke-dashoffset:2.75;stroke-linecap:round;opacity:.96}
 #emergencyBanner{rotate:var(--emergency-swing,0deg);translate:0 var(--emergency-pull,0px);transform-origin:50% -43px;will-change:rotate,translate;cursor:grab;touch-action:none}
 #emergencyBanner:active{cursor:grabbing}
-#emergencyBanner::before,#emergencyBanner::after{content:"";position:absolute;top:0;width:12px;height:12px;box-sizing:border-box;border-radius:50%;border:2px solid #805a31;background:radial-gradient(circle at 35% 30%,#fff0c9 0 18%,#c39a5b 48%,#79552f 100%);box-shadow:0 1px 2px rgba(45,25,8,.35),inset 0 0 0 1px rgba(255,235,190,.5);z-index:2;pointer-events:none;transform:translate(-50%,-50%)}
-#emergencyBanner::before{left:14%}
-#emergencyBanner::after{left:86%}
+
 #emergencyBanner[hidden]{display:none!important}
 #emergencyBanner.is-retracting{animation:emergencySignWindUp .52s cubic-bezier(.55,.05,.8,.35) both!important;pointer-events:none}
 @keyframes emergencySignWindUp{0%{opacity:1;transform:translate(-50%,0) rotate(0) scale(1)}45%{opacity:1;transform:translate(-50%,-12px) rotate(-1.2deg) scale(.99)}100%{opacity:0;transform:translate(-50%,-115%) rotate(2deg) scale(.94)}}
@@ -929,7 +927,7 @@ signInBtn.addEventListener('click',async()=>{try{await signInWithPopup(auth,prov
 signOutBtn.addEventListener('click',async()=>{try{await signOut(auth)}catch(e){document.getElementById('authStatus').textContent='Sign-out error: '+e.message}});
 onAuthStateChanged(auth,updateAuth);
 
-// emergency-hanging-sign-physics-v6: taut board-mounted braided ropes and heavier-body dynamics
+// emergency-hanging-sign-physics-v7: longer braided ropes tucked behind the alert board
 (()=>{
  const sign=document.getElementById('emergencyBanner');
  const ropeIds=['emergencyRopeLeft','emergencyRopeRight','emergencyRopeShadowLeft','emergencyRopeShadowRight','emergencyRopeHighlightLeft','emergencyRopeHighlightRight','emergencyRopeTwistLeft','emergencyRopeTwistRight','emergencyRopeTwistLightLeft','emergencyRopeTwistLightRight'];
@@ -944,16 +942,16 @@ onAuthStateChanged(auth,updateAuth);
  function ropePath(side){
   const width=sign.offsetWidth||920;
   const left=window.innerWidth/2-width/2;
-  const baseTop=sign.offsetTop||10;
+  const baseTop=sign.getBoundingClientRect().top;
   const pivotX=window.innerWidth/2,pivotY=baseTop-43+pull;
-  const localX=side*width*.36,localY=43;
+  // End the rope inside the board face so the board naturally hides the joint.
+  const localX=side*width*.36,localY=63;
   const c=Math.cos(angle),sn=Math.sin(angle);
-  // These end coordinates are the exact centers of the board eyelets.
   const endX=pivotX+c*localX-sn*localY;
   const endY=pivotY+sn*localX+c*localY;
-  const anchorX=left+width*(side<0?.14:.86),anchorY=-28;
+  const anchorX=left+width*(side<0?.14:.86),anchorY=-92;
   const dx=endX-anchorX,dy=endY-anchorY;
-  const sag=clamp(3+pull*.11+Math.abs(angle)*20,3,14);
+  const sag=clamp(5+pull*.12+Math.abs(angle)*24,5,18);
   const sideBend=sway*side;
   const c1x=anchorX+dx*.28+sideBend*.45;
   const c1y=anchorY+dy*.34+sag*.25;
