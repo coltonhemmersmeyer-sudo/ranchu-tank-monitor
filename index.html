@@ -119,6 +119,8 @@ textarea{min-height:88px;resize:vertical}input:focus,select:focus,textarea:focus
 #warningModal.warning-modal-emergency .modal{border:2px solid #d7473e;background:#fff0ed}
 #emergencyBanner{position:fixed;z-index:1100;top:calc(10px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);width:min(920px,calc(100vw - 22px));padding:7px;border-radius:16px;background:repeating-linear-gradient(135deg,#d51f2a 0 13px,#171717 13px 26px);background-size:52px 52px;box-shadow:0 12px 36px rgba(90,20,20,.32);animation:emergencyTapeTravel 1.7s linear infinite}
 #emergencyBanner::before,#emergencyBanner::after{content:"";position:absolute;top:-18px;width:2px;height:25px;border-radius:2px;background:repeating-linear-gradient(180deg,#9a784b 0 4px,#d9bd87 4px 7px);box-shadow:0 0 0 1px rgba(91,61,29,.12);transform-origin:top center;pointer-events:none}
+#emergencyBanner{rotate:var(--emergency-swing,0deg);transform-origin:50% -18px;will-change:rotate}
+#emergencyBanner::before,#emergencyBanner::after{transform:rotate(calc(var(--emergency-swing,0deg)*.42))}
 #emergencyBanner::before{left:14%}
 #emergencyBanner::after{right:14%}
 #emergencyBanner[hidden]{display:none!important}
@@ -918,6 +920,51 @@ function updateAuth(user){const status=user?`Signed in as ${user.displayName||us
 signInBtn.addEventListener('click',async()=>{try{await signInWithPopup(auth,provider)}catch(e){document.getElementById('authStatus').textContent='Sign-in error: '+e.message}});
 signOutBtn.addEventListener('click',async()=>{try{await signOut(auth)}catch(e){document.getElementById('authStatus').textContent='Sign-out error: '+e.message}});
 onAuthStateChanged(auth,updateAuth);
+
+// emergency-hanging-sign-physics-v1: pointer bumps and touch drags gently swing the alert
+(()=>{
+ const sign=document.getElementById('emergencyBanner');
+ if(!sign)return;
+ if(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)return;
+ let angle=0,velocity=0,frame=0,lastX=0,lastY=0,lastTime=0;
+ const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
+ function kick(amount){
+  velocity=clamp(velocity+amount,-3.8,3.8);
+  if(!frame)frame=requestAnimationFrame(step);
+ }
+ function step(){
+  const spring=.105,damping=.88;
+  velocity+=(-angle*spring);
+  velocity*=damping;
+  angle+=velocity;
+  if(Math.abs(angle)<.035&&Math.abs(velocity)<.035){
+   angle=0;velocity=0;sign.style.setProperty('--emergency-swing','0deg');frame=0;return;
+  }
+  angle=clamp(angle,-14,14);
+  sign.style.setProperty('--emergency-swing',angle.toFixed(2)+'deg');
+  frame=requestAnimationFrame(step);
+ }
+ sign.addEventListener('pointerenter',e=>{
+  if(e.pointerType!=='mouse'||sign.hidden)return;
+  const r=sign.getBoundingClientRect();
+  kick((e.clientX<r.left+r.width/2?1:-1)*1.55);
+ });
+ sign.addEventListener('pointerdown',e=>{
+  if(sign.hidden)return;
+  const r=sign.getBoundingClientRect();
+  const side=e.clientX<r.left+r.width/2?1:-1;
+  if(e.pointerType==='touch'||e.pointerType==='pen')kick(side*2.15);
+  lastX=e.clientX;lastY=e.clientY;lastTime=performance.now();
+ });
+ sign.addEventListener('pointermove',e=>{
+  if(e.pointerType!=='touch'&&e.pointerType!=='pen')return;
+  if(!(e.buttons||e.pressure>0))return;
+  const now=performance.now(),dx=e.clientX-lastX,dy=e.clientY-lastY;
+  const dt=Math.max(8,now-lastTime);
+  if(Math.abs(dx)>1||Math.abs(dy)>1)kick(clamp(dx/dt*.72,-1.5,1.5));
+  lastX=e.clientX;lastY=e.clientY;lastTime=now;
+ });
+})();
 </script>
 </body>
 </html>
