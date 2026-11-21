@@ -567,7 +567,7 @@ input,select,textarea{background:#fffdf6;border-color:#e8d5ac;color:var(--text)}
    <p class="hint">An interactive reference model of the selected wooden-frame pond. Select a highlighted part to inspect it. The diagram is an illustrative model based on the product's listed dimensions and visible construction, not a manufacturing drawing.</p>
    <div class="tank-spec-grid" style="margin:14px 0 17px">
     <div class="tank-spec"><b>47.2 in</b><span>Exterior length</span></div><div class="tank-spec"><b>31.5 in</b><span>Exterior width</span></div><div class="tank-spec"><b>27.5 in</b><span>Exterior height</span></div>
-    <div class="tank-spec"><b>137 gal</b><span>Advertised capacity</span></div><div class="tank-spec"><b>44.5 × 28.5 in</b><span>Interior liner footprint</span></div><div class="tank-spec"><b>25 in</b><span>Interior liner height</span></div>
+    <div class="tank-spec"><b>137 gal</b><span>Advertised capacity</span></div><div class="tank-spec"><b>Not confirmed</b><span>Interior liner dimensions</span></div>
    </div>
    <div class="tank-blueprint">
     <div class="tank-model-stage">
@@ -647,7 +647,7 @@ loadAppData();
 function showPage(name){if(!pageInfo[name])return;document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));$('page-'+name).classList.add('active');document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.page===name));$('pageTitle').textContent=pageInfo[name][0];$('pageSubtitle').textContent=pageInfo[name][1];if($('mobilePageSelect'))$('mobilePageSelect').value=name;window.scrollTo({top:0,behavior:'smooth'});}
 const tankPartInfo={
  frame:['Wooden frame','The exterior structure is a wooden frame with horizontal reinforcing bands. It forms the visible outer shell of the selected MOGUOBIN model.'],
- liner:['Blue PVC liner','The blue PVC liner forms the waterproof interior. Listed inner dimensions are approximately 44.5 × 28.5 × 25 inches.'],
+ liner:['Blue PVC liner','The blue PVC liner forms the waterproof interior. The listing dimensions shown here are the exterior measurements; exact interior liner measurements have not been independently confirmed.'],
  water:['Interior water area','The open interior holds the aquarium water. The advertised capacity for this selected model is 137 gallons; actual fill volume depends on water level and anything occupying the interior.'],
  crossbar:['Top wooden crossbar','A wooden crossbar spans the open top in the product reference. Its exact load rating and intended use should be confirmed with the manufacturer before attaching equipment.'],
  drain:['Drain valve','The product reference shows a drain fitting low on the side. Its thread size, flow rate, and compatible hose connection should be verified before plumbing it.']
