@@ -9,14 +9,16 @@
 (function(){
  const root=document.documentElement;
  const key='ranchuIntroPlayedInTab';
- const navigation=performance.getEntriesByType?.('navigation')?.[0];
- const isRefresh=navigation?.type==='reload';
- try{
-  if(isRefresh||sessionStorage.getItem(key)==='1')root.classList.add('skip-intro-video');
-  else{sessionStorage.setItem(key,'1');root.classList.add('waiting-for-intro');}
- }catch(e){
-  root.classList.add(isRefresh?'skip-intro-video':'waiting-for-intro');
- }
+ const marker='__ranchuIntroPlayedInTab__';
+ let alreadyPlayed=false;
+ try{alreadyPlayed=sessionStorage.getItem(key)==='1';}catch(e){}
+ const tabName=window.name||'';
+ const hasTabMarker=tabName.split('|').includes(marker);
+ if(hasTabMarker)alreadyPlayed=true;
+ if(alreadyPlayed)root.classList.add('skip-intro-video');
+ else root.classList.add('waiting-for-intro');
+ try{sessionStorage.setItem(key,'1');}catch(e){}
+ if(!hasTabMarker)window.name=(tabName?tabName+'|':'')+marker;
 })();
 </script>
 <style>
