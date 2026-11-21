@@ -1224,7 +1224,7 @@ window.addEventListener('ranchuStartupComplete',()=>{
  const N=220,offsets=new Float32Array(N),velocities=new Float32Array(N);
  let width=0,height=0,dpr=1,lastTime=0,raf=0,active=false,pointerDown=false,activePointerId=null,statusUntil=0,elapsed=0,spawnClock=0;
  let tankPercent=Number(window.ranchuTankWaterPercent??100),visualTankPercent=tankPercent,lastObservedTankPercent=tankPercent,fishAdded=false,fishDrag=null,heldWaveClock=0,fishX=0,fishY=0,fishVX=0,fishVY=0,fishPositionReady=false,fishFacing=1,fishFacingVisual=1,fillGainPerDrop=0;
- let bloodwormAdded=false,bloodwormX=0,bloodwormY=0,bloodwormVX=0,bloodwormVY=0,bloodwormPhase=0,bloodwormPointer=null,bloodwormGhost=null,fishSlurp=0,fishEatingFlop=0,fishEatingFlopTime=0,fishTilt=0,fishSurfaceFeeding=false,fishBehavior='cruise',fishBehaviorTimer=3,fishResting=0,fishPlantTarget=-1,fishNibble=0,fishBubbleInterest=0,fishTurnPause=0,fishTailEnergy=0,fishTailPhase=0;
+ let bloodwormAdded=false,bloodwormX=0,bloodwormY=0,bloodwormVX=0,bloodwormVY=0,bloodwormPhase=0,bloodwormPointer=null,bloodwormGhost=null,fishSlurp=0,fishTilt=0,fishSurfaceFeeding=false,fishBehavior='cruise',fishBehaviorTimer=3,fishResting=0,fishPlantTarget=-1,fishNibble=0,fishBubbleInterest=0,fishTurnPause=0,fishTailEnergy=0,fishTailPhase=0;
  let pointer={x:0,y:0,px:0,py:0},cursorOnTank=false;
  const droplets=[],food=[],tinyFillDrops=[],feedingRipples=[],bubbleTrail=[],debris=[];let fillStream=null,tinyFill=null,foodSelected=false,foodCursorGhost=null,bubbleClock=4;
  const pebbles=[],plants=[];let draggedPebble=null,bubblerClock=0;
@@ -1324,25 +1324,31 @@ window.addEventListener('ranchuStartupComplete',()=>{
  function drawFish(now){
   if(!fishAdded)return;
   const alive=tankPercent>0,x=alive?fishX:width*.5,y=alive?fishY:bottom()-Math.min(27,height*.105)*.72+Math.sin(now*.018)*2;
-  drawRanchu(ctx,x,y,Math.min(1,width/700),alive?fishFacingVisual:1,alive?fishTailPhase:now*.012,alive?0:Math.sin(now*.012)*.22,Math.max(fishSlurp,fishNibble),alive?fishTilt+fishEatingFlop:0,fishTailEnergy);
+  drawRanchu(ctx,x,y,Math.min(1,width/700),alive?fishFacingVisual:1,alive?fishTailPhase:now*.012,alive?0:Math.sin(now*.012)*.22,Math.max(fishSlurp,fishNibble),alive?fishTilt:0,fishTailEnergy);
   const noticesBloodworm=alive&&bloodwormAdded&&Math.hypot(bloodwormX-fishX,bloodwormY-fishY)<190;
   const expression=!alive?':(':noticesBloodworm?'!':fishSurfaceFeeding?'!':tankPercent>=75?':D':':|';
   drawExpression(expression,x+27,y-31);
  }
  function updateBloodworm(dt,now){
   if(!bloodwormAdded||tankPercent<=0)return;
-  bloodwormPhase+=dt*8.5;
+  bloodwormPhase+=dt*11.5;
   const visualScale=Math.min(1,width/700),mouthRotation=-fishTilt;
   const mouthX=fishX+Math.cos(mouthRotation)*32*visualScale*fishFacingVisual-Math.sin(mouthRotation)*8*visualScale;
   const mouthY=fishY+Math.sin(mouthRotation)*32*visualScale*fishFacingVisual+Math.cos(mouthRotation)*8*visualScale;
   if(fishAdded&&Math.hypot(bloodwormX-mouthX,bloodwormY-mouthY)<19){
-   bloodwormAdded=false;fishSlurp=.42;fishEatingFlopTime=.95;fishTailEnergy=Math.max(fishTailEnergy,18);fishVX+=fishFacingVisual*18;addFeedingRipple(bloodwormX,bloodwormY,1.25);playAquariumSound('food');setStatus('Your Ranchu slurped up the live bloodworm!');return;
+   bloodwormAdded=false;fishSlurp=.42;fishTailEnergy=Math.max(fishTailEnergy,18);fishVX+=fishFacingVisual*18;addFeedingRipple(bloodwormX,bloodwormY,1.25);playAquariumSound('food');setStatus('Your Ranchu slurped up the live bloodworm!');return;
   }
   let desiredX=Math.sin(now*.00037)*20,desiredY=Math.sin(now*.00061)*10;
+  let chaseIntensity=0;
   if(fishAdded){
    const awayX=bloodwormX-fishX,awayY=bloodwormY-fishY,d=Math.hypot(awayX,awayY);
-   if(d<155){const urgency=1-clamp(d/155,0,1),inv=1/Math.max(1,d);desiredX+=awayX*inv*(25+48*urgency);desiredY+=awayY*inv*(18+38*urgency)}
+   if(d<190){chaseIntensity=1-clamp(d/190,0,1);const inv=1/Math.max(1,d);desiredX+=awayX*inv*(25+48*chaseIntensity);desiredY+=awayY*inv*(18+38*chaseIntensity)}
   }
+  // The bloodworm has its own momentum: quick side-to-side muscle flicks
+  // nudge its velocity, with stronger bursts when the Ranchu closes in.
+  const thrash=0.65+chaseIntensity*1.25;
+  bloodwormVX+=Math.sin(bloodwormPhase*1.65)*thrash*dt*34;
+  bloodwormVY+=Math.cos(bloodwormPhase*1.25)*thrash*dt*25;
   // A worm should turn back into open water before reaching a wall or corner.
   const minX=52,maxX=width-52,minY=surfaceBase()+25,maxY=bottom()-30;
   const edgePush=34;
@@ -1361,8 +1367,10 @@ window.addEventListener('ranchuStartupComplete',()=>{
  function drawBloodworm(now){
   if(!bloodwormAdded||tankPercent<=0)return;
   const speed=Math.hypot(bloodwormVX,bloodwormVY),direction=bloodwormVX< -2?-1:1;
+  const fishDistance=fishAdded?Math.hypot(bloodwormX-fishX,bloodwormY-fishY):Infinity;
+  const chaseIntensity=clamp(1-fishDistance/190,0,1),thrashAmount=1.8+speed*.025+chaseIntensity*1.8;
   ctx.save();ctx.translate(bloodwormX,bloodwormY);ctx.rotate(clamp(bloodwormVY*.008,-.28,.28));ctx.scale(direction,1);
-  const points=[];for(let i=0;i<=12;i++){const t=i/12,x=-17+t*34,y=Math.sin(t*Math.PI*3.2+bloodwormPhase)*(.8+speed*.018)*(Math.sin(t*Math.PI)*.9+.12);points.push({x,y})}
+  const points=[];for(let i=0;i<=12;i++){const t=i/12,x=-17+t*34,envelope=Math.sin(t*Math.PI)*.9+.12,y=Math.sin(t*Math.PI*3.2+bloodwormPhase)*thrashAmount*envelope+Math.sin(t*Math.PI*5-bloodwormPhase*.72)*thrashAmount*.22*envelope;points.push({x,y})}
   const drawPath=()=>{ctx.beginPath();ctx.moveTo(points[0].x,points[0].y);for(let i=1;i<points.length-1;i++){const a=points[i],b=points[i+1];ctx.quadraticCurveTo(a.x,a.y,(a.x+b.x)/2,(a.y+b.y)/2)}const z=points[points.length-1];ctx.lineTo(z.x,z.y)};
   drawPath();ctx.strokeStyle='rgba(91,24,34,.55)';ctx.lineWidth=5.2;ctx.lineCap='round';ctx.lineJoin='round';ctx.stroke();
   const body=ctx.createLinearGradient(0,-4,0,4);body.addColorStop(0,'#f39a8c');body.addColorStop(.42,'#c94a51');body.addColorStop(1,'#8f2635');
@@ -1484,7 +1492,7 @@ window.addEventListener('ranchuStartupComplete',()=>{
   ctx.restore();
  }
  function updateFish(dt,now){
-  fishSlurp=Math.max(0,fishSlurp-dt);fishEatingFlopTime=Math.max(0,fishEatingFlopTime-dt);fishEatingFlop=fishEatingFlopTime>0?Math.sin((.95-fishEatingFlopTime)*24)*.24*(fishEatingFlopTime/.95):0;
+  fishSlurp=Math.max(0,fishSlurp-dt);
   if(!fishAdded||tankPercent<=0){fishSurfaceFeeding=false;fishTilt+=(0-fishTilt)*(1-Math.exp(-dt*3));fishVX*=Math.pow(.08,dt);fishVY*=Math.pow(.08,dt);fishFacingVisual+=(fishFacing-fishFacingVisual)*(1-Math.exp(-dt*5));return}
   const depth=Math.max(0,bottom()-surfaceBase());
   if(!fishPositionReady){fishX=width*.5;fishY=surfaceBase()+depth*.45;fishPositionReady=true}
