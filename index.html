@@ -1506,11 +1506,13 @@ window.addEventListener('ranchuStartupComplete',()=>{
   const edibleTarget=!!(target&&!target.isPlant&&!target.isBubble);
   if(edibleTarget){
    const targetDX=target.x-fishX,targetDY=target.y-fishY;
-   if(Math.abs(targetDX)>3)fishFacing=targetDX>=0?1:-1;
+   const nextFacing=targetDX>9?1:targetDX< -9?-1:fishFacing;
+   if(nextFacing!==fishFacing){fishFacing=nextFacing;fishTurnPause=Math.max(fishTurnPause,.18)}
+   const aimFacing=fishFacingVisual;
    const visualScale=Math.min(1,width/700);
-   const aimTilt=clamp(-fishFacing*Math.atan2(targetDY,Math.max(8,Math.abs(targetDX))),-1.05,1.05);
-   const rotation=-aimTilt*fishFacing;
-   const localMouthX=32*visualScale*fishFacing,localMouthY=8*visualScale;
+   const aimTilt=clamp(-aimFacing*Math.atan2(targetDY,Math.max(12,Math.abs(targetDX))),-.68,.68);
+   const rotation=-aimTilt*aimFacing;
+   const localMouthX=32*visualScale*aimFacing,localMouthY=8*visualScale;
    const mouthOffsetX=Math.cos(rotation)*localMouthX-Math.sin(rotation)*localMouthY;
    const mouthOffsetY=Math.sin(rotation)*localMouthX+Math.cos(rotation)*localMouthY;
    const aimX=target.x-mouthOffsetX,aimY=target.y-mouthOffsetY;
@@ -1529,10 +1531,14 @@ window.addEventListener('ranchuStartupComplete',()=>{
   fishX=clamp(fishX,48,width-54);
   const floorApproach=!!(edibleTarget&&target.settled&&target.y>=bottom()-16);
   fishY=clamp(fishY,surfaceBase()+(fishSurfaceFeeding?9:20),bottom()-(floorApproach?12:24));
-  const desiredTilt=edibleTarget?clamp(-fishFacing*Math.atan2(target.y-fishY,Math.max(8,Math.abs(target.x-fishX))),-1.05,1.05):0;
-  fishTilt+=(desiredTilt-fishTilt)*(1-Math.exp(-dt*(edibleTarget?5.2:3.8)));
-  if(!edibleTarget&&!fishSurfaceFeeding){if(fishVX>7&&fishFacing!==1){fishFacing=1;fishTurnPause=.12}else if(fishVX< -7&&fishFacing!==-1){fishFacing=-1;fishTurnPause=.12}}
-  fishTurnPause=Math.max(0,fishTurnPause-dt);fishFacingVisual+=(fishFacing-fishFacingVisual)*(1-Math.exp(-dt*(fishTurnPause>0?2.8:7.5)));
+  const desiredTilt=edibleTarget?clamp(-fishFacingVisual*Math.atan2(target.y-fishY,Math.max(12,Math.abs(target.x-fishX))),-.68,.68):0;
+  fishTilt+=(desiredTilt-fishTilt)*(1-Math.exp(-dt*(edibleTarget?3.6:3.2)));
+  if(!edibleTarget&&!fishSurfaceFeeding){
+   const movingFacing=fishVX>10?1:fishVX< -10?-1:fishFacing;
+   if(movingFacing!==fishFacing){fishFacing=movingFacing;fishTurnPause=Math.max(fishTurnPause,.16)}
+  }
+  fishTurnPause=Math.max(0,fishTurnPause-dt);
+  if(fishTurnPause<=0)fishFacingVisual=fishFacing;
   const swimSpeed=Math.hypot(fishVX,fishVY);
   fishTailEnergy+=(swimSpeed-fishTailEnergy)*(1-Math.exp(-dt*3.5));
   fishTailPhase+=dt*(4.2+Math.min(5.5,fishTailEnergy*.13));
