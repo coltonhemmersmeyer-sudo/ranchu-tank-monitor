@@ -308,6 +308,44 @@ input,select,textarea{background:#fffdf6;border-color:#e8d5ac;color:var(--text)}
   }
 }
 
+
+/* ranchu-page-personality-motion-v1: a few pages get their own gentle entrance */
+@keyframes ranchuNotificationsRise{
+  0%{opacity:0;transform:translateY(24px)}
+  72%{opacity:1;transform:translateY(-2px)}
+  88%{opacity:1;transform:translateY(1px)}
+  100%{opacity:1;transform:translateY(0)}
+}
+@keyframes ranchuJournalDrift{
+  from{opacity:0;transform:translateX(-14px)}
+  to{opacity:1;transform:translateX(0)}
+}
+@keyframes ranchuFeedingLift{
+  0%{opacity:0;transform:translateY(11px)}
+  76%{opacity:1;transform:translateY(-1px)}
+  100%{opacity:1;transform:translateY(0)}
+}
+.motion-ready #page-notifications.active .card{
+  animation:ranchuNotificationsRise .68s cubic-bezier(.2,.85,.25,1) both;
+}
+.motion-ready #page-notifications.active .card:nth-child(2){animation-delay:.07s}
+.motion-ready #page-notifications.active .card:nth-child(3){animation-delay:.14s}
+.motion-ready #page-journal.active .card{
+  animation:ranchuJournalDrift .48s cubic-bezier(.2,.75,.25,1) both;
+}
+.motion-ready #page-journal.active .card:nth-child(2){animation-delay:.06s}
+.motion-ready #page-journal.active .card:nth-child(3){animation-delay:.12s}
+.motion-ready #page-feeding.active .card{
+  animation:ranchuFeedingLift .58s cubic-bezier(.2,.85,.25,1) both;
+}
+.motion-ready #page-feeding.active .card:nth-child(2){animation-delay:.055s}
+.motion-ready #page-feeding.active .card:nth-child(3){animation-delay:.11s}
+@media(prefers-reduced-motion:reduce){
+  .motion-ready #page-notifications.active .card,
+  .motion-ready #page-journal.active .card,
+  .motion-ready #page-feeding.active .card{animation:none!important}
+}
+
 </style>
 </head>
 <body>
