@@ -1522,7 +1522,11 @@ window.addEventListener('ranchuStartupComplete',()=>{
    if(nextFacing!==fishFacing){fishFacing=nextFacing;fishTurnPause=Math.max(fishTurnPause,.28)}
    const aimFacing=fishFacingVisual;
    const visualScale=Math.min(1,width/700);
-   const aimTilt=clamp(-aimFacing*Math.atan2(targetDY,Math.max(20,Math.abs(targetDX))),-.48,.48);
+   // Ordinary underwater pellets should be intercepted with a mostly level body.
+   // Large pitch changes while chasing a falling pellet caused the Ranchu to look
+   // as though it was folding upward instead of swimming toward the food.
+   const targetTiltLimit=(target.isBloodworm||surfacePellet)?.48:target.settled?.30:.16;
+   const aimTilt=clamp(-aimFacing*Math.atan2(targetDY,Math.max(20,Math.abs(targetDX))),-targetTiltLimit,targetTiltLimit);
    const rotation=-aimTilt*aimFacing;
    const localMouthX=32*visualScale*aimFacing,localMouthY=8*visualScale;
    const mouthOffsetX=Math.cos(rotation)*localMouthX-Math.sin(rotation)*localMouthY;
@@ -1543,8 +1547,10 @@ window.addEventListener('ranchuStartupComplete',()=>{
   fishX=clamp(fishX,48,width-54);
   const floorApproach=!!(edibleTarget&&target.settled&&target.y>=bottom()-16);
   fishY=clamp(fishY,surfaceBase()+(fishSurfaceFeeding?9:20),bottom()-(floorApproach?12:24));
-  const desiredTilt=edibleTarget?clamp(-fishFacingVisual*Math.atan2(target.y-fishY,Math.max(20,Math.abs(target.x-fishX))),-.48,.48):0;
-  fishTilt+=(desiredTilt-fishTilt)*(1-Math.exp(-dt*(edibleTarget?3.6:3.2)));
+  const targetTiltLimit=edibleTarget?(target.isBloodworm||surfacePellet)?.48:target.settled?.30:.16:0;
+  const desiredTilt=edibleTarget?clamp(-fishFacingVisual*Math.atan2(target.y-fishY,Math.max(20,Math.abs(target.x-fishX))),-targetTiltLimit,targetTiltLimit):0;
+  const tiltResponse=edibleTarget?(target.isBloodworm||surfacePellet?3.6:2.5):3.2;
+  fishTilt+=(desiredTilt-fishTilt)*(1-Math.exp(-dt*tiltResponse));
   if(!edibleTarget&&!fishSurfaceFeeding){
    const movingFacing=fishVX>10?1:fishVX< -10?-1:fishFacing;
    if(movingFacing!==fishFacing){fishFacing=movingFacing;fishTurnPause=Math.max(fishTurnPause,.16)}
