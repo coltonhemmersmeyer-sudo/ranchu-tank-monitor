@@ -257,6 +257,15 @@ input,select,textarea{background:#fffdf6;border-color:#e8d5ac;color:var(--text)}
 
 @media(prefers-reduced-motion:reduce){#startupScreen,.page,.progress>span,#startupProgress{transition:none;animation:none}}
 
+
+/* Mobile page visibility safeguard: keep the selected content visible on narrow screens. */
+@media(max-width:600px){
+ .main{display:block!important;visibility:visible!important;opacity:1!important;min-width:0;width:100%}
+ .page{width:100%;min-width:0}
+ .page.active{display:block!important;visibility:visible!important;opacity:1!important}
+ .page:not(.active){display:none!important}
+}
+
 </style>
 </head>
 <body>
