@@ -1537,7 +1537,7 @@ window.addEventListener('ranchuStartupComplete',()=>{
   ctx.restore();
  }
  function updateFish(dt,now){
-  fishSlurp=Math.max(0,fishSlurp-dt);fishEatingFlopTime=Math.max(0,fishEatingFlopTime-dt);fishEatingFlop=fishEatingFlopTime>0?Math.sin((.95-fishEatingFlopTime)*24)*.24*(fishEatingFlopTime/.95):0;
+  fishSlurp=Math.max(0,fishSlurp-dt);if(bloodwormEating)fishSlurp=.28+.12*Math.sin(now*.024);fishEatingFlopTime=Math.max(0,fishEatingFlopTime-dt);fishEatingFlop=fishEatingFlopTime>0?Math.sin((.95-fishEatingFlopTime)*24)*.24*(fishEatingFlopTime/.95):0;
   if(!fishAdded||tankPercent<=0){fishSurfaceFeeding=false;fishTilt+=(0-fishTilt)*(1-Math.exp(-dt*3));fishVX*=Math.pow(.08,dt);fishVY*=Math.pow(.08,dt);fishFacingVisual+=(fishFacing-fishFacingVisual)*(1-Math.exp(-dt*5));return}
   const depth=Math.max(0,bottom()-surfaceBase());
   if(!fishPositionReady){fishX=width*.5;fishY=surfaceBase()+depth*.45;fishPositionReady=true}
