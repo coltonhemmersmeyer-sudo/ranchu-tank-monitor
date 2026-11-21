@@ -120,14 +120,16 @@ textarea{min-height:88px;resize:vertical}input:focus,select:focus,textarea:focus
 #emergencyBanner{position:fixed;z-index:1100;top:calc(10px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);width:min(920px,calc(100vw - 22px));padding:7px;border-radius:16px;background:repeating-linear-gradient(135deg,#d51f2a 0 13px,#171717 13px 26px);background-size:52px 52px;box-shadow:0 12px 36px rgba(90,20,20,.32);animation:emergencyTapeTravel 1.7s linear infinite}
 #emergencyRopes{position:fixed;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:1099}
 #emergencyRopes path{fill:none;stroke-linecap:round;stroke-linejoin:round}
-#emergencyRopes .rope-shadow{stroke:rgba(74,48,23,.22);stroke-width:5}
-#emergencyRopes .rope-main{stroke:url(#emergencyRopeGradient);stroke-width:3.2}
-#emergencyRopes .rope-highlight{stroke:rgba(255,232,184,.78);stroke-width:1;transform:translateX(-.8px)}
+#emergencyRopes .rope-shadow{stroke:rgba(45,28,13,.28);stroke-width:6}
+#emergencyRopes .rope-main{stroke:url(#emergencyRopeGradient);stroke-width:4.2}
+#emergencyRopes .rope-highlight{stroke:rgba(255,232,184,.82);stroke-width:1.15;transform:translateX(-.8px)}
+#emergencyRopes .rope-twist{stroke:#76502f;stroke-width:1.35;stroke-dasharray:2.5 2.1;stroke-linecap:round;opacity:.82}
+#emergencyRopes .rope-twist-light{stroke:#f1d5a0;stroke-width:.85;stroke-dasharray:1.8 3.1;stroke-linecap:round;opacity:.9}
 #emergencyBanner{rotate:var(--emergency-swing,0deg);translate:0 var(--emergency-pull,0px);transform-origin:50% -43px;will-change:rotate,translate;cursor:grab;touch-action:none}
 #emergencyBanner:active{cursor:grabbing}
-#emergencyBanner::before,#emergencyBanner::after{content:"";position:absolute;top:-4px;width:9px;height:9px;border-radius:50%;border:2px solid #9b7545;background:radial-gradient(circle at 35% 30%,#fff0c9 0 18%,#c39a5b 48%,#79552f 100%);box-shadow:0 1px 2px rgba(45,25,8,.35);z-index:2;pointer-events:none}
-#emergencyBanner::before{left:calc(14% - 4px)}
-#emergencyBanner::after{right:calc(14% - 4px)}
+#emergencyBanner::before,#emergencyBanner::after{content:"";position:absolute;top:0;width:12px;height:12px;box-sizing:border-box;border-radius:50%;border:2px solid #805a31;background:radial-gradient(circle at 35% 30%,#fff0c9 0 18%,#c39a5b 48%,#79552f 100%);box-shadow:0 1px 2px rgba(45,25,8,.35),inset 0 0 0 1px rgba(255,235,190,.5);z-index:2;pointer-events:none;transform:translate(-50%,-50%)}
+#emergencyBanner::before{left:14%}
+#emergencyBanner::after{left:86%}
 #emergencyBanner[hidden]{display:none!important}
 #emergencyBanner.is-retracting{animation:emergencySignWindUp .52s cubic-bezier(.55,.05,.8,.35) both!important;pointer-events:none}
 @keyframes emergencySignWindUp{0%{opacity:1;transform:translate(-50%,0) rotate(0) scale(1)}45%{opacity:1;transform:translate(-50%,-12px) rotate(-1.2deg) scale(.99)}100%{opacity:0;transform:translate(-50%,-115%) rotate(2deg) scale(.94)}}
@@ -484,7 +486,7 @@ input,select,textarea{background:#fffdf6;border-color:#e8d5ac;color:var(--text)}
 <footer>Ranchu Tank Monitor · Redesigned prototype · Browser-stored records · Hardware not connected</footer>
 </main></div>
 
-<svg id="emergencyRopes" aria-hidden="true" focusable="false"><defs><linearGradient id="emergencyRopeGradient" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8a663c"/><stop offset=".48" stop-color="#d9bd87"/><stop offset="1" stop-color="#8a663c"/></linearGradient></defs><path class="rope-shadow" id="emergencyRopeShadowLeft"/><path class="rope-main" id="emergencyRopeLeft"/><path class="rope-highlight" id="emergencyRopeHighlightLeft"/><path class="rope-shadow" id="emergencyRopeShadowRight"/><path class="rope-main" id="emergencyRopeRight"/><path class="rope-highlight" id="emergencyRopeHighlightRight"/></svg>
+<svg id="emergencyRopes" aria-hidden="true" focusable="false"><defs><linearGradient id="emergencyRopeGradient" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8a663c"/><stop offset=".48" stop-color="#d9bd87"/><stop offset="1" stop-color="#8a663c"/></linearGradient></defs><path class="rope-shadow" id="emergencyRopeShadowLeft"/><path class="rope-main" id="emergencyRopeLeft"/><path class="rope-highlight" id="emergencyRopeHighlightLeft"/><path class="rope-twist" id="emergencyRopeTwistLeft"/><path class="rope-twist-light" id="emergencyRopeTwistLightLeft"/><path class="rope-shadow" id="emergencyRopeShadowRight"/><path class="rope-main" id="emergencyRopeRight"/><path class="rope-highlight" id="emergencyRopeHighlightRight"/><path class="rope-twist" id="emergencyRopeTwistRight"/><path class="rope-twist-light" id="emergencyRopeTwistLightRight"/></svg>
 <div id="emergencyBanner" role="alert" aria-live="assertive" hidden><div class="emergency-banner-inner"><span aria-hidden="true" style="font-size:26px">⚠</span><div class="emergency-banner-copy"><strong>EMERGENCY WATER-LEVEL ALERT</strong><p>The simulated water level has reached the emergency threshold. Immediate inspection is required. Refill controls remain locked until the level is restored and inspected.</p></div><button class="btn" id="emergencyBannerWater" type="button">View water status</button></div></div>
 <div class="modal-backdrop" id="warningModal" role="dialog" aria-modal="true" aria-labelledby="warningTitle"><div class="modal"><div id="warningIcon" style="font-size:30px;margin-bottom:8px">⚠️</div><h3 id="warningTitle">Aquarium warning</h3><p id="warningMessage"></p><div class="actions"><button class="btn secondary" id="dismissWarning">Dismiss</button><button class="btn" id="goWarningPage">Open Water</button></div></div></div>
 <div class="toast" id="toast" role="status"></div>
@@ -927,70 +929,82 @@ signInBtn.addEventListener('click',async()=>{try{await signInWithPopup(auth,prov
 signOutBtn.addEventListener('click',async()=>{try{await signOut(auth)}catch(e){document.getElementById('authStatus').textContent='Sign-out error: '+e.message}});
 onAuthStateChanged(auth,updateAuth);
 
-// emergency-hanging-sign-physics-v5: anchored flexible ropes, pull-down and safe spring recoil
+// emergency-hanging-sign-physics-v6: taut board-mounted braided ropes and heavier-body dynamics
 (()=>{
  const sign=document.getElementById('emergencyBanner');
- const ropeIds=['emergencyRopeLeft','emergencyRopeRight','emergencyRopeShadowLeft','emergencyRopeShadowRight','emergencyRopeHighlightLeft','emergencyRopeHighlightRight'];
+ const ropeIds=['emergencyRopeLeft','emergencyRopeRight','emergencyRopeShadowLeft','emergencyRopeShadowRight','emergencyRopeHighlightLeft','emergencyRopeHighlightRight','emergencyRopeTwistLeft','emergencyRopeTwistRight','emergencyRopeTwistLightLeft','emergencyRopeTwistLightRight'];
  const ropes=ropeIds.map(id=>document.getElementById(id));
  if(!sign||ropes.some(path=>!path))return;
  if(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)return;
  let angle=0,angularVelocity=0,frame=0,lastX=0,lastPointerType='';
- let pull=0,pullVelocity=0,pulling=false,pointerId=null,pullStartY=0,pullStart=0,lastPullY=0,lastPullTime=0;
+ let pull=0,pullVelocity=0,pulling=false,pointerId=null,pullStartY=0,pullStart=0,lastPullTime=0;
+ let sway=0,swayVelocity=0;
  const MAX_ANGLE=10*Math.PI/180,MAX_PULL=46;
  const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
  function ropePath(side){
   const width=sign.offsetWidth||920;
   const left=window.innerWidth/2-width/2;
-  const top=(sign.offsetTop||10)+pull;
-  const pivotX=window.innerWidth/2,pivotY=top-43;
+  const baseTop=sign.offsetTop||10;
+  const pivotX=window.innerWidth/2,pivotY=baseTop-43+pull;
   const localX=side*width*.36,localY=43;
   const c=Math.cos(angle),sn=Math.sin(angle);
+  // These end coordinates are the exact centers of the board eyelets.
   const endX=pivotX+c*localX-sn*localY;
   const endY=pivotY+sn*localX+c*localY;
   const anchorX=left+width*(side<0?.14:.86),anchorY=-28;
-  const dx=endX-anchorX,dy=endY-anchorY,bend=clamp(angle*95,-22,22);
-  return 'M '+anchorX.toFixed(1)+' '+anchorY+' C '+(anchorX+dx*.18+bend).toFixed(1)+' '+(anchorY+dy*.34).toFixed(1)+', '+(anchorX+dx*.78+bend*.35).toFixed(1)+' '+(anchorY+dy*.78).toFixed(1)+', '+endX.toFixed(1)+' '+endY.toFixed(1);
+  const dx=endX-anchorX,dy=endY-anchorY;
+  const sag=clamp(3+pull*.11+Math.abs(angle)*20,3,14);
+  const sideBend=sway*side;
+  const c1x=anchorX+dx*.28+sideBend*.45;
+  const c1y=anchorY+dy*.34+sag*.25;
+  const c2x=anchorX+dx*.76+sideBend;
+  const c2y=anchorY+dy*.78+sag;
+  return 'M '+anchorX.toFixed(2)+' '+anchorY+' C '+c1x.toFixed(2)+' '+c1y.toFixed(2)+', '+c2x.toFixed(2)+' '+c2y.toFixed(2)+', '+endX.toFixed(2)+' '+endY.toFixed(2);
  }
  function drawRopes(){
   if(sign.hidden)return;
-  const left=ropePath(-1),right=ropePath(1),paths=[left,right,left,right,left,right];
+  const left=ropePath(-1),right=ropePath(1);
+  const paths=[left,right,left,right,left,right,left,right,left,right];
   ropes.forEach((path,index)=>path.setAttribute('d',paths[index]));
  }
  function wake(){if(!frame){lastTime=performance.now();frame=requestAnimationFrame(step)}}
- function impulse(value){angularVelocity=clamp(angularVelocity+value,-.48,.48);wake()}
+ function impulse(value){angularVelocity=clamp(angularVelocity+value,-.55,.55);wake()}
  let lastTime=0;
  function step(now){
   const dt=Math.min(.032,Math.max(.001,(now-lastTime)/1000));lastTime=now;
-  const acceleration=-2.8*Math.sin(angle)-1.55*angularVelocity;
+  // Angular inertia, gravity and damping; rope sway has its own softer spring.
+  const acceleration=-3.15*Math.sin(angle)-1.25*angularVelocity;
   angularVelocity+=acceleration*dt;angle+=angularVelocity*dt;
   if(angle>MAX_ANGLE){angle=MAX_ANGLE;angularVelocity=Math.min(0,angularVelocity)*.4}
   if(angle< -MAX_ANGLE){angle=-MAX_ANGLE;angularVelocity=Math.max(0,angularVelocity)*.4}
+  swayVelocity+=(-5.5*sway-1.8*swayVelocity+angularVelocity*22)*dt;
+  sway+=swayVelocity*dt;sway=clamp(sway,-8,8);
   if(!pulling){
-   const pullAcceleration=-42*pull-11*pullVelocity;
-   pullVelocity+=pullAcceleration*dt;pull+=pullVelocity*dt;
-   if(pull<0){pull=0;pullVelocity=Math.abs(pullVelocity)*.16}
+   pullVelocity+=(-48*pull-10.5*pullVelocity)*dt;
+   pull+=pullVelocity*dt;
+   if(pull<0){pull=0;pullVelocity=Math.abs(pullVelocity)*.12}
    if(pull>MAX_PULL){pull=MAX_PULL;pullVelocity=Math.min(0,pullVelocity)*.2}
    if(pull<.035&&Math.abs(pullVelocity)<.5){pull=0;pullVelocity=0}
    sign.style.setProperty('--emergency-pull',pull.toFixed(2)+'px');
   }
   sign.style.setProperty('--emergency-swing',(angle*180/Math.PI).toFixed(2)+'deg');
   drawRopes();
-  if(Math.abs(angle)<.0008&&Math.abs(angularVelocity)<.0025&&pull===0&&!pulling){
-   angle=0;angularVelocity=0;sign.style.setProperty('--emergency-swing','0deg');frame=0;drawRopes();return;
+  if(Math.abs(angle)<.0008&&Math.abs(angularVelocity)<.0025&&pull===0&&!pulling&&Math.abs(sway)<.03&&Math.abs(swayVelocity)<.03){
+   angle=0;angularVelocity=0;sway=0;swayVelocity=0;
+   sign.style.setProperty('--emergency-swing','0deg');frame=0;drawRopes();return;
   }
   frame=requestAnimationFrame(step);
  }
  sign.addEventListener('pointerenter',e=>{
   if(e.pointerType!=='mouse'||sign.hidden)return;
   const r=sign.getBoundingClientRect();
-  impulse((e.clientX<r.left+r.width/2?1:-1)*.065);
+  impulse((e.clientX<r.left+r.width/2?1:-1)*.07);
   lastX=e.clientX;lastPointerType=e.pointerType;
  });
  sign.addEventListener('pointerdown',e=>{
-  if(sign.hidden)return;
+  if(sign.hidden||(e.pointerType==='mouse'&&e.button!==0))return;
   lastX=e.clientX;lastPointerType=e.pointerType;
-  if(e.pointerType==='mouse'&&e.button!==0)return;
-  pulling=true;pointerId=e.pointerId;pullStartY=e.clientY;pullStart=pull;lastPullY=e.clientY;lastPullTime=performance.now();pullVelocity=0;
+  pulling=true;pointerId=e.pointerId;pullStartY=e.clientY;pullStart=pull;lastPullTime=performance.now();pullVelocity=0;
   try{sign.setPointerCapture(e.pointerId)}catch(_){}
   e.preventDefault();wake();
  });
@@ -998,22 +1012,19 @@ onAuthStateChanged(auth,updateAuth);
   if(sign.hidden)return;
   if(pulling&&e.pointerId===pointerId){
    const now=performance.now(),dy=e.clientY-pullStartY;
-   const next=clamp(pullStart+dy,0,MAX_PULL);
-   const dt=Math.max(.008,(now-lastPullTime)/1000);
-   pullVelocity=(next-pull)/dt;pull=next;
-   lastPullY=e.clientY;lastPullTime=now;
+   const next=clamp(pullStart+dy,0,MAX_PULL),dt=Math.max(.008,(now-lastPullTime)/1000);
+   pullVelocity=(next-pull)/dt;pull=next;lastPullTime=now;
    sign.style.setProperty('--emergency-pull',pull.toFixed(2)+'px');drawRopes();return;
   }
   if(!(e.buttons||e.pressure>0||e.pointerType==='mouse'))return;
   if(lastPointerType!==e.pointerType){lastX=e.clientX;lastPointerType=e.pointerType;return}
-  const dx=e.clientX-lastX;lastX=e.clientX;
-  if(Math.abs(dx)<1)return;
+  const dx=e.clientX-lastX;lastX=e.clientX;if(Math.abs(dx)<1)return;
   const width=Math.max(220,sign.getBoundingClientRect().width);
-  impulse(clamp(dx/width*(e.pointerType==='mouse'?1.25:2),-.17,.17));
+  impulse(clamp(dx/width*(e.pointerType==='mouse'?1.35:2.1),-.18,.18));
  });
  function releasePull(e){
   if(!pulling||e.pointerId!==pointerId)return;
-  pulling=false;pointerId=null;pullVelocity=clamp(pullVelocity*.12,-35,35);wake();
+  pulling=false;pointerId=null;pullVelocity=clamp(pullVelocity*.1,-38,38);wake();
   try{if(sign.hasPointerCapture(e.pointerId))sign.releasePointerCapture(e.pointerId)}catch(_){}
  }
  sign.addEventListener('pointerup',releasePull);
