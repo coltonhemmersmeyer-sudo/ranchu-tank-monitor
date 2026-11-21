@@ -231,12 +231,13 @@ input,select,textarea{background:#fffdf6;border-color:#e8d5ac;color:var(--text)}
 
 /* ranchu-living-motion-v1: restrained spring motion and tactile interactions */
 @keyframes ranchuPageArrive{
-  from{opacity:0;transform:translateY(-5px)}
+  from{opacity:0;transform:translateY(5px)}
   to{opacity:1;transform:translateY(0)}
 }
 @keyframes ranchuCardSpring{
-  0%{opacity:0;transform:translateY(-9px)}
-  78%{opacity:1;transform:translateY(1px)}
+  0%{opacity:0;transform:translateY(18px)}
+  62%{opacity:1;transform:translateY(-3px)}
+  82%{opacity:1;transform:translateY(1.5px)}
   100%{opacity:1;transform:translateY(0)}
 }
 @keyframes ranchuBarRise{
@@ -253,13 +254,13 @@ input,select,textarea{background:#fffdf6;border-color:#e8d5ac;color:var(--text)}
 }
 .motion-ready .page.active{animation:ranchuPageArrive .34s ease-out both}
 .motion-ready .page.active .card{
-  animation:ranchuCardSpring .42s cubic-bezier(.22,.7,.25,1);
+  animation:ranchuCardSpring .72s cubic-bezier(.2,.85,.25,1) both;
 }
-.motion-ready .page.active .card:nth-child(2){animation-delay:.025s}
-.motion-ready .page.active .card:nth-child(3){animation-delay:.05s}
-.motion-ready .page.active .card:nth-child(4){animation-delay:.075s}
-.motion-ready .page.active .card:nth-child(5){animation-delay:.1s}
-.motion-ready .page.active .card:nth-child(6){animation-delay:.125s}
+.motion-ready .page.active .card:nth-child(2){animation-delay:.045s}
+.motion-ready .page.active .card:nth-child(3){animation-delay:.09s}
+.motion-ready .page.active .card:nth-child(4){animation-delay:.135s}
+.motion-ready .page.active .card:nth-child(5){animation-delay:.18s}
+.motion-ready .page.active .card:nth-child(6){animation-delay:.225s}
 .motion-ready .page.active .bar{
   transform-origin:bottom center;
   animation:ranchuBarRise .48s ease-out both;
@@ -291,7 +292,7 @@ input,select,textarea{background:#fffdf6;border-color:#e8d5ac;color:var(--text)}
   transform:translateY(1px) scale(.975);
 }
 .modal-backdrop.show .modal{
-  animation:ranchuCardSpring .32s ease-out both;
+  animation:ranchuCardSpring .52s cubic-bezier(.2,.85,.25,1) both;
 }
 .toast.show{animation:ranchuToastRise .34s cubic-bezier(.2,.85,.25,1) both}
 #emergencyBanner:not([hidden]){
