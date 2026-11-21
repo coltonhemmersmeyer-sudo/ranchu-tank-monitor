@@ -1224,7 +1224,7 @@ window.addEventListener('ranchuStartupComplete',()=>{
  const N=220,offsets=new Float32Array(N),velocities=new Float32Array(N);
  let width=0,height=0,dpr=1,lastTime=0,raf=0,active=false,pointerDown=false,activePointerId=null,statusUntil=0,elapsed=0,spawnClock=0;
  let tankPercent=Number(window.ranchuTankWaterPercent??100),visualTankPercent=tankPercent,lastObservedTankPercent=tankPercent,fishAdded=false,fishDrag=null,heldWaveClock=0,fishX=0,fishY=0,fishVX=0,fishVY=0,fishPositionReady=false,fishFacing=1,fishFacingVisual=1,fillGainPerDrop=0;
- let bloodwormAdded=false,bloodwormX=0,bloodwormY=0,bloodwormVX=0,bloodwormVY=0,bloodwormPhase=0,bloodwormPointer=null,bloodwormGhost=null,fishSlurp=0,fishTilt=0,fishSurfaceFeeding=false,fishBehavior='cruise',fishBehaviorTimer=3,fishResting=0,fishPlantTarget=-1,fishNibble=0,fishBubbleInterest=0,fishTurnPause=0,fishTailEnergy=0;
+ let bloodwormAdded=false,bloodwormX=0,bloodwormY=0,bloodwormVX=0,bloodwormVY=0,bloodwormPhase=0,bloodwormPointer=null,bloodwormGhost=null,fishSlurp=0,fishTilt=0,fishSurfaceFeeding=false,fishBehavior='cruise',fishBehaviorTimer=3,fishResting=0,fishPlantTarget=-1,fishNibble=0,fishBubbleInterest=0,fishTurnPause=0,fishTailEnergy=0,fishTailPhase=0;
  let pointer={x:0,y:0,px:0,py:0},cursorOnTank=false;
  const droplets=[],food=[],tinyFillDrops=[],feedingRipples=[],bubbleTrail=[],debris=[];let fillStream=null,tinyFill=null,foodSelected=false,foodCursorGhost=null,bubbleClock=4;
  const pebbles=[],plants=[];let draggedPebble=null,bubblerClock=0;
@@ -1296,7 +1296,7 @@ window.addEventListener('ranchuStartupComplete',()=>{
  }
  function drawRanchu(g,x,y,scale,direction,now,flop=0,slurp=0,tilt=0,tailEnergy=0){
   g.save();g.translate(x,y);g.rotate(-tilt*direction);g.scale(scale*direction,scale);
-  const tail=Math.sin(now*(.012+Math.min(5,tailEnergy*.00035)))*(3+Math.min(3,tailEnergy*.035));
+  const tail=Math.sin(now)*(3+Math.min(1.4,tailEnergy*.022));
   g.fillStyle='#e99a58';g.beginPath();g.moveTo(-22,0);g.quadraticCurveTo(-34,-9,-45,-19+tail);g.quadraticCurveTo(-43,-5,-39,0);g.quadraticCurveTo(-43,7,-45,19-tail);g.quadraticCurveTo(-31,11,-22,0);g.fill();
   g.strokeStyle='rgba(255,237,204,.8)';g.lineWidth=1.4;g.beginPath();g.moveTo(-28,0);g.quadraticCurveTo(-37,-8,-43,-16+tail);g.moveTo(-28,1);g.quadraticCurveTo(-37,8,-43,16-tail);g.stroke();
   g.fillStyle='#e9a06b';g.beginPath();g.ellipse(-7,13,10,4,-.28,0,Math.PI*2);g.ellipse(-1,-14,8,3,.2,0,Math.PI*2);g.fill();
@@ -1324,7 +1324,7 @@ window.addEventListener('ranchuStartupComplete',()=>{
  function drawFish(now){
   if(!fishAdded)return;
   const alive=tankPercent>0,x=alive?fishX:width*.5,y=alive?fishY:bottom()-Math.min(27,height*.105)*.72+Math.sin(now*.018)*2;
-  drawRanchu(ctx,x,y,Math.min(1,width/700),alive?fishFacingVisual:1,now,alive?0:Math.sin(now*.012)*.22,Math.max(fishSlurp,fishNibble),alive?fishTilt:0,fishTailEnergy);
+  drawRanchu(ctx,x,y,Math.min(1,width/700),alive?fishFacingVisual:1,alive?fishTailPhase:now*.012,alive?0:Math.sin(now*.012)*.22,Math.max(fishSlurp,fishNibble),alive?fishTilt:0,fishTailEnergy);
   const noticesBloodworm=alive&&bloodwormAdded&&Math.hypot(bloodwormX-fishX,bloodwormY-fishY)<190;
   const expression=!alive?':(':noticesBloodworm?'!':fishSurfaceFeeding?'!':tankPercent>=75?':D':':|';
   drawExpression(expression,x+27,y-31);
@@ -1522,7 +1522,9 @@ window.addEventListener('ranchuStartupComplete',()=>{
   fishTilt+=(desiredTilt-fishTilt)*(1-Math.exp(-dt*3.8));
   if(!fishSurfaceFeeding){if(fishVX>7&&fishFacing!==1){fishFacing=1;fishTurnPause=.12}else if(fishVX< -7&&fishFacing!==-1){fishFacing=-1;fishTurnPause=.12}}
   fishTurnPause=Math.max(0,fishTurnPause-dt);fishFacingVisual+=(fishFacing-fishFacingVisual)*(1-Math.exp(-dt*(fishTurnPause>0?2.8:7.5)));
-  fishTailEnergy=Math.hypot(fishVX,fishVY);
+  const swimSpeed=Math.hypot(fishVX,fishVY);
+  fishTailEnergy+=(swimSpeed-fishTailEnergy)*(1-Math.exp(-dt*3.5));
+  fishTailPhase+=dt*(4.2+Math.min(5.5,fishTailEnergy*.13));
  }
  function addFeedingRipple(x,y,size=1){feedingRipples.push({x,y,r:3,max:22*size,life:.55,age:0})}
  function updateFood(dt){
