@@ -418,8 +418,8 @@ input,select,textarea{background:#fffdf6;border-color:#e8d5ac;color:var(--text)}
 .fish-drag-token,.food-shake-token{touch-action:none}
 .dragging,.shaking{opacity:.58}
 .fish-token-canvas{width:42px;height:28px;display:block;overflow:visible;pointer-events:none}
-.food-token-canvas{width:24px;height:24px;display:block;pointer-events:none}
-.food-shake-token{width:30px;height:30px;padding:2px}
+.food-token-canvas{width:19px;height:19px;display:block;pointer-events:none}
+.food-shake-token{width:25px;height:25px;padding:1px}
 .water-sim-frame{position:relative}
 #waterPhysicsCanvas{position:relative;z-index:1}
 .water-sim-stage{display:flex;align-items:stretch;gap:10px}
@@ -1001,7 +1001,7 @@ window.addEventListener('ranchuStartupComplete',()=>{
  if(!canvas||!frame||!waterPage)return;
  const ctx=canvas.getContext('2d');if(!ctx)return;
  const N=220,offsets=new Float32Array(N),velocities=new Float32Array(N);
- let width=0,height=0,dpr=1,lastTime=0,raf=0,active=false,pointerDown=false,statusUntil=0,elapsed=0,spawnClock=0;
+ let width=0,height=0,dpr=1,lastTime=0,raf=0,active=false,pointerDown=false,activePointerId=null,statusUntil=0,elapsed=0,spawnClock=0;
  let tankPercent=Number(window.ranchuTankWaterPercent??100),visualTankPercent=tankPercent,lastObservedTankPercent=tankPercent,fishAdded=false,fishDrag=null,heldWaveClock=0,fishX=0,fishY=0,fishVX=0,fishVY=0,fishPositionReady=false,fishFacing=1,fillGainPerDrop=0;
  let pointer={x:0,y:0,px:0,py:0};
  const droplets=[],food=[],fillParticles=[];
@@ -1016,15 +1016,18 @@ window.addEventListener('ranchuStartupComplete',()=>{
  }
  function setStatus(message){if(status)status.textContent=message;statusUntil=performance.now()+2200}
  function disturb(x,y,moveX,moveY,held=false){
-  if(tankPercent<=0)return;
-  const center=clamp(Math.round(x/Math.max(1,dx())),0,N-1),reach=Math.max(5,Math.round(55/Math.max(1,dx())));
+  if(tankPercent<=0||width<20)return;
+  const center=clamp(Math.round(x/Math.max(1,dx())),1,N-2);
+  const reach=Math.max(4,Math.round(42/Math.max(1,dx())));
   const movement=Math.hypot(moveX,moveY);
-  const strength=clamp((-moveY*1.35+moveX*.34)+(held&&movement<.5?4.5:0),-125,125);
-  for(let i=Math.max(1,center-reach*2);i<Math.min(N-1,center+reach*2);i++){
-   const q=(i-center)/reach,weight=Math.exp(-q*q*1.25);
-   velocities[i]+=strength*weight;offsets[i]+=clamp(-moveY*.07*weight,-13,13);
+  // Strong, localized impulses make even short finger drags visibly ripple.
+  const strength=clamp((-moveY*2.15+moveX*.72)+(held&&movement<.8?13:0),-190,190);
+  for(let i=Math.max(1,center-reach*3);i<Math.min(N-1,center+reach*3);i++){
+   const q=(i-center)/reach,weight=Math.exp(-q*q*.72);
+   velocities[i]+=strength*weight;
+   if(movement>1)offsets[i]+=clamp(-moveY*.12*weight,-8,8);
   }
-  setStatus('Your movement is sending waves across the water.');
+  if(Math.abs(strength)>3)setStatus('Your movement is sending waves across the water.');
  }
  function wipe(x,y,moveX,moveY){
   const radius=19+Math.min(25,Math.hypot(moveX,moveY)*.28);
@@ -1172,22 +1175,29 @@ window.addEventListener('ranchuStartupComplete',()=>{
  function loop(now){
   if(!active){raf=0;return}
   const dt=Math.min(.022,Math.max(.001,(now-lastTime)/1000||.016));lastTime=now;tankPercent=Number(window.ranchuTankWaterPercent??tankPercent);
-  if(waterPage.classList.contains('active')){if(tankPercent>lastObservedTankPercent+.01){spawnFill(tankPercent-lastObservedTankPercent)}else if(tankPercent<lastObservedTankPercent-.01){visualTankPercent=tankPercent;fillParticles.length=0}lastObservedTankPercent=tankPercent;if(pointerDown&&tankPercent>0){heldWaveClock+=dt;if(heldWaveClock>=.14){disturb(pointer.x,pointer.y,0,0,true);heldWaveClock=0}}physics(dt);updateFillParticles(dt);updateFish(dt,now);updateCondensation(dt);updateFood(dt);render(now);if(status&&now>statusUntil)status.textContent=tankPercent<=0&&fishAdded?'The tank is empty in this simulation. Your Ranchu is not happy.': 'Move across the glass to wipe condensation; hold and drag in the water to make waves.'}
+  if(waterPage.classList.contains('active')){if(tankPercent>lastObservedTankPercent+.01){spawnFill(tankPercent-lastObservedTankPercent)}else if(tankPercent<lastObservedTankPercent-.01){visualTankPercent=tankPercent;fillParticles.length=0}lastObservedTankPercent=tankPercent;if(pointerDown&&tankPercent>0){heldWaveClock+=dt;if(heldWaveClock>=.075){disturb(pointer.x,pointer.y,0,0,true);heldWaveClock=0}}physics(dt);updateFillParticles(dt);updateFish(dt,now);updateCondensation(dt);updateFood(dt);render(now);if(status&&now>statusUntil)status.textContent=tankPercent<=0&&fishAdded?'The tank is empty in this simulation. Your Ranchu is not happy.': 'Move across the glass to wipe condensation; hold and drag in the water to make waves.'}
   raf=requestAnimationFrame(loop);
  }
  function start(){if(active)return;active=true;resize();lastTime=performance.now();raf=requestAnimationFrame(loop)}
  function stop(){active=false;if(raf)cancelAnimationFrame(raf);raf=0}
  function reset(){offsets.fill(0);velocities.fill(0);elapsed=0;setStatus('Water waves reset.');if(!active)start()}
- function point(e){const r=canvas.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}
- canvas.addEventListener('pointerdown',e=>{const p=point(e);pointer={...p,px:p.x,py:p.y};pointerDown=true;if(tankPercent>0)disturb(p.x,p.y,0,-14,true);try{canvas.setPointerCapture(e.pointerId)}catch(_){}e.preventDefault()});
+ function point(e){const r=canvas.getBoundingClientRect();return{x:(e.clientX-r.left)*(width/Math.max(1,r.width)),y:(e.clientY-r.top)*(height/Math.max(1,r.height))}}
+ canvas.addEventListener('pointerdown',e=>{
+  if(e.button!==undefined&&e.button!==0)return;
+  const p=point(e);pointer={...p,px:p.x,py:p.y};pointerDown=true;activePointerId=e.pointerId;heldWaveClock=0;
+  if(tankPercent>0)disturb(p.x,p.y,0,-24,true);
+  try{canvas.setPointerCapture(e.pointerId)}catch(_){}e.preventDefault();
+ });
  canvas.addEventListener('pointermove',e=>{
   const p=point(e),mx=p.x-pointer.px,my=p.y-pointer.py;
-  // Mouse hover wipes the glass without a click; touch wipes while the finger is down.
   if(e.pointerType==='mouse'||pointerDown)wipe(p.x,p.y,mx,my);
-  if(pointerDown&&tankPercent>0)disturb(p.x,p.y,mx,my,true);
-  pointer={...p,px:p.x,py:p.y};
+  if(pointerDown&&e.pointerId===activePointerId&&tankPercent>0){
+   if(Math.hypot(mx,my)>0.35)disturb(p.x,p.y,mx,my,false);
+   pointer={...p,px:p.x,py:p.y};
+  }else pointer={...p,px:p.x,py:p.y};
  });
- const release=()=>{pointerDown=false};canvas.addEventListener('pointerup',release);canvas.addEventListener('pointercancel',release);canvas.addEventListener('lostpointercapture',release);
+ const release=e=>{if(e&&activePointerId!==null&&e.pointerId!==activePointerId)return;pointerDown=false;activePointerId=null;heldWaveClock=0};
+ canvas.addEventListener('pointerup',release);canvas.addEventListener('pointercancel',release);canvas.addEventListener('lostpointercapture',release);
  const fishTokenCanvas=document.getElementById('fishTokenCanvas');if(fishTokenCanvas){const tokenCtx=fishTokenCanvas.getContext('2d');drawRanchu(tokenCtx,57,37,.72,1,performance.now());}
  const foodTokenCanvas=document.getElementById('foodTokenCanvas');if(foodTokenCanvas){const f=foodTokenCanvas.getContext('2d');f.fillStyle='#a9783e';f.beginPath();f.roundRect(7,19,34,22,7);f.fill();f.fillStyle='#e5bd76';f.fillRect(9,17,30,5);f.fillStyle='#f6e0ad';f.beginPath();f.arc(16,15,3,0,Math.PI*2);f.arc(24,12,3,0,Math.PI*2);f.arc(32,15,3,0,Math.PI*2);f.fill();f.strokeStyle='rgba(255,244,211,.8)';f.lineWidth=1.4;f.beginPath();f.moveTo(12,25);f.lineTo(36,25);f.stroke();}
  let fishPointer=null,fishGhost=null;
@@ -1204,15 +1214,16 @@ window.addEventListener('ranchuStartupComplete',()=>{
  fishToken?.addEventListener('pointermove',e=>{if(fishPointer!==e.pointerId)return;moveDragGhost(fishGhost,e.clientX,e.clientY)});
  function finishFishDrag(e){
   if(fishPointer!==e.pointerId)return;fishPointer=null;fishToken.classList.remove('dragging');removeDragGhost(fishGhost);fishGhost=null;
-  if(insideTank(e.clientX,e.clientY)){fishAdded=true;fishPositionReady=false;fishToken.disabled=true;setStatus('Your Ranchu is swimming calmly in the tank!')}
+  if(insideTank(e.clientX,e.clientY)){const p=point(e);fishAdded=true;fishX=clamp(p.x,48,width-54);fishY=clamp(p.y,surfaceBase()+22,bottom()-24);fishVX=0;fishVY=0;fishPositionReady=true;fishToken.disabled=true;playAquariumSound('fish');setStatus('Your Ranchu is swimming calmly in the tank!')}
   else setStatus('Release the Ranchu over the aquarium to add it.');
  }
  fishToken?.addEventListener('pointerup',finishFishDrag);fishToken?.addEventListener('pointercancel',e=>{if(fishPointer===e.pointerId){fishPointer=null;fishToken.classList.remove('dragging');removeDragGhost(fishGhost);fishGhost=null}});
+ function playAquariumSound(kind){if(typeof soundEnabled!=='undefined'&&!soundEnabled)return;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;try{const ac=window.__ranchuAquariumAudio||(window.__ranchuAquariumAudio=new AC());const run=()=>{const t=ac.currentTime+.008;if(kind==='fish'){[[740,.09,.035],[988,.12,.03]].forEach(([f,d,v],i)=>{const o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.setValueAtTime(f,t+i*.085);g.gain.setValueAtTime(.0001,t+i*.085);g.gain.exponentialRampToValueAtTime(v,t+i*.085+.012);g.gain.exponentialRampToValueAtTime(.0001,t+i*.085+d);o.connect(g);g.connect(ac.destination);o.start(t+i*.085);o.stop(t+i*.085+d+.02)})}else{const length=Math.floor(ac.sampleRate*.075),buffer=ac.createBuffer(1,length,ac.sampleRate),data=buffer.getChannelData(0);for(let i=0;i<length;i++)data[i]=(Math.random()*2-1)*Math.exp(-i/length*8);const src=ac.createBufferSource(),filter=ac.createBiquadFilter(),gain=ac.createGain();filter.type='bandpass';filter.frequency.value=1900;gain.gain.setValueAtTime(.0001,t);gain.gain.exponentialRampToValueAtTime(.055,t+.008);gain.gain.exponentialRampToValueAtTime(.0001,t+.08);src.buffer=buffer;src.connect(filter);filter.connect(gain);gain.connect(ac.destination);src.start(t)}};if(ac.state==='running')run();else ac.resume().then(run).catch(()=>{})}catch(_){}}
  const foodToken=document.getElementById('foodShakeToken');let foodPointer=null,lastSprinkle=0,lastFoodPoint=null,foodGhost=null,shakeEnergy=0;
  function sprinkleAt(clientX,clientY,shake){
   if(!insideTank(clientX,clientY)||tankPercent<=0||shake<10)return;
   const r=canvas.getBoundingClientRect(),x=clientX-r.left,y=clientY-r.top,now=performance.now();
-  if(now-lastSprinkle<170)return;lastSprinkle=now;
+  if(now-lastSprinkle<125)return;lastSprinkle=now;playAquariumSound('food');
   const amount=Math.min(3,Math.max(1,Math.floor(shake/18)));
   for(let i=0;i<amount;i++)food.push({x:x+(Math.random()-.5)*17,y:y+(Math.random()-.5)*9,vy:8+Math.random()*5,vx:(Math.random()-.5)*3,r:1.9+Math.random()*.9,age:0});
   if(fishAdded)setStatus('A few pellets are falling into the water.');
@@ -1221,7 +1232,7 @@ window.addEventListener('ranchuStartupComplete',()=>{
  foodToken?.addEventListener('pointermove',e=>{
   if(foodPointer!==e.pointerId)return;moveDragGhost(foodGhost,e.clientX,e.clientY);
   const moved=Math.hypot(e.clientX-lastFoodPoint.x,e.clientY-lastFoodPoint.y);
-  if(moved>9){shakeEnergy=Math.min(55,shakeEnergy+moved);sprinkleAt(e.clientX,e.clientY,shakeEnergy);shakeEnergy*=.35}
+  if(moved>3){shakeEnergy=Math.min(70,shakeEnergy+moved*1.35);sprinkleAt(e.clientX,e.clientY,shakeEnergy);shakeEnergy*=.48}
   lastFoodPoint={x:e.clientX,y:e.clientY};
  });
  const stopFood=()=>{foodPointer=null;foodToken?.classList.remove('shaking');removeDragGhost(foodGhost);foodGhost=null;shakeEnergy=0};
