@@ -1011,7 +1011,7 @@ window.addEventListener('ranchuStartupComplete',()=>{
  const N=220,offsets=new Float32Array(N),velocities=new Float32Array(N);
  let width=0,height=0,dpr=1,lastTime=0,raf=0,active=false,pointerDown=false,activePointerId=null,statusUntil=0,elapsed=0,spawnClock=0;
  let tankPercent=Number(window.ranchuTankWaterPercent??100),visualTankPercent=tankPercent,lastObservedTankPercent=tankPercent,fishAdded=false,fishDrag=null,heldWaveClock=0,fishX=0,fishY=0,fishVX=0,fishVY=0,fishPositionReady=false,fishFacing=1,fillGainPerDrop=0;
- let bloodwormAdded=false,bloodwormX=0,bloodwormY=0,bloodwormVX=0,bloodwormVY=0,bloodwormPhase=0,bloodwormPointer=null,bloodwormGhost=null;
+ let bloodwormAdded=false,bloodwormX=0,bloodwormY=0,bloodwormVX=0,bloodwormVY=0,bloodwormPhase=0,bloodwormPointer=null,bloodwormGhost=null,fishSlurp=0;
  let pointer={x:0,y:0,px:0,py:0};
  const droplets=[],food=[],tinyFillDrops=[];let fillStream=null,tinyFill=null,foodSelected=false,foodCursorGhost=null;
  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -1078,7 +1078,7 @@ window.addEventListener('ranchuStartupComplete',()=>{
   ctx.beginPath();ctx.moveTo(0,points[0]);
   for(let i=1;i<points.length;i++){const x=i*dx();ctx.quadraticCurveTo(x-dx()*.5,points[i-1],x,(points[i-1]+points[i])*.5)}
  }
- function drawRanchu(g,x,y,scale,direction,now,flop=0){
+ function drawRanchu(g,x,y,scale,direction,now,flop=0,slurp=0){
   g.save();g.translate(x,y);g.scale(scale*direction,scale);
   const tail=Math.sin(now*.012)*3;
   g.fillStyle='#e99a58';g.beginPath();g.moveTo(-22,0);g.quadraticCurveTo(-34,-9,-45,-19+tail);g.quadraticCurveTo(-43,-5,-39,0);g.quadraticCurveTo(-43,7,-45,19-tail);g.quadraticCurveTo(-31,11,-22,0);g.fill();
@@ -1092,7 +1092,7 @@ window.addEventListener('ranchuStartupComplete',()=>{
   g.strokeStyle='rgba(167,91,53,.6)';g.lineWidth=1.2;g.beginPath();g.arc(12,1,7,-1.05,1.05);g.stroke();
   g.fillStyle='#392a22';g.beginPath();g.arc(23,-3,2.15,0,Math.PI*2);g.fill();
   g.fillStyle='rgba(221,116,91,.55)';g.beginPath();g.arc(28,4,3.1,0,Math.PI*2);g.fill();
-  g.strokeStyle='#925536';g.beginPath();g.moveTo(28,8);g.quadraticCurveTo(32,10,34,8);g.stroke();
+  if(slurp>0){g.fillStyle='#6e382e';g.beginPath();g.ellipse(31,9,2.2+slurp*2.2,1.4+slurp*2.8,0,0,Math.PI*2);g.fill();g.fillStyle='rgba(255,244,218,.9)';g.beginPath();g.arc(36,-1,1.5,0,Math.PI*2);g.arc(39,-5,1,0,Math.PI*2);g.fill()}else{g.strokeStyle='#925536';g.beginPath();g.moveTo(28,8);g.quadraticCurveTo(32,10,34,8);g.stroke()}
   g.strokeStyle='rgba(255,245,218,.34)';g.lineWidth=.75;
   for(let row=-1;row<=1;row++)for(let col=-1;col<=1;col++){const sx=-7+col*8,sy=row*7;if(sx*sx/780+sy*sy/360<.8){g.beginPath();g.arc(sx,sy,3.2,.25,2.4);g.stroke()}}
   if(flop){g.rotate(flop);g.fillStyle='#49342c';g.font='bold 15px Arial';g.textAlign='center';g.fillText(':(',2,-29)}
@@ -1101,11 +1101,14 @@ window.addEventListener('ranchuStartupComplete',()=>{
  function drawFish(now){
   if(!fishAdded)return;
   const alive=tankPercent>0,x=alive?fishX:width*.5,y=alive?fishY:bottom()-Math.min(27,height*.105)*.72+Math.sin(now*.018)*2;
-  drawRanchu(ctx,x,y,Math.min(1,width/700),alive?fishFacing:1,now,alive?0:Math.sin(now*.012)*.22);
+  drawRanchu(ctx,x,y,Math.min(1,width/700),alive?fishFacing:1,now,alive?0:Math.sin(now*.012)*.22,fishSlurp);
  }
  function updateBloodworm(dt,now){
   if(!bloodwormAdded||tankPercent<=0)return;
   bloodwormPhase+=dt*8.5;
+  if(fishAdded&&Math.hypot(bloodwormX-fishX,bloodwormY-fishY)<31){
+   bloodwormAdded=false;fishSlurp=.42;fishVX+=fishFacing*24;playAquariumSound('food');setStatus('Your Ranchu slurped up the live bloodworm!');return;
+  }
   let desiredX=Math.sin(now*.00037)*24,desiredY=Math.sin(now*.00061)*12;
   if(fishAdded){
    const awayX=bloodwormX-fishX,awayY=bloodwormY-fishY,d=Math.hypot(awayX,awayY);
@@ -1202,6 +1205,7 @@ window.addEventListener('ranchuStartupComplete',()=>{
   ctx.restore();
  }
  function updateFish(dt,now){
+  fishSlurp=Math.max(0,fishSlurp-dt);
   if(!fishAdded||tankPercent<=0){fishVX*=Math.pow(.08,dt);fishVY*=Math.pow(.08,dt);return}
   const depth=Math.max(0,bottom()-surfaceBase());
   if(!fishPositionReady){fishX=width*.5;fishY=surfaceBase()+depth*.45;fishPositionReady=true}
@@ -1213,7 +1217,8 @@ window.addEventListener('ranchuStartupComplete',()=>{
    if((inWater&&d<145||fallingAbove&&d<95)&&d<best){best=d;target=p}
   }
   let desiredVX=0,desiredVY=0;
-  if(target){const tx=target.x-fishX,ty=target.y-fishY,d=Math.max(1,Math.hypot(tx,ty)),speed=Math.min(48,Math.max(15,d*.65));desiredVX=tx/d*speed;desiredVY=ty/d*speed}
+  if(bloodwormAdded){const wormDistance=Math.hypot(bloodwormX-fishX,bloodwormY-fishY);if(wormDistance<190&&wormDistance<best){target={x:bloodwormX,y:bloodwormY,isBloodworm:true};best=wormDistance}}
+  if(target){const tx=target.x-fishX,ty=target.y-fishY,d=Math.max(1,Math.hypot(tx,ty)),speed=Math.min(target.isBloodworm?64:48,Math.max(target.isBloodworm?24:15,d*(target.isBloodworm?.9:.65)));desiredVX=tx/d*speed;desiredVY=ty/d*speed}
   else{desiredVX=Math.sin(now*.00032)*13;desiredVY=Math.sin(now*.00021)*4}
   const response=1-Math.exp(-dt*(target?1.45:.65));
   fishVX+=(desiredVX-fishVX)*response;fishVY+=(desiredVY-fishVY)*response;
