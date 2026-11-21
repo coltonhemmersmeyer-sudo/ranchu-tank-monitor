@@ -231,48 +231,44 @@ input,select,textarea{background:#fffdf6;border-color:#e8d5ac;color:var(--text)}
 
 /* ranchu-living-motion-v1: restrained spring motion and tactile interactions */
 @keyframes ranchuPageArrive{
-  0%{opacity:0;transform:translateY(9px) scale(.994)}
-  68%{opacity:1;transform:translateY(-1.5px) scale(1.001)}
-  100%{opacity:1;transform:translateY(0) scale(1)}
+  from{opacity:0;transform:translateY(-5px)}
+  to{opacity:1;transform:translateY(0)}
 }
 @keyframes ranchuCardSpring{
-  0%{opacity:0;transform:translateY(17px) scale(.975)}
-  72%{opacity:1;transform:translateY(-2px) scale(1.002)}
-  100%{opacity:1;transform:translateY(0) scale(1)}
+  0%{opacity:0;transform:translateY(-9px)}
+  78%{opacity:1;transform:translateY(1px)}
+  100%{opacity:1;transform:translateY(0)}
 }
 @keyframes ranchuBarRise{
-  0%{transform:scaleY(.05);opacity:.45}
-  72%{transform:scaleY(1.035);opacity:1}
-  100%{transform:scaleY(1);opacity:1}
+  from{transform:scaleY(.12);opacity:.65}
+  to{transform:scaleY(1);opacity:1}
 }
 @keyframes ranchuAlertDrop{
-  0%{opacity:0;transform:translate(-50%,-135%) scale(.985)}
-  72%{opacity:1;transform:translate(-50%,5px) scale(1.002)}
-  100%{opacity:1;transform:translate(-50%,0) scale(1)}
+  from{opacity:0;transform:translate(-50%,-12px)}
+  to{opacity:1;transform:translate(-50%,0)}
 }
 @keyframes ranchuToastRise{
-  0%{opacity:0;transform:translateY(14px) scale(.98)}
-  75%{opacity:1;transform:translateY(-2px) scale(1.005)}
-  100%{opacity:1;transform:translateY(0) scale(1)}
+  from{opacity:0;transform:translateY(6px)}
+  to{opacity:1;transform:translateY(0)}
 }
-.page.active{animation:ranchuPageArrive .46s cubic-bezier(.2,.8,.2,1) both}
-.page.active .card{
-  animation:ranchuCardSpring .58s cubic-bezier(.2,.85,.25,1);
+.motion-ready .page.active{animation:ranchuPageArrive .34s ease-out both}
+.motion-ready .page.active .card{
+  animation:ranchuCardSpring .42s cubic-bezier(.22,.7,.25,1);
 }
-.page.active .card:nth-child(2){animation-delay:.045s}
-.page.active .card:nth-child(3){animation-delay:.085s}
-.page.active .card:nth-child(4){animation-delay:.125s}
-.page.active .card:nth-child(5){animation-delay:.165s}
-.page.active .card:nth-child(6){animation-delay:.205s}
-.page.active .bar{
+.motion-ready .page.active .card:nth-child(2){animation-delay:.025s}
+.motion-ready .page.active .card:nth-child(3){animation-delay:.05s}
+.motion-ready .page.active .card:nth-child(4){animation-delay:.075s}
+.motion-ready .page.active .card:nth-child(5){animation-delay:.1s}
+.motion-ready .page.active .card:nth-child(6){animation-delay:.125s}
+.motion-ready .page.active .bar{
   transform-origin:bottom center;
-  animation:ranchuBarRise .72s cubic-bezier(.2,.85,.25,1) both;
+  animation:ranchuBarRise .48s ease-out both;
 }
-.page.active .bar-wrap:nth-child(2) .bar{animation-delay:.035s}
-.page.active .bar-wrap:nth-child(3) .bar{animation-delay:.07s}
-.page.active .bar-wrap:nth-child(4) .bar{animation-delay:.105s}
-.page.active .bar-wrap:nth-child(5) .bar{animation-delay:.14s}
-.page.active .bar-wrap:nth-child(6) .bar{animation-delay:.175s}
+.motion-ready .page.active .bar-wrap:nth-child(2) .bar{animation-delay:.02s}
+.motion-ready .page.active .bar-wrap:nth-child(3) .bar{animation-delay:.04s}
+.motion-ready .page.active .bar-wrap:nth-child(4) .bar{animation-delay:.06s}
+.motion-ready .page.active .bar-wrap:nth-child(5) .bar{animation-delay:.08s}
+.motion-ready .page.active .bar-wrap:nth-child(6) .bar{animation-delay:.1s}
 @media(hover:hover) and (pointer:fine){
   .card{
     transition:transform .22s cubic-bezier(.2,.75,.25,1),box-shadow .22s ease,border-color .22s ease;
@@ -295,11 +291,11 @@ input,select,textarea{background:#fffdf6;border-color:#e8d5ac;color:var(--text)}
   transform:translateY(1px) scale(.975);
 }
 .modal-backdrop.show .modal{
-  animation:ranchuCardSpring .38s cubic-bezier(.2,.85,.25,1) both;
+  animation:ranchuCardSpring .32s ease-out both;
 }
 .toast.show{animation:ranchuToastRise .34s cubic-bezier(.2,.85,.25,1) both}
 #emergencyBanner:not([hidden]){
-  animation:emergencyTapeTravel 1.7s linear infinite,ranchuAlertDrop .62s cubic-bezier(.2,.85,.25,1) both;
+  animation:emergencyTapeTravel 1.7s linear infinite,ranchuAlertDrop .38s ease-out both;
 }
 @media(prefers-reduced-motion:reduce){
   .page.active,.page.active .card,.page.active .bar,
@@ -824,7 +820,7 @@ updateLevel(false);renderQuality();renderOther();renderFish();renderJournal();re
     if(finished)return;finished=true;clearInterval(progressTimer);
     if(message)message.textContent='Dashboard ready';
     paint(100);
-    setTimeout(()=>{overlay.classList.add('is-done');setTimeout(()=>{overlay.remove();window.dispatchEvent(new Event('ranchuStartupComplete'))},550)},260);
+    setTimeout(()=>{overlay.classList.add('is-done');setTimeout(()=>{overlay.remove();document.body.classList.add('motion-ready');window.dispatchEvent(new Event('ranchuStartupComplete'))},550)},260);
    };
    const tryFinish=()=>{
     if(pageLoaded&&performance.now()-started>=introMinimum)finish();
