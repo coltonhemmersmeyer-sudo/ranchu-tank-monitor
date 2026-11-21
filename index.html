@@ -509,6 +509,7 @@ input,select,textarea{background:#fffdf6;border-color:#e8d5ac;color:var(--text)}
 .history-row-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto}.history-delete{padding:6px 10px;font-size:10px;box-shadow:none}.history-row-actions .badge{flex:0 0 auto}@media(max-width:600px){.history-row-actions{width:100%;justify-content:space-between}.history-delete{min-height:38px}}
 
 .physics-instructions-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.wasd-indicator[hidden]{display:none!important}
 .wasd-indicator{display:flex;flex-direction:column;align-items:center;gap:3px;flex:0 0 auto;padding:3px 5px;border:1px solid rgba(174,133,71,.24);border-radius:7px;background:rgba(255,250,235,.68)}
 .wasd-bottom-keys{display:flex;gap:3px}
 .wasd-key{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border:1px solid #cbb78f;border-radius:4px;background:#f7eedb;color:#876a3d;font-size:9px;font-weight:800;line-height:1;box-shadow:0 1px 1px rgba(85,60,28,.12);transition:background .08s,color .08s,box-shadow .08s,border-color .08s}
@@ -1401,7 +1402,7 @@ window.addEventListener('ranchuStartupComplete',()=>{
   const mouth=bloodwormMouthPosition(),mouthX=mouth.x,mouthY=mouth.y;
   if(fishAdded&&Math.hypot(bloodwormX-mouthX,bloodwormY-mouthY)<19){beginBloodwormRagdoll();return}
   if(bloodwormControlEnabled&&bloodwormComputerControls&&bloodwormKeys.size){
-   const horizontal=(bloodwormKeys.has('d')?1:0)-(bloodwormKeys.has('a')?1:0),vertical=(bloodwormKeys.has('s')?1:0)-(bloodwormKeys.has('w')?1:0),length=Math.hypot(horizontal,vertical)||1,speed=165;
+   const horizontal=(bloodwormKeys.has('d')?1:0)-(bloodwormKeys.has('a')?1:0),vertical=(bloodwormKeys.has('s')?1:0)-(bloodwormKeys.has('w')?1:0),length=Math.hypot(horizontal,vertical)||1,speed=78;
    const minX=52,maxX=width-52,minY=surfaceBase()+25,maxY=bottom()-30;
    bloodwormVX=horizontal/length*speed;bloodwormVY=vertical/length*speed;
    bloodwormX=clamp(bloodwormX+bloodwormVX*dt,minX,maxX);bloodwormY=clamp(bloodwormY+bloodwormVY*dt,minY,maxY);
