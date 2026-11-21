@@ -797,7 +797,7 @@ $('mobilePageSelect').addEventListener('change',e=>showPage(e.target.value));
 function toast(message){$('toast').textContent=message;$('toast').classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>$('toast').classList.remove('show'),3000)}
 function safe(text){return String(text??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function addNotification(category,title,detail,type='info'){notifications.unshift({category,title,detail,time:new Date().toLocaleString(),type});renderNotifications();saveAppData()}
-function stateFor(v){return v<=79.9?'emergency':v<=114.2?'critical':v<=125.6?'low':'normal'}
+function stateFor(v){return v<=80?'emergency':v<=110?'critical':v<=130?'low':'normal'}
 function stateLabel(s){return ({normal:'Normal',low:'Low Water',critical:'Critical Level',emergency:'Emergency Water Loss'})[s]}
 function stateClass(s){return ({normal:'',low:' warn',critical:' orange',emergency:' red'})[s]}
 function updateLevel(showPopup=false){
@@ -875,7 +875,7 @@ $('notificationFilter').addEventListener('change',renderNotifications);
 
 
 $('testVolume').addEventListener('input',e=>setTestVolume(e.target.value,true));$('testVolumeNumber').addEventListener('change',e=>setTestVolume(e.target.value,true));
-$('testLowBtn').addEventListener('click',()=>setTestVolume(125.6,true));$('testCriticalBtn').addEventListener('click',()=>setTestVolume(96,true));$('testEmergencyBtn').addEventListener('click',()=>setTestVolume(79.9,true));
+$('testLowBtn').addEventListener('click',()=>setTestVolume(130,true));$('testCriticalBtn').addEventListener('click',()=>setTestVolume(110,true));$('testEmergencyBtn').addEventListener('click',()=>setTestVolume(80,true));
 $('testResetBtn').addEventListener('click',()=>{setTestVolume(137,true);emergencyLock=false;updateLevel(false);toast('Simulated volume restored to 137 gallons.')});
 $('rapidLossBtn').addEventListener('click',()=>{const before=gallons;setTestVolume(Math.max(0,gallons-105),true);addNotification('warning','Rapid water-loss simulation',`${before.toFixed(1)} to ${gallons.toFixed(1)} gallons in one simulated event.`,'emergency');toast('Rapid water-loss simulation complete. Refill remains locked if emergency threshold was reached.')});
 $('showLowPopup').addEventListener('click',()=>showAlertPopup('low'));$('showCriticalPopup').addEventListener('click',()=>showAlertPopup('critical'));$('showEmergencyPopup').addEventListener('click',()=>showAlertPopup('emergency'));
