@@ -1295,7 +1295,7 @@ window.addEventListener('ranchuStartupComplete',()=>{
   for(let i=1;i<points.length;i++){const x=i*dx();ctx.quadraticCurveTo(x-dx()*.5,points[i-1],x,(points[i-1]+points[i])*.5)}
  }
  function drawRanchu(g,x,y,scale,direction,now,flop=0,slurp=0,tilt=0,tailEnergy=0){
-  g.save();g.translate(x,y);g.rotate(-tilt*direction);g.scale(scale*direction,scale);
+  g.save();g.translate(x,y);g.rotate(-tilt);g.scale(scale*direction,scale);
   const tail=Math.sin(now)*(3+Math.min(1.4,tailEnergy*.022));
   g.fillStyle='#e99a58';g.beginPath();g.moveTo(-22,0);g.quadraticCurveTo(-34,-9,-45,-19+tail);g.quadraticCurveTo(-43,-5,-39,0);g.quadraticCurveTo(-43,7,-45,19-tail);g.quadraticCurveTo(-31,11,-22,0);g.fill();
   g.strokeStyle='rgba(255,237,204,.8)';g.lineWidth=1.4;g.beginPath();g.moveTo(-28,0);g.quadraticCurveTo(-37,-8,-43,-16+tail);g.moveTo(-28,1);g.quadraticCurveTo(-37,8,-43,16-tail);g.stroke();
@@ -1332,7 +1332,7 @@ window.addEventListener('ranchuStartupComplete',()=>{
  function updateBloodworm(dt,now){
   if(!bloodwormAdded||tankPercent<=0)return;
   bloodwormPhase+=dt*8.5;
-  const visualScale=Math.min(1,width/700),mouthRotation=-fishTilt*fishFacingVisual;
+  const visualScale=Math.min(1,width/700),mouthRotation=-fishTilt;
   const mouthX=fishX+Math.cos(mouthRotation)*32*visualScale*fishFacingVisual-Math.sin(mouthRotation)*8*visualScale;
   const mouthY=fishY+Math.sin(mouthRotation)*32*visualScale*fishFacingVisual+Math.cos(mouthRotation)*8*visualScale;
   if(fishAdded&&Math.hypot(bloodwormX-mouthX,bloodwormY-mouthY)<19){
@@ -1527,7 +1527,7 @@ window.addEventListener('ranchuStartupComplete',()=>{
    // as though it was folding upward instead of swimming toward the food.
    const targetTiltLimit=(target.isBloodworm||surfacePellet)?.48:target.settled?.30:.16;
    const aimTilt=clamp(-aimFacing*Math.atan2(targetDY,Math.max(20,Math.abs(targetDX))),-targetTiltLimit,targetTiltLimit);
-   const rotation=-aimTilt*aimFacing;
+   const rotation=-aimTilt;
    const localMouthX=32*visualScale*aimFacing,localMouthY=8*visualScale;
    const mouthOffsetX=Math.cos(rotation)*localMouthX-Math.sin(rotation)*localMouthY;
    const mouthOffsetY=Math.sin(rotation)*localMouthX+Math.cos(rotation)*localMouthY;
@@ -1565,7 +1565,7 @@ window.addEventListener('ranchuStartupComplete',()=>{
  function updateFood(dt){
   for(let i=food.length-1;i>=0;i--){const p=food[i];p.age+=dt;
    if(!p.settled){p.vy+=38*dt;p.y+=p.vy*dt;p.x+=p.vx||0;if(p.y>=bottom()-7){p.y=bottom()-7;p.vy=0;p.vx=0;p.settled=true}}
-   const visualScale=Math.min(1,width/700),rotation=-fishTilt*fishFacingVisual;
+   const visualScale=Math.min(1,width/700),rotation=-fishTilt;
    const localMouthX=32*visualScale*fishFacingVisual,localMouthY=8*visualScale;
    const mouthX=fishX+Math.cos(rotation)*localMouthX-Math.sin(rotation)*localMouthY;
    const mouthY=fishY+Math.sin(rotation)*localMouthX+Math.cos(rotation)*localMouthY;
