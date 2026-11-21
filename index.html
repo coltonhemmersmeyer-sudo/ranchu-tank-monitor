@@ -431,6 +431,14 @@ input,select,textarea{background:#fffdf6;border-color:#e8d5ac;color:var(--text)}
 .water-pump-icon{width:48px;height:48px;border-radius:14px;background:linear-gradient(145deg,#f4d38a,#d79b45);display:grid;place-items:center;font-size:26px;box-shadow:inset 0 2px 3px rgba(255,255,255,.7),0 4px 8px rgba(118,76,24,.15)}
 .water-pump strong{font-size:11px;color:#795323}.water-pump small{font-size:9px;color:#98764b;text-align:center;line-height:1.35}
 .water-pump button{width:100%;padding:8px 5px;font-size:10px}
+.physics-preview-badge{position:relative;overflow:visible}
+.physics-bloodworm{position:absolute;left:50%;top:-5px;width:27px;height:7px;display:flex;align-items:center;gap:0;transform:translateX(-50%) rotate(-8deg);pointer-events:none;z-index:2;animation:bloodworm-rest 3.8s ease-in-out infinite}
+.physics-bloodworm i{display:block;width:5px;height:5px;flex:0 0 5px;border-radius:55% 45% 50% 50%;background:linear-gradient(145deg,#f28b82,#a92f39 75%);box-shadow:0 0 1px rgba(100,20,25,.3);transform-origin:center}
+.physics-bloodworm i:nth-child(2n){height:4px;margin-top:1px}
+.physics-bloodworm i:first-child{width:4px;flex-basis:4px}
+.physics-bloodworm i:last-child{width:3px;flex-basis:3px}
+@keyframes bloodworm-rest{0%,72%,100%{transform:translateX(-50%) rotate(-8deg) translateY(0)}78%{transform:translateX(-50%) rotate(7deg) translateY(-2px)}84%{transform:translateX(-50%) rotate(-11deg) translateY(0)}90%{transform:translateX(-50%) rotate(3deg) translateY(-1px)}}
+@media(prefers-reduced-motion:reduce){.physics-bloodworm{animation:none}}
 .water-sim-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:11px}
 .water-sim-actions{display:flex;gap:8px;flex-wrap:wrap}
 .water-sim-actions .btn{font-size:11px;padding:9px 11px}
@@ -502,7 +510,7 @@ input,select,textarea{background:#fffdf6;border-color:#e8d5ac;color:var(--text)}
 <section class="page" id="page-water"><div class="grid">
  <div class="card span-7"><div class="card-head"><h3>Water level & volume</h3><span class="badge" id="waterBadge">Normal</span></div><div class="big"><span id="waterGallons">240.0</span> <span class="unit">/ 240 gal</span></div><div class="progress"><span id="waterBar" style="width:100%"></span></div><div class="stat-row"><span class="hint">Estimated water level</span><b id="waterPercent">100.0%</b></div><div class="notice info" style="margin-top:16px">Simulated estimate only. A real sensor must be installed, calibrated, and independently validated before readings can be used for aquarium operation.</div></div>
  <div class="card span-5"><div class="card-head"><h3>Refill controls</h3><span class="badge off">Simulation only</span></div><div class="segment"><button id="manualWaterBtn" class="selected" onclick="setWaterMode('manual')">Manual</button><button id="autoWaterBtn" onclick="setWaterMode('automatic')">Automatic preview</button></div><div id="waterModeText" class="hint" style="margin-top:12px">Manual mode: choose a simulated amount and start a pretend refill.</div><div class="field"><label for="refillAmount">Refill amount</label><select id="refillAmount"><option value="1">1 gallon</option><option value="2">2 gallons</option><option value="3">3 gallons</option><option value="5" selected>5 gallons</option><option value="10">10 gallons</option><option value="custom">Custom amount</option></select></div><div class="field" id="customAmountWrap" style="display:none"><label for="customAmount">Custom gallons</label><input id="customAmount" type="number" min="0.1" max="30" step="0.1" value="5"></div><div class="actions"><button class="btn green" id="startRefill">Start simulated refill</button><button class="btn danger" id="stopRefill">Stop</button></div><div class="hint" id="refillStatus" style="margin-top:12px">Status: Idle · Simulation only</div></div>
- <div class="card span-12 water-sim-card"><div class="card-head"><div><div class="water-sim-heading"><h3>Interactive water physics</h3><button class="fish-drag-token" id="fishDragToken" type="button" aria-label="Drag Ranchu into the aquarium" title="Drag Ranchu into the aquarium"><canvas class="fish-token-canvas" id="fishTokenCanvas" width="116" height="72" aria-hidden="true"></canvas><span id="fishTokenLabel">Ranchu</span></button><button class="food-shake-token" id="foodShakeToken" type="button" aria-label="Select fish food for placement" aria-pressed="false" title="Select food, then click inside the aquarium to place a pellet"><canvas class="food-token-canvas" id="foodTokenCanvas" width="48" height="48" aria-hidden="true"></canvas></button></div><div class="hint">Drag Ranchu into the aquarium · Select food, then click the water to place pellets · Hold and move to create waves · Wipe the glass to clear condensation</div></div><span class="badge">Physics preview</span></div><div class="water-sim-stage"><div class="water-sim-frame"><canvas id="waterPhysicsCanvas" aria-label="Interactive aquarium scene with water waves, condensation, and a Ranchu fish"></canvas><div class="water-sim-label">CONDENSATION · LIVE WATER</div></div><aside class="water-pump" aria-label="Fixed simulated water inlet"><div class="water-pump-icon" aria-hidden="true">⟲</div><strong>Side pump</strong><small>Fixed inlet</small></aside></div><div class="water-sim-footer"><span class="hint" id="waterPhysicsStatus">Water is settling under gravity.</span><div class="water-sim-actions"><button class="btn secondary" id="waterPhysicsReset" type="button">Reset waves</button></div></div><div class="hint" style="margin-top:9px">The water surface follows the dashboard’s simulated tank volume. Condensation slowly gathers on the glass; move the mouse across it or wipe with a finger. Drag the small Ranchu icon into the tank to add it, then select the food icon and click the water to place individual pellets. The fixed side inlet pours a continuous simulated stream whenever the dashboard water volume increases. The stream bends, splashes, and merges into the surface as the waterline rises; no real equipment is connected.</div></div>
+ <div class="card span-12 water-sim-card"><div class="card-head"><div><div class="water-sim-heading"><h3>Interactive water physics</h3><button class="fish-drag-token" id="fishDragToken" type="button" aria-label="Drag Ranchu into the aquarium" title="Drag Ranchu into the aquarium"><canvas class="fish-token-canvas" id="fishTokenCanvas" width="116" height="72" aria-hidden="true"></canvas><span id="fishTokenLabel">Ranchu</span></button><button class="food-shake-token" id="foodShakeToken" type="button" aria-label="Select fish food for placement" aria-pressed="false" title="Select food, then click inside the aquarium to place a pellet"><canvas class="food-token-canvas" id="foodTokenCanvas" width="48" height="48" aria-hidden="true"></canvas></button></div><div class="hint">Drag Ranchu into the aquarium · Select food, then click the water to place pellets · Hold and move to create waves · Wipe the glass to clear condensation</div></div><span class="badge physics-preview-badge">Physics preview<span class="physics-bloodworm" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span></span></div><div class="water-sim-stage"><div class="water-sim-frame"><canvas id="waterPhysicsCanvas" aria-label="Interactive aquarium scene with water waves, condensation, and a Ranchu fish"></canvas><div class="water-sim-label">CONDENSATION · LIVE WATER</div></div><aside class="water-pump" aria-label="Fixed simulated water inlet"><div class="water-pump-icon" aria-hidden="true">⟲</div><strong>Side pump</strong><small>Fixed inlet</small></aside></div><div class="water-sim-footer"><span class="hint" id="waterPhysicsStatus">Water is settling under gravity.</span><div class="water-sim-actions"><button class="btn secondary" id="waterPhysicsReset" type="button">Reset waves</button></div></div><div class="hint" style="margin-top:9px">The water surface follows the dashboard’s simulated tank volume. Condensation slowly gathers on the glass; move the mouse across it or wipe with a finger. Drag the small Ranchu icon into the tank to add it, then select the food icon and click the water to place individual pellets. The fixed side inlet pours a continuous simulated stream whenever the dashboard water volume increases. The stream bends, splashes, and merges into the surface as the waterline rises; no real equipment is connected.</div></div>
  <div class="card span-12"><div class="card-head"><h3>Three-level water warning system</h3><span class="hint">Initial thresholds for 240 gal</span></div><div class="grid"><div class="card span-4 warning-level"><span class="badge warn">Yellow · First warning</span><h3 style="margin-top:12px">Low Water</h3><div class="big">220 gal</div><div class="hint">20 gallons lost · Reminder</div></div><div class="card span-4 warning-level orange"><span class="badge orange">Orange · Critical warning</span><h3 style="margin-top:12px">Critical Level</h3><div class="big">200 gal</div><div class="hint">40 gallons lost · Critical</div></div><div class="card span-4 warning-level red"><span class="badge red">Red · Highest priority</span><h3 style="margin-top:12px">Emergency Water Loss</h3><div class="big">140 gal</div><div class="hint">100 gallons lost · Emergency</div></div></div><div class="notice info" style="margin-top:12px">Rapid-loss detection is simulated in the Testing page. Real automatic refill remains disabled. An emergency state locks out the refill simulation until you reset the test or inspect the simulated condition.</div></div>
  <div class="card span-12"><div class="card-head"><h3>Refill history</h3><span class="hint">Saved in this browser</span></div><div id="refillHistory" class="empty">No refills recorded.</div></div>
  <div class="card span-12"><div class="notice">Real automatic refill requires properly engineered hardware, independent high-level cutoff, flow monitoring, maximum volume/runtime limits, prepared water, and a physical emergency stop. This website does not operate a pump.</div></div>
@@ -1005,7 +1013,7 @@ window.addEventListener('ranchuStartupComplete',()=>{
  let width=0,height=0,dpr=1,lastTime=0,raf=0,active=false,pointerDown=false,activePointerId=null,statusUntil=0,elapsed=0,spawnClock=0;
  let tankPercent=Number(window.ranchuTankWaterPercent??100),visualTankPercent=tankPercent,lastObservedTankPercent=tankPercent,fishAdded=false,fishDrag=null,heldWaveClock=0,fishX=0,fishY=0,fishVX=0,fishVY=0,fishPositionReady=false,fishFacing=1,fillGainPerDrop=0;
  let pointer={x:0,y:0,px:0,py:0};
- const droplets=[],food=[];let fillStream=null,foodSelected=false,foodCursorGhost=null;
+ const droplets=[],food=[],tinyFillDrops=[];let fillStream=null,tinyFill=null,foodSelected=false,foodCursorGhost=null;
  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
  const dx=()=>width/(N-1),bottom=()=>height-8;
  const fillRatio=()=>clamp(visualTankPercent/100,0,1)*.78;
@@ -1108,7 +1116,37 @@ window.addEventListener('ranchuStartupComplete',()=>{
  }
  function spawnFill(amount){
   const out=pumpOutlet();
+  if(amount<=3){
+   const count=Math.max(3,Math.min(8,Math.round(amount*2.2+2)));
+   tinyFill={remaining:count,total:count,amount,startPercent:visualTankPercent,impactX:clamp(out.x-13,28,width-28),elapsed:0};
+   for(let i=0;i<count;i++)tinyFillDrops.push({x:out.x+(Math.random()-.5)*3,y:out.y+4,vy:24+Math.random()*18,vx:(Math.random()-.5)*5,r:1.7+Math.random()*.8,delay:i*.13,age:0});
+   fillStream=null;return;
+  }
+  tinyFill=null;tinyFillDrops.length=0;
   fillStream={age:0,duration:Math.min(2.5,.72+amount*.035),amount,startPercent:visualTankPercent,impactX:clamp(out.x-13,28,width-28)};
+ }
+ function updateTinyFillDrops(dt){
+  if(!tinyFill)return;
+  tinyFill.elapsed+=dt;
+  for(let i=tinyFillDrops.length-1;i>=0;i--){
+   const p=tinyFillDrops[i];p.age+=dt;if(p.age<p.delay)continue;
+   p.vy=Math.min(260,p.vy+330*dt);p.x+=p.vx*dt;p.y+=p.vy*dt;
+   const surface=surfaceBase()+offsets[clamp(Math.round(p.x/Math.max(1,dx())),0,N-1)];
+   if(p.y>=surface){
+    const idx=clamp(Math.round(p.x/Math.max(1,dx())),1,N-2);
+    velocities[idx]-=Math.min(22,p.vy*.12);velocities[idx-1]-=4;velocities[idx+1]-=4;
+    tinyFill.remaining--;visualTankPercent=Math.min(tankPercent,tinyFill.startPercent+tinyFill.amount*(tinyFill.total-tinyFill.remaining)/tinyFill.total);
+    tinyFillDrops.splice(i,1);
+   }else if(p.age>2.5)tinyFillDrops.splice(i,1);
+  }
+  if(tinyFillDrops.length===0){visualTankPercent=tankPercent;tinyFill=null}
+ }
+ function drawTinyFillDrops(){
+  for(const p of tinyFillDrops){
+   const g=ctx.createRadialGradient(p.x-p.r*.35,p.y-p.r*.4,.2,p.x,p.y,p.r*1.8);
+   g.addColorStop(0,'rgba(255,255,255,.98)');g.addColorStop(.48,'rgba(204,244,247,.9)');g.addColorStop(1,'rgba(96,190,204,.22)');
+   ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(p.x,p.y,p.r*.72,p.r*1.65,-.12,0,Math.PI*2);ctx.fill();
+  }
  }
  function updateFillStream(dt){
   if(!fillStream){if(visualTankPercent<tankPercent)visualTankPercent=tankPercent;return}
@@ -1117,7 +1155,7 @@ window.addEventListener('ranchuStartupComplete',()=>{
   const idx=clamp(Math.round(stream.impactX/Math.max(1,dx())),1,N-2);
   const pulse=Math.sin(stream.age*18)*.7+.3;
   velocities[idx]-=(24+18*pulse)*dt;velocities[idx-1]-=9*dt;velocities[idx+1]-=9*dt;
-  if(progress>=1){visualTankPercent=tankPercent;fillStream=null}
+  if(progress>=1){visualTankPercent=tankPercent;fillStream=null;tinyFill=null;tinyFillDrops.length=0}
  }
  function drawFillStream(now){
   if(!fillStream)return;
@@ -1173,6 +1211,7 @@ window.addEventListener('ranchuStartupComplete',()=>{
   }
   drawSidePump(now,base);
   drawFillStream(now);
+  drawTinyFillDrops();
   drawFish(now);
   for(const p of food){ctx.fillStyle='#d98a2d';ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();ctx.fillStyle='rgba(255,244,205,.8)';ctx.beginPath();ctx.arc(p.x-.8,p.y-.8,Math.max(1,p.r*.35),0,Math.PI*2);ctx.fill()}
   for(const d of droplets){
@@ -1185,7 +1224,7 @@ window.addEventListener('ranchuStartupComplete',()=>{
  function loop(now){
   if(!active){raf=0;return}
   const dt=Math.min(.022,Math.max(.001,(now-lastTime)/1000||.016));lastTime=now;tankPercent=Number(window.ranchuTankWaterPercent??tankPercent);
-  if(waterPage.classList.contains('active')){if(tankPercent>lastObservedTankPercent+.01){spawnFill(tankPercent-lastObservedTankPercent)}else if(tankPercent<lastObservedTankPercent-.01){visualTankPercent=tankPercent;fillStream=null}lastObservedTankPercent=tankPercent;if(pointerDown&&tankPercent>0){heldWaveClock+=dt;if(heldWaveClock>=.075){disturb(pointer.x,pointer.y,0,0,true);heldWaveClock=0}}physics(dt);updateFillStream(dt);updateFish(dt,now);updateCondensation(dt);updateFood(dt);render(now);if(status&&now>statusUntil)status.textContent=tankPercent<=0&&fishAdded?'The tank is empty in this simulation. Your Ranchu is not happy.': 'Move across the glass to wipe condensation; hold and drag in the water to make waves.'}
+  if(waterPage.classList.contains('active')){if(tankPercent>lastObservedTankPercent+.01){spawnFill(tankPercent-lastObservedTankPercent)}else if(tankPercent<lastObservedTankPercent-.01){visualTankPercent=tankPercent;fillStream=null}lastObservedTankPercent=tankPercent;if(pointerDown&&tankPercent>0){heldWaveClock+=dt;if(heldWaveClock>=.075){disturb(pointer.x,pointer.y,0,0,true);heldWaveClock=0}}physics(dt);updateFillStream(dt);updateTinyFillDrops(dt);updateFish(dt,now);updateCondensation(dt);updateFood(dt);render(now);if(status&&now>statusUntil)status.textContent=tankPercent<=0&&fishAdded?'The tank is empty in this simulation. Your Ranchu is not happy.': 'Move across the glass to wipe condensation; hold and drag in the water to make waves.'}
   raf=requestAnimationFrame(loop);
  }
  function start(){if(active)return;active=true;resize();lastTime=performance.now();raf=requestAnimationFrame(loop)}
