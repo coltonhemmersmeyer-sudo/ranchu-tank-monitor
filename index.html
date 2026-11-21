@@ -412,7 +412,7 @@ input,select,textarea{background:#fffdf6;border-color:#e8d5ac;color:var(--text)}
 
 /* Interactive 2D particle-fluid simulation on the Water page. */
 .water-sim-frame{position:relative;height:300px;overflow:hidden;border:1px solid #e7d19f;border-radius:16px;background:linear-gradient(180deg,#fffaf0 0%,#fff3d7 100%);touch-action:pan-y}
-#waterPhysicsCanvas{display:block;width:100%;height:100%;touch-action:pan-y;cursor:crosshair}
+#waterPhysicsCanvas{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair}
 .water-sim-label{position:absolute;top:10px;left:12px;padding:5px 8px;border:1px solid rgba(190,139,60,.25);border-radius:7px;background:rgba(255,250,235,.78);color:#98713b;font-size:9px;font-weight:800;letter-spacing:1.1px;pointer-events:none}
 .water-sim-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:11px}
 @media(max-width:600px){.water-sim-frame{height:250px}.water-sim-footer{align-items:flex-start;flex-direction:column}.water-sim-footer .btn{width:100%}}
@@ -1062,7 +1062,7 @@ window.addEventListener('ranchuStartupComplete',()=>{
   const alive=tankPercent>0,travel=now*.00016;
   const x=width*(.5+.29*Math.sin(travel));
   const waterDepth=Math.max(0,bottom()-surfaceBase());
-  const y=alive?surfaceBase()+waterDepth*(.43+.08*Math.sin(travel*1.7)):bottom()-17+Math.sin(now*.018)*3;
+  const y=alive?surfaceBase()+waterDepth*(.43+.08*Math.sin(travel*1.7)):bottom()-Math.min(27,height*.105)*.72+Math.sin(now*.018)*3;
   const direction=Math.cos(travel)>=0?1:-1;
   const flop=alive?0:Math.sin(now*.025)*.42;
   const bob=alive?Math.sin(travel*2.3)*2:0;
@@ -1085,7 +1085,7 @@ window.addEventListener('ranchuStartupComplete',()=>{
   ctx.fillStyle='rgba(226,112,91,.48)';ctx.beginPath();ctx.arc(bodyW*.85,bodyH*.15,4,0,Math.PI*2);ctx.fill();
   ctx.strokeStyle='#7c4a35';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(bodyW*.95,bodyH*.43);ctx.lineTo(bodyW*1.08,bodyH*.47);ctx.stroke();
   if(!alive){
-   ctx.save();ctx.scale(1,-1);ctx.fillStyle='#47312a';ctx.font='bold 18px Arial';ctx.textAlign='center';ctx.fillText(':(',bodyW*.35,-bodyH*1.05);ctx.restore();
+   ctx.fillStyle='#47312a';ctx.font='bold 18px Arial';ctx.textAlign='center';ctx.fillText(':(',bodyW*.35,-bodyH*1.05);
    ctx.strokeStyle='rgba(255,239,215,.85)';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(-bodyW*.25,-bodyH*.85,4,Math.PI,Math.PI*1.8);ctx.stroke();
   }
   ctx.restore();
