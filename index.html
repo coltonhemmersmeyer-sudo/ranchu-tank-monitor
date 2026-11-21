@@ -631,7 +631,21 @@ updateLevel(false);renderQuality();renderOther();renderFish();renderJournal();re
   {
    const started=performance.now();let finished=false,pageLoaded=document.readyState==='complete';
    const introMinimum=6500;
-   const paint=value=>{const n=Math.max(0,Math.min(100,Math.round(value)));progress.style.width=n+'%';percent.textContent=n+'%'};
+   let lastLoaderSoundStep=0;
+   const paint=value=>{
+    const n=Math.max(0,Math.min(100,Math.round(value)));
+    progress.style.width=n+'%';percent.textContent=n+'%';
+    const step=Math.floor(n/10);
+    if(step>lastLoaderSoundStep){
+     lastLoaderSoundStep=step;
+     if(step<=9&&soundEnabled){
+      withAudioReady(ctx=>{
+       const now=ctx.currentTime+.015;
+       scheduleTone(ctx,520+step*55,now,.055,.022,'sine');
+      });
+     }
+    }
+   };
    const progressTimer=setInterval(()=>{
     if(finished)return;
     const elapsed=performance.now()-started;
