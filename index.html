@@ -108,6 +108,33 @@ textarea{min-height:88px;resize:vertical}input:focus,select:focus,textarea:focus
 @media(max-width:900px){.app{grid-template-columns:1fr}.sidebar{padding:12px 14px;border-right:0;border-bottom:1px solid var(--line);gap:10px}.brand{padding:0 4px 9px}.nav-label,.sidebar-bottom{display:none}nav{display:flex;overflow-x:auto;overscroll-behavior-x:contain;padding:2px 0 8px;gap:7px;scrollbar-width:thin}.nav-btn{white-space:nowrap;flex:0 0 auto;padding:11px 13px;font-size:13px}.main{padding:20px 18px 40px}.span-8,.span-7,.span-5,.span-4{grid-column:span 6}}
 @media(max-width:600px){.sidebar{padding:11px 10px}.brand h1{font-size:17px}.brand p{font-size:12px}.logo{width:44px;height:44px}.nav-label,nav,.sidebar-bottom{display:none!important}.mobile-nav-label{display:block;color:var(--muted);font-size:11px;margin:0 2px 5px}.mobile-page-select{display:block;width:100%;min-height:48px;padding:12px 42px 12px 13px;border-radius:12px;font-size:16px;background:#f5fcfd;border:1px solid #c6e4ec;color:var(--text)}.main{padding:16px 11px calc(28px + env(safe-area-inset-bottom))}.topbar{align-items:flex-start;flex-direction:column;gap:10px;margin-bottom:15px}h2{font-size:25px}.pills{justify-content:flex-start}.pill{white-space:normal;line-height:1.3}.grid{grid-template-columns:minmax(0,1fr);gap:10px}.span-12,.span-8,.span-7,.span-6,.span-5,.span-4{grid-column:1/-1}.card{padding:15px;border-radius:16px}.card-head{align-items:flex-start;flex-wrap:wrap}.stat-row{align-items:flex-start;flex-wrap:wrap}.big{font-size:31px;overflow-wrap:anywhere}.mini-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.actions{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}.actions .btn{width:100%;min-height:45px}.segment{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.segment button{min-width:0;min-height:44px}.list-row{gap:8px;flex-wrap:wrap}.modal-backdrop{align-items:flex-end;padding:10px}.modal{max-height:85dvh;overflow-y:auto;padding:18px;width:100%}.toast{left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));text-align:center}}
 
+/* Refined grouped navigation and a purpose-built mobile section picker */
+.nav-group{display:grid;gap:5px}
+.nav-group+.nav-group{margin-top:9px;padding-top:10px;border-top:1px solid rgba(205,151,65,.3)}
+.nav-group .nav-label{margin:0 0 2px;padding:0 10px;font-size:9px;letter-spacing:1.45px;font-weight:800;color:#a17c4b}
+.mobile-navigation{display:none}
+@media(max-width:900px){
+ #navigation{display:flex;align-items:stretch;gap:9px}
+ .nav-group{display:flex;align-items:center;gap:6px;flex:0 0 auto}
+ .nav-group+.nav-group{margin:0;padding:0 0 0 9px;border-top:0;border-left:1px solid rgba(205,151,65,.4)}
+ .nav-group .nav-label{display:none}
+}
+@media(max-width:600px){
+ #navigation,.mobile-nav-label,.mobile-page-select{display:none!important}
+ .mobile-navigation{display:grid;gap:12px;padding:12px;border:1px solid #ead5a7;border-radius:18px;background:linear-gradient(145deg,rgba(255,253,246,.98),rgba(255,245,219,.96));box-shadow:0 6px 18px rgba(151,96,28,.09)}
+ .mobile-navigation-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 2px 3px;color:#a17436;font-size:10px;font-weight:850;letter-spacing:1.25px}
+ .mobile-navigation-hint{font-size:10px;font-weight:550;letter-spacing:0;text-transform:none;color:#b09268}
+ .mobile-nav-group{display:grid;gap:7px}
+ .mobile-nav-group-title{display:flex;align-items:center;gap:8px;color:#99703a;font-size:10px;font-weight:850;letter-spacing:1.1px;text-transform:uppercase}
+ .mobile-nav-group-title:after{content:"";height:1px;flex:1;background:linear-gradient(90deg,#ead4a5,transparent)}
+ .mobile-nav-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+ .mobile-nav-btn{display:flex;align-items:center;gap:9px;min-width:0;min-height:43px;padding:9px 11px;border:1px solid #eddfbf;border-radius:12px;background:#fffdf7;color:#79572e;text-align:left;font-size:12px;font-weight:750;box-shadow:0 2px 5px rgba(151,96,28,.045);transition:background .16s,border-color .16s,transform .16s}
+ .mobile-nav-btn>span{width:21px;flex:0 0 21px;text-align:center;font-size:17px}
+ .mobile-nav-btn.active{background:linear-gradient(135deg,#ffedbf,#ffe2a1);border-color:#e8bd68;color:#8c541d;box-shadow:inset 0 0 0 1px rgba(222,161,62,.12),0 3px 8px rgba(151,96,28,.08)}
+ .mobile-nav-btn:active{transform:scale(.985)}
+ .mobile-nav-btn:focus-visible{outline:3px solid rgba(224,157,54,.35);outline-offset:2px}
+}
+
 /* ranchu-additive-ui-polish-v1: warm dividers, startup screen, and sound controls */
 html.skip-intro-video #introVideoScreen{display:none!important}
 html.waiting-for-intro #startupScreen{visibility:hidden;opacity:0;pointer-events:none}
@@ -235,25 +262,48 @@ input,select,textarea{background:#fffdf6;border-color:#e8d5ac;color:var(--text)}
    <p>240-GALLON AQUARIUM</p>
   </div>
  </div>
- <div class="nav-label">Aquarium</div>
- <nav id="navigation">
-  <button class="nav-btn active" data-page="overview"><span class="nav-icon">⌂</span>Overview</button>
-  <button class="nav-btn" data-page="water"><span class="nav-icon">◉</span>Water</button>
-  <button class="nav-btn" data-page="feeding"><span class="nav-icon">♧</span>Feeding</button>
-  <button class="nav-btn" data-page="conditions"><span class="nav-icon">⌁</span>Conditions</button>
-  <button class="nav-btn" data-page="fish"><span class="nav-icon">🐠</span>Fish</button>
-  <button class="nav-btn" data-page="journal"><span class="nav-icon">▤</span>Journal</button>
-  <button class="nav-btn" data-page="notifications"><span class="nav-icon">♢</span>Notifications</button>
-  <button class="nav-btn" data-page="camera"><span class="nav-icon">▣</span>Camera</button>
-  <button class="nav-btn" data-page="devices"><span class="nav-icon">⚙</span>Devices</button>
-  <button class="nav-btn" data-page="status"><span class="nav-icon">◫</span>Status</button>
-  <button class="nav-btn" data-page="testing"><span class="nav-icon">🧪</span>Testing</button>
-  <button class="nav-btn" data-page="settings"><span class="nav-icon">⚙</span>Settings</button>
+ <nav id="navigation" aria-label="Main navigation">
+  <div class="nav-group"><div class="nav-label">Dashboard</div>
+   <button class="nav-btn active" data-page="overview"><span class="nav-icon">⌂</span>Overview</button>
+  </div>
+  <div class="nav-group"><div class="nav-label">Water Quality</div>
+   <button class="nav-btn" data-page="water"><span class="nav-icon">◉</span>Water</button>
+   <button class="nav-btn" data-page="conditions"><span class="nav-icon">⌁</span>Conditions</button>
+  </div>
+  <div class="nav-group"><div class="nav-label">Aquarium Care &amp; Monitoring</div>
+   <button class="nav-btn" data-page="fish"><span class="nav-icon">🐠</span>Fish</button>
+   <button class="nav-btn" data-page="feeding"><span class="nav-icon">♧</span>Feeding</button>
+   <button class="nav-btn" data-page="camera"><span class="nav-icon">▣</span>Camera</button>
+   <button class="nav-btn" data-page="devices"><span class="nav-icon">⚙</span>Devices</button>
+  </div>
+  <div class="nav-group"><div class="nav-label">Records &amp; Project</div>
+   <button class="nav-btn" data-page="journal"><span class="nav-icon">▤</span>Journal</button>
+   <button class="nav-btn" data-page="notifications"><span class="nav-icon">♢</span>Notifications</button>
+   <button class="nav-btn" data-page="status"><span class="nav-icon">◫</span>Project Status</button>
+  </div>
+  <div class="nav-group"><div class="nav-label">Tools</div>
+   <button class="nav-btn" data-page="testing"><span class="nav-icon">🧪</span>Testing</button>
+   <button class="nav-btn" data-page="settings"><span class="nav-icon">⚙</span>Settings</button>
+  </div>
  </nav>
- <label class="mobile-nav-label" for="mobilePageSelect">Open section</label>
- <select id="mobilePageSelect" class="mobile-page-select" aria-label="Choose dashboard section">
-  <option value="overview">Overview</option><option value="water">Water</option><option value="feeding">Feeding</option><option value="conditions">Conditions</option><option value="fish">Fish</option><option value="journal">Journal</option><option value="notifications">Notifications</option><option value="camera">Camera</option><option value="devices">Devices</option><option value="status">Status</option><option value="testing">Testing</option><option value="settings">Settings</option>
- </select>
+ <div class="mobile-navigation" aria-label="Dashboard navigation">
+  <div class="mobile-navigation-heading"><span>QUICK NAVIGATION</span><span class="mobile-navigation-hint">Tap a section</span></div>
+  <div class="mobile-nav-group"><div class="mobile-nav-group-title">Dashboard</div><div class="mobile-nav-grid">
+   <button class="mobile-nav-btn active" data-page="overview"><span>⌂</span>Overview</button>
+  </div></div>
+  <div class="mobile-nav-group"><div class="mobile-nav-group-title">Water Quality</div><div class="mobile-nav-grid">
+   <button class="mobile-nav-btn" data-page="water"><span>◉</span>Water</button><button class="mobile-nav-btn" data-page="conditions"><span>⌁</span>Conditions</button>
+  </div></div>
+  <div class="mobile-nav-group"><div class="mobile-nav-group-title">Aquarium Care &amp; Monitoring</div><div class="mobile-nav-grid">
+   <button class="mobile-nav-btn" data-page="fish"><span>🐠</span>Fish</button><button class="mobile-nav-btn" data-page="feeding"><span>♧</span>Feeding</button><button class="mobile-nav-btn" data-page="camera"><span>▣</span>Camera</button><button class="mobile-nav-btn" data-page="devices"><span>⚙</span>Devices</button>
+  </div></div>
+  <div class="mobile-nav-group"><div class="mobile-nav-group-title">Records &amp; Project</div><div class="mobile-nav-grid">
+   <button class="mobile-nav-btn" data-page="journal"><span>▤</span>Journal</button><button class="mobile-nav-btn" data-page="notifications"><span>♢</span>Notifications</button><button class="mobile-nav-btn" data-page="status"><span>◫</span>Project Status</button>
+  </div></div>
+  <div class="mobile-nav-group"><div class="mobile-nav-group-title">Tools</div><div class="mobile-nav-grid">
+   <button class="mobile-nav-btn" data-page="testing"><span>🧪</span>Testing</button><button class="mobile-nav-btn" data-page="settings"><span>⚙</span>Settings</button>
+  </div></div>
+ </div>
  <div class="sidebar-bottom"><strong>System operating mode</strong><span>Simulation only · No hardware connected</span></div>
 </aside>
 <main class="main">
@@ -340,9 +390,8 @@ const $=id=>document.getElementById(id);
 const today=()=>new Date().toISOString().slice(0,10);
 loadAppData();
 ['qualityNoteDate','qualityTestDate','otherNoteDate','journalDate','fishArrival'].forEach(id=>{if($(id)&&!$(id).value)$(id).value=today()});
-function showPage(name){if(!pageInfo[name])return;document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));$('page-'+name).classList.add('active');document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.page===name));$('pageTitle').textContent=pageInfo[name][0];$('pageSubtitle').textContent=pageInfo[name][1];if($('mobilePageSelect'))$('mobilePageSelect').value=name;window.scrollTo({top:0,behavior:'smooth'});}
-document.querySelectorAll('.nav-btn').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));
-$('mobilePageSelect').addEventListener('change',e=>showPage(e.target.value));
+function showPage(name){if(!pageInfo[name])return;document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));$('page-'+name).classList.add('active');document.querySelectorAll('.nav-btn,.mobile-nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.page===name));$('pageTitle').textContent=pageInfo[name][0];$('pageSubtitle').textContent=pageInfo[name][1];window.scrollTo({top:0,behavior:'smooth'});}
+document.querySelectorAll('.nav-btn,.mobile-nav-btn').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));
 function toast(message){$('toast').textContent=message;$('toast').classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>$('toast').classList.remove('show'),3000)}
 function safe(text){return String(text??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function addNotification(category,title,detail,type='info'){notifications.unshift({category,title,detail,time:new Date().toLocaleString(),type});renderNotifications();saveAppData()}
