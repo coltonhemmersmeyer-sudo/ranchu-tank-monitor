@@ -410,12 +410,23 @@ input,select,textarea{background:#fffdf6;border-color:#e8d5ac;color:var(--text)}
 }
 
 
-/* Interactive 2D particle-fluid simulation on the Water page. */
-.water-sim-frame{position:relative;height:300px;overflow:hidden;border:1px solid #e7d19f;border-radius:16px;background:linear-gradient(180deg,#fffaf0 0%,#fff3d7 100%);touch-action:pan-y}
+/* Interactive shallow-water scene, condensation glass, fish and simulated side pump. */
+.water-sim-heading{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.fish-drag-token{display:inline-flex;align-items:center;gap:7px;border:1px solid #e6c77f;background:#fff5d9;color:#80531e;border-radius:999px;padding:7px 11px;font-size:11px;font-weight:800;cursor:grab;touch-action:none;user-select:none;box-shadow:0 3px 8px rgba(151,96,28,.12)}
+.fish-drag-token:active,.fish-drag-token.dragging{cursor:grabbing;box-shadow:0 8px 18px rgba(151,96,28,.2);transform:scale(1.04)}
+.fish-drag-token .fish-token-icon{font-size:19px;line-height:1}
+.water-sim-stage{display:flex;align-items:stretch;gap:10px}
+.water-sim-frame{position:relative;flex:1;min-width:0;height:300px;overflow:hidden;border:1px solid #e7d19f;border-radius:16px;background:linear-gradient(180deg,#fffaf0 0%,#fff3d7 100%);touch-action:none}
 #waterPhysicsCanvas{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair}
 .water-sim-label{position:absolute;top:10px;left:12px;padding:5px 8px;border:1px solid rgba(190,139,60,.25);border-radius:7px;background:rgba(255,250,235,.78);color:#98713b;font-size:9px;font-weight:800;letter-spacing:1.1px;pointer-events:none}
+.water-pump{width:104px;flex:0 0 104px;border:1px solid #e6d09f;border-radius:15px;background:linear-gradient(180deg,#fff8e6,#f5e4bd);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;padding:10px}
+.water-pump-icon{width:48px;height:48px;border-radius:14px;background:linear-gradient(145deg,#f4d38a,#d79b45);display:grid;place-items:center;font-size:26px;box-shadow:inset 0 2px 3px rgba(255,255,255,.7),0 4px 8px rgba(118,76,24,.15)}
+.water-pump strong{font-size:11px;color:#795323}.water-pump small{font-size:9px;color:#98764b;text-align:center;line-height:1.35}
+.water-pump button{width:100%;padding:8px 5px;font-size:10px}
 .water-sim-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:11px}
-@media(max-width:600px){.water-sim-frame{height:250px}.water-sim-footer{align-items:flex-start;flex-direction:column}.water-sim-footer .btn{width:100%}}
+.water-sim-actions{display:flex;gap:8px;flex-wrap:wrap}
+.water-sim-actions .btn{font-size:11px;padding:9px 11px}
+@media(max-width:600px){.water-sim-stage{gap:7px}.water-sim-frame{height:250px}.water-pump{width:78px;flex-basis:78px;padding:7px}.water-pump-icon{width:39px;height:39px;font-size:22px}.water-pump button{font-size:9px;padding:8px 3px}.water-sim-footer{align-items:flex-start;flex-direction:column}.water-sim-footer .btn{width:100%}.water-sim-actions{width:100%}.water-sim-actions .btn{flex:1}}
 </style>
 </head>
 <body>
@@ -483,7 +494,7 @@ input,select,textarea{background:#fffdf6;border-color:#e8d5ac;color:var(--text)}
 <section class="page" id="page-water"><div class="grid">
  <div class="card span-7"><div class="card-head"><h3>Water level & volume</h3><span class="badge" id="waterBadge">Normal</span></div><div class="big"><span id="waterGallons">240.0</span> <span class="unit">/ 240 gal</span></div><div class="progress"><span id="waterBar" style="width:100%"></span></div><div class="stat-row"><span class="hint">Estimated water level</span><b id="waterPercent">100.0%</b></div><div class="notice info" style="margin-top:16px">Simulated estimate only. A real sensor must be installed, calibrated, and independently validated before readings can be used for aquarium operation.</div></div>
  <div class="card span-5"><div class="card-head"><h3>Refill controls</h3><span class="badge off">Simulation only</span></div><div class="segment"><button id="manualWaterBtn" class="selected" onclick="setWaterMode('manual')">Manual</button><button id="autoWaterBtn" onclick="setWaterMode('automatic')">Automatic preview</button></div><div id="waterModeText" class="hint" style="margin-top:12px">Manual mode: choose a simulated amount and start a pretend refill.</div><div class="field"><label for="refillAmount">Refill amount</label><select id="refillAmount"><option value="1">1 gallon</option><option value="2">2 gallons</option><option value="3">3 gallons</option><option value="5" selected>5 gallons</option><option value="10">10 gallons</option><option value="custom">Custom amount</option></select></div><div class="field" id="customAmountWrap" style="display:none"><label for="customAmount">Custom gallons</label><input id="customAmount" type="number" min="0.1" max="30" step="0.1" value="5"></div><div class="actions"><button class="btn green" id="startRefill">Start simulated refill</button><button class="btn danger" id="stopRefill">Stop</button></div><div class="hint" id="refillStatus" style="margin-top:12px">Status: Idle · Simulation only</div></div>
- <div class="card span-12 water-sim-card"><div class="card-head"><div><h3>Interactive water physics</h3><div class="hint">Live water, glass condensation, and a swimming Ranchu · Wipe the glass or drag through the water</div></div><span class="badge">Physics preview</span></div><div class="water-sim-frame"><canvas id="waterPhysicsCanvas" aria-label="Interactive aquarium scene with water waves, condensation, and a swimming Ranchu"></canvas><div class="water-sim-label">CONDENSATION · LIVE WATER</div></div><div class="water-sim-footer"><span class="hint" id="waterPhysicsStatus">Water is settling under gravity.</span><button class="btn secondary" id="waterPhysicsReset" type="button">Reset water</button></div><div class="hint" style="margin-top:9px">The water surface follows the dashboard’s simulated tank volume. Condensation slowly forms on the glass and can be wiped away with a mouse or finger. The Ranchu swims while water remains and reacts visually if the simulated level reaches zero.</div></div>
+ <div class="card span-12 water-sim-card"><div class="card-head"><div><div class="water-sim-heading"><h3>Interactive water physics</h3><button class="fish-drag-token" id="fishDragToken" type="button" aria-label="Drag the Ranchu fish into the aquarium"><span class="fish-token-icon">🐟</span><span id="fishTokenLabel">Drag fish into tank</span></button></div><div class="hint">Drag the little fish into the aquarium · Hold and move to create waves · Wipe the glass to clear condensation</div></div><span class="badge">Physics preview</span></div><div class="water-sim-stage"><div class="water-sim-frame"><canvas id="waterPhysicsCanvas" aria-label="Interactive aquarium scene with water waves, condensation, and a Ranchu fish"></canvas><div class="water-sim-label">CONDENSATION · LIVE WATER</div></div><aside class="water-pump"><div class="water-pump-icon" aria-hidden="true">♧</div><strong>Side pump</strong><small>Simulated water removal</small><button class="btn secondary" id="waterPumpButton" type="button">−10 gal</button><small id="waterPumpStatus">Ready</small></aside></div><div class="water-sim-footer"><span class="hint" id="waterPhysicsStatus">Water is settling under gravity.</span><div class="water-sim-actions"><button class="btn green" id="feedSimFish" type="button">Feed fish · a little</button><button class="btn secondary" id="waterPhysicsReset" type="button">Reset waves</button></div></div><div class="hint" style="margin-top:9px">The water surface follows the dashboard’s simulated tank volume. Condensation slowly gathers on the glass; move the mouse across it or wipe with a finger. The fish is added by dragging its icon into the tank. The side pump changes the dashboard’s simulated volume only—no real equipment is connected.</div></div>
  <div class="card span-12"><div class="card-head"><h3>Three-level water warning system</h3><span class="hint">Initial thresholds for 240 gal</span></div><div class="grid"><div class="card span-4 warning-level"><span class="badge warn">Yellow · First warning</span><h3 style="margin-top:12px">Low Water</h3><div class="big">220 gal</div><div class="hint">20 gallons lost · Reminder</div></div><div class="card span-4 warning-level orange"><span class="badge orange">Orange · Critical warning</span><h3 style="margin-top:12px">Critical Level</h3><div class="big">200 gal</div><div class="hint">40 gallons lost · Critical</div></div><div class="card span-4 warning-level red"><span class="badge red">Red · Highest priority</span><h3 style="margin-top:12px">Emergency Water Loss</h3><div class="big">140 gal</div><div class="hint">100 gallons lost · Emergency</div></div></div><div class="notice info" style="margin-top:12px">Rapid-loss detection is simulated in the Testing page. Real automatic refill remains disabled. An emergency state locks out the refill simulation until you reset the test or inspect the simulated condition.</div></div>
  <div class="card span-12"><div class="card-head"><h3>Refill history</h3><span class="hint">Saved in this browser</span></div><div id="refillHistory" class="empty">No refills recorded.</div></div>
  <div class="card span-12"><div class="notice">Real automatic refill requires properly engineered hardware, independent high-level cutoff, flow monitoring, maximum volume/runtime limits, prepared water, and a physical emergency stop. This website does not operate a pump.</div></div>
@@ -588,6 +599,14 @@ function updateLevel(showPopup=false){
  lastAlertState=state;
 }
 let lastAlertState='normal';
+window.addEventListener('ranchu:simulate-pump',event=>{
+ const amount=Math.max(0,Math.min(10,Number(event.detail?.gallons)||10));
+ const before=gallons;gallons=Math.max(0,gallons-amount);
+ lastVolumeChange={time:Date.now(),value:gallons};updateLevel(true);saveAppData();
+ const removed=before-gallons;
+ const pumpStatus=$('waterPumpStatus');
+ if(pumpStatus)pumpStatus.textContent=removed>0?removed.toFixed(1)+' gal removed': 'Tank is empty';
+});
 function drawChart(){const vals=[238,237,239,236,238,240,gallons],labels=['-6','-5','-4','-3','-2','-1','Now'];$('historyChart').innerHTML=vals.map((v,i)=>`<div class="bar-wrap"><div class="bar" style="height:${Math.max(4,v/CAPACITY*100)}%"></div><small>${labels[i]}</small></div>`).join('')}
 function setTestVolume(value,showPopup=true){const next=Number(value);if(!Number.isFinite(next))return;const old=gallons;gallons=Math.max(0,Math.min(CAPACITY,next));lastVolumeChange={time:Date.now(),value:gallons};updateLevel(showPopup);if(old-gallons>=10)addNotification('warning','Rapid water-loss pattern',`${(old-gallons).toFixed(1)} simulated gallons dropped in one test action.`,'emergency')}
 function isStandaloneApp(){return window.matchMedia?.('(display-mode: standalone)').matches===true||navigator.standalone===true}
@@ -973,174 +992,165 @@ window.addEventListener('ranchuStartupComplete',()=>{
 },{once:true});
 
 
-/* Continuous shallow-water scene: wave field, condensation, and a swimming Ranchu. */
+/* Interactive shallow-water scene: stable wave input, slow condensation, drag-in Ranchu, feeding and pump. */
 (()=>{
  const canvas=document.getElementById('waterPhysicsCanvas'),frame=canvas?.parentElement;
  const resetButton=document.getElementById('waterPhysicsReset'),status=document.getElementById('waterPhysicsStatus');
- const waterPage=document.getElementById('page-water');
+ const waterPage=document.getElementById('page-water'),fishToken=document.getElementById('fishDragToken');
+ const pumpButton=document.getElementById('waterPumpButton'),feedButton=document.getElementById('feedSimFish');
  if(!canvas||!frame||!waterPage)return;
  const ctx=canvas.getContext('2d');if(!ctx)return;
  const N=220,offsets=new Float32Array(N),velocities=new Float32Array(N);
  let width=0,height=0,dpr=1,lastTime=0,raf=0,active=false,pointerDown=false,statusUntil=0,elapsed=0,spawnClock=0;
- let tankPercent=Number(window.ranchuTankWaterPercent??100);
+ let tankPercent=Number(window.ranchuTankWaterPercent??100),fishAdded=false,fishDrag=null;
  let pointer={x:0,y:0,px:0,py:0};
- const droplets=[];
+ const droplets=[],food=[];
  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
- const dx=()=>width/(N-1);
- const bottom=()=>height-8;
+ const dx=()=>width/(N-1),bottom=()=>height-8;
  const fillRatio=()=>clamp(tankPercent/100,0,1)*.78;
  const surfaceBase=()=>bottom()-height*fillRatio();
  function resize(){
   const r=frame.getBoundingClientRect();if(r.width<20||r.height<20)return;
   width=r.width;height=r.height;dpr=Math.min(window.devicePixelRatio||1,2);
-  canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr);
-  ctx.setTransform(dpr,0,0,dpr,0,0);
+  canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);
  }
- function setStatus(message){if(status)status.textContent=message;statusUntil=performance.now()+1800}
- function disturb(x,y,moveX,moveY){
+ function setStatus(message){if(status)status.textContent=message;statusUntil=performance.now()+2200}
+ function disturb(x,y,moveX,moveY,held=false){
   if(tankPercent<=0)return;
-  const center=clamp(Math.round(x/Math.max(1,dx())),0,N-1),reach=Math.max(5,Math.round(48/Math.max(1,dx())));
-  const strength=clamp((-moveY*.95+moveX*.22),-95,95);
+  const center=clamp(Math.round(x/Math.max(1,dx())),0,N-1),reach=Math.max(5,Math.round(55/Math.max(1,dx())));
+  const movement=Math.hypot(moveX,moveY);
+  const strength=clamp((-moveY*1.35+moveX*.34)+(held&&movement<.5?4.5:0),-125,125);
   for(let i=Math.max(1,center-reach*2);i<Math.min(N-1,center+reach*2);i++){
-   const q=(i-center)/reach,weight=Math.exp(-q*q*1.35);
-   velocities[i]+=strength*weight;
-   offsets[i]+=clamp(-moveY*.045*weight,-10,10);
+   const q=(i-center)/reach,weight=Math.exp(-q*q*1.25);
+   velocities[i]+=strength*weight;offsets[i]+=clamp(-moveY*.07*weight,-13,13);
   }
-  setStatus('Wave energy spreading through the water.');
+  setStatus('Your movement is sending waves across the water.');
  }
  function wipe(x,y,moveX,moveY){
-  const radius=17+Math.min(18,Math.hypot(moveX,moveY)*.25);
+  const radius=19+Math.min(25,Math.hypot(moveX,moveY)*.28);
   for(let i=droplets.length-1;i>=0;i--){
-   const d=droplets[i],distance=Math.hypot(d.x-x,d.y-y);
-   if(distance<radius+d.r*1.5)droplets.splice(i,1);
+   const d=droplets[i];if(Math.hypot(d.x-x,d.y-y)<radius+d.r*1.55)droplets.splice(i,1);
   }
-  if(status&&performance.now()>statusUntil)status.textContent='Wipe across the glass to clear condensation.';
+  if(status&&performance.now()>statusUntil)status.textContent='Move across the glass to wipe away condensation.';
  }
  function addDroplet(){
-  if(width<30||height<30)return;
-  const r=1.2+Math.random()*2.2;
-  droplets.push({x:10+Math.random()*(width-20),y:12+Math.random()*Math.min(45,height*.22),r,age:0,vy:.5+Math.random()*.65,drift:(Math.random()-.5)*.18,trail:[]});
+  if(width<30||height<30||droplets.length>=72)return;
+  const r=1.3+Math.random()*1.9;
+  droplets.push({x:10+Math.random()*(width-20),y:10+Math.random()*Math.min(42,height*.18),r,vy:3+Math.random()*2.2,drift:(Math.random()-.5)*2.5,trail:[],age:0});
  }
  function updateCondensation(dt){
   spawnClock+=dt;
-  const interval=Math.max(.12,.34-(droplets.length/120)*.19);
-  if(spawnClock>interval&&droplets.length<125){spawnClock=0;addDroplet()}
+  if(spawnClock>2.1&&droplets.length<72){spawnClock=0;addDroplet()}
   for(let i=droplets.length-1;i>=0;i--){
-   const d=droplets[i];d.age+=dt;d.r=Math.min(5.8,d.r+dt*.075);
-   d.vy=Math.min(2.8,d.vy+dt*.18);d.y+=d.vy;d.x+=d.drift+Math.sin(elapsed*.7+i)*dt*.12;
-   if(Math.random()<.035&&d.r>2.8)d.trail.push({x:d.x,y:d.y,r:d.r*.25});
-   if(d.trail.length>5)d.trail.shift();
+   const d=droplets[i];d.age+=dt;d.r=Math.min(5.4,d.r+dt*.12);
+   d.vy=Math.min(9,d.vy+dt*1.25);d.y+=d.vy*dt;d.x+=d.drift*dt+Math.sin(elapsed*.65+i)*dt*.2;
+   if(d.age>2&&Math.random()<.12)d.trail.push({x:d.x,y:d.y,r:d.r*.23});
+   if(d.trail.length>6)d.trail.shift();
    if(d.y>height+8)droplets.splice(i,1);
   }
  }
  function physics(dt){
-  const steps=3,step=dt/steps,spacing=Math.max(1,dx()),waveSpeed=175;
-  const coupling=(waveSpeed*waveSpeed)/(spacing*spacing);
-  const waterFactor=fillRatio();
+  const steps=3,step=dt/steps,spacing=Math.max(1,dx()),waveSpeed=175,coupling=(waveSpeed*waveSpeed)/(spacing*spacing),waterFactor=fillRatio();
   for(let sub=0;sub<steps;sub++){
    elapsed+=step;
    for(let i=1;i<N-1;i++){
     const lap=offsets[i-1]-2*offsets[i]+offsets[i+1];
-    const ambient=(.8*Math.sin(elapsed*1.25+i*.026)+.32*Math.sin(elapsed*1.9-i*.043))*waterFactor;
-    const acceleration=coupling*lap-5.2*velocities[i]+ambient;
-    velocities[i]+=acceleration*step;
-    offsets[i]+=velocities[i]*step;
-    offsets[i]=clamp(offsets[i],-height*.12*waterFactor,height*.12*waterFactor);
+    const ambient=(.62*Math.sin(elapsed*1.1+i*.026)+.24*Math.sin(elapsed*1.75-i*.043))*waterFactor;
+    velocities[i]+=(coupling*lap-5.2*velocities[i]+ambient)*step;
+    offsets[i]=clamp(offsets[i]+velocities[i]*step,-height*.12*waterFactor,height*.12*waterFactor);
    }
-   offsets[0]=offsets[1]*.78;offsets[N-1]=offsets[N-2]*.78;
-   velocities[0]=velocities[1]*.55;velocities[N-1]=velocities[N-2]*.55;
+   offsets[0]=offsets[1]*.78;offsets[N-1]=offsets[N-2]*.78;velocities[0]=velocities[1]*.55;velocities[N-1]=velocities[N-2]*.55;
   }
  }
  function smoothPath(points){
   ctx.beginPath();ctx.moveTo(0,points[0]);
-  for(let i=1;i<points.length;i++){
-   const x=i*dx(),midX=x-dx()*.5;
-   ctx.quadraticCurveTo(midX,points[i-1],x,(points[i-1]+points[i])*.5);
-  }
+  for(let i=1;i<points.length;i++){const x=i*dx();ctx.quadraticCurveTo(x-dx()*.5,points[i-1],x,(points[i-1]+points[i])*.5)}
  }
- function drawFish(surfaceY,now){
-  const alive=tankPercent>0,travel=now*.00016;
-  const x=width*(.5+.29*Math.sin(travel));
-  const waterDepth=Math.max(0,bottom()-surfaceBase());
+ function drawFish(now){
+  if(!fishAdded)return;
+  const alive=tankPercent>0,travel=now*.00013;
+  let x=width*(.5+.29*Math.sin(travel)),waterDepth=Math.max(0,bottom()-surfaceBase());
+  const targetFood=food.length?food[0].x:null;
+  if(alive&&targetFood!==null)x+=(targetFood-x)*.025;
   const y=alive?surfaceBase()+waterDepth*(.43+.08*Math.sin(travel*1.7)):bottom()-Math.min(27,height*.105)*.72+Math.sin(now*.018)*3;
-  const direction=Math.cos(travel)>=0?1:-1;
-  const flop=alive?0:Math.sin(now*.025)*.42;
-  const bob=alive?Math.sin(travel*2.3)*2:0;
+  const direction=alive?(Math.cos(travel)>=0?1:-1):(Math.sin(now*.018)>=0?1:-1),flop=alive?0:Math.sin(now*.025)*.48,bob=alive?Math.sin(travel*2.3)*2:0;
   ctx.save();ctx.translate(x,y+bob);ctx.rotate(alive?Math.sin(travel*1.5)*.045:flop);ctx.scale(direction,1);
-  const bodyW=Math.min(43,width*.105),bodyH=Math.min(27,height*.105);
-  // Tail and flowing fins.
-  const tailWave=Math.sin(now*.012)*5;
-  ctx.fillStyle='rgba(245,174,105,.88)';
-  ctx.beginPath();ctx.moveTo(-bodyW*.7,0);ctx.quadraticCurveTo(-bodyW*1.15,-bodyH*.65,-bodyW*1.55,-bodyH*.9+tailWave);ctx.quadraticCurveTo(-bodyW*1.42,0,-bodyW*1.55,bodyH*.9-tailWave);ctx.quadraticCurveTo(-bodyW*1.05,bodyH*.55,-bodyW*.7,0);ctx.fill();
+  const bodyW=Math.min(43,width*.105),bodyH=Math.min(27,height*.105),tailWave=Math.sin(now*.012)*5;
+  ctx.fillStyle='rgba(245,174,105,.9)';ctx.beginPath();ctx.moveTo(-bodyW*.7,0);ctx.quadraticCurveTo(-bodyW*1.15,-bodyH*.65,-bodyW*1.55,-bodyH*.9+tailWave);ctx.quadraticCurveTo(-bodyW*1.42,0,-bodyW*1.55,bodyH*.9-tailWave);ctx.quadraticCurveTo(-bodyW*1.05,bodyH*.55,-bodyW*.7,0);ctx.fill();
   ctx.beginPath();ctx.ellipse(-bodyW*.05,bodyH*.72,bodyW*.46,bodyH*.2,.18+Math.sin(now*.01)*.08,0,Math.PI*2);ctx.fill();
-  // Rounded Ranchu body.
-  const body=ctx.createRadialGradient(bodyW*.18,-bodyH*.4,2,0,0,bodyW*1.15);
-  body.addColorStop(0,'#fff0c9');body.addColorStop(.55,'#f6bd75');body.addColorStop(1,'#dc8247');
+  const body=ctx.createRadialGradient(bodyW*.18,-bodyH*.4,2,0,0,bodyW*1.15);body.addColorStop(0,'#fff0c9');body.addColorStop(.55,'#f6bd75');body.addColorStop(1,'#dc8247');
   ctx.fillStyle=body;ctx.beginPath();ctx.ellipse(0,0,bodyW,bodyH,0,0,Math.PI*2);ctx.fill();
-  // Characteristic head growth (wen).
   ctx.fillStyle='#e99a5c';ctx.beginPath();ctx.arc(bodyW*.58,-bodyH*.48,bodyH*.48,0,Math.PI*2);ctx.arc(bodyW*.78,-bodyH*.34,bodyH*.31,0,Math.PI*2);ctx.fill();
   ctx.fillStyle='rgba(255,226,176,.8)';ctx.beginPath();ctx.arc(bodyW*.57,-bodyH*.65,bodyH*.18,0,Math.PI*2);ctx.fill();
-  // Eye, cheek, and tiny mouth.
   ctx.fillStyle='#382a22';ctx.beginPath();ctx.arc(bodyW*.66,-bodyH*.12,2.3,0,Math.PI*2);ctx.fill();
   ctx.fillStyle='rgba(226,112,91,.48)';ctx.beginPath();ctx.arc(bodyW*.85,bodyH*.15,4,0,Math.PI*2);ctx.fill();
   ctx.strokeStyle='#7c4a35';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(bodyW*.95,bodyH*.43);ctx.lineTo(bodyW*1.08,bodyH*.47);ctx.stroke();
-  if(!alive){
-   ctx.fillStyle='#47312a';ctx.font='bold 18px Arial';ctx.textAlign='center';ctx.fillText(':(',bodyW*.35,-bodyH*1.05);
-   ctx.strokeStyle='rgba(255,239,215,.85)';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(-bodyW*.25,-bodyH*.85,4,Math.PI,Math.PI*1.8);ctx.stroke();
-  }
+  if(!alive){ctx.fillStyle='#47312a';ctx.font='bold 18px Arial';ctx.textAlign='center';ctx.fillText(':(',bodyW*.35,-bodyH*1.05)}
   ctx.restore();
  }
+ function updateFood(dt){
+  for(let i=food.length-1;i>=0;i--){const p=food[i];p.vy+=38*dt;p.y+=p.vy*dt;
+   if(fishAdded&&tankPercent>0&&Math.abs(p.x-width*.5)<width*.42&&p.y>surfaceBase()&&p.y<bottom()-12){p.y-=1.5;if(p.y>surfaceBase()+20&&Math.random()<.18){food.splice(i,1);continue}}
+   if(p.y>bottom()-4||p.age>6)food.splice(i,1);p.age+=dt;
+  }
+ }
  function render(now){
-  ctx.clearRect(0,0,width,height);
-  const left=7,top=7,right=width-7,bottomY=bottom(),base=surfaceBase();
+  ctx.clearRect(0,0,width,height);const left=7,top=7,right=width-7,bottomY=bottom(),base=surfaceBase();
   ctx.save();ctx.beginPath();ctx.roundRect(left,top,right-left,bottomY-top,12);ctx.clip();
-  const surface=new Float32Array(N),waterFactor=fillRatio();
-  for(let i=0;i<N;i++)surface[i]=clamp(base+offsets[i],height*.22,bottomY);
+  const surface=new Float32Array(N),waterFactor=fillRatio();for(let i=0;i<N;i++)surface[i]=clamp(base+offsets[i],height*.22,bottomY);
   if(waterFactor>.001){
    smoothPath(surface);ctx.lineTo(width,bottomY);ctx.lineTo(0,bottomY);ctx.closePath();
-   const water=ctx.createLinearGradient(0,base-20,0,bottomY);
-   water.addColorStop(0,'rgba(135,218,221,.91)');water.addColorStop(.22,'rgba(76,177,194,.96)');water.addColorStop(.68,'rgba(43,139,166,.98)');water.addColorStop(1,'rgba(26,105,139,1)');
-   ctx.fillStyle=water;ctx.fill();
-   ctx.save();ctx.globalCompositeOperation='source-atop';
-   const depth=ctx.createLinearGradient(0,base,0,bottomY);
-   depth.addColorStop(0,'rgba(233,255,250,.05)');depth.addColorStop(.55,'rgba(13,90,126,.04)');depth.addColorStop(1,'rgba(7,62,105,.24)');
-   ctx.fillStyle=depth;ctx.fillRect(0,base-30,width,bottomY-base+40);ctx.restore();
+   const water=ctx.createLinearGradient(0,base-20,0,bottomY);water.addColorStop(0,'rgba(135,218,221,.91)');water.addColorStop(.22,'rgba(76,177,194,.96)');water.addColorStop(.68,'rgba(43,139,166,.98)');water.addColorStop(1,'rgba(26,105,139,1)');ctx.fillStyle=water;ctx.fill();
+   ctx.save();ctx.globalCompositeOperation='source-atop';const depth=ctx.createLinearGradient(0,base,0,bottomY);depth.addColorStop(0,'rgba(233,255,250,.05)');depth.addColorStop(.55,'rgba(13,90,126,.04)');depth.addColorStop(1,'rgba(7,62,105,.24)');ctx.fillStyle=depth;ctx.fillRect(0,base-30,width,bottomY-base+40);ctx.restore();
    smoothPath(surface);ctx.strokeStyle='rgba(238,255,250,.9)';ctx.lineWidth=2.2;ctx.stroke();
-   const shimmer=new Float32Array(N);for(let i=0;i<N;i++)shimmer[i]=surface[i]+5+Math.sin(elapsed*2.1+i*.045)*1.4;
-   smoothPath(shimmer);ctx.strokeStyle='rgba(231,255,255,.28)';ctx.lineWidth=1.5;ctx.stroke();
-   ctx.save();ctx.globalCompositeOperation='screen';
-   for(let k=0;k<3;k++){const y=base+42+k*42+Math.sin(elapsed*.75+k*1.7)*5;if(y<bottomY){const grad=ctx.createLinearGradient(0,y-8,0,y+8);grad.addColorStop(0,'rgba(255,255,255,0)');grad.addColorStop(.5,'rgba(220,255,255,.075)');grad.addColorStop(1,'rgba(255,255,255,0)');ctx.fillStyle=grad;ctx.fillRect(0,y-8,width,16)}}
-   ctx.restore();
+   const shimmer=new Float32Array(N);for(let i=0;i<N;i++)shimmer[i]=surface[i]+5+Math.sin(elapsed*2.1+i*.045)*1.4;smoothPath(shimmer);ctx.strokeStyle='rgba(231,255,255,.28)';ctx.lineWidth=1.5;ctx.stroke();
+   ctx.save();ctx.globalCompositeOperation='screen';for(let k=0;k<3;k++){const y=base+42+k*42+Math.sin(elapsed*.75+k*1.7)*5;if(y<bottomY){const grad=ctx.createLinearGradient(0,y-8,0,y+8);grad.addColorStop(0,'rgba(255,255,255,0)');grad.addColorStop(.5,'rgba(220,255,255,.075)');grad.addColorStop(1,'rgba(255,255,255,0)');ctx.fillStyle=grad;ctx.fillRect(0,y-8,width,16)}}ctx.restore();
   }
-  drawFish(surface,now);
-  // Condensation sits on the glass in front of the scene and builds gradually.
+  drawFish(now);
+  for(const p of food){ctx.fillStyle='#d98a2d';ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();ctx.fillStyle='rgba(255,244,205,.8)';ctx.beginPath();ctx.arc(p.x-.8,p.y-.8,Math.max(1,p.r*.35),0,Math.PI*2);ctx.fill()}
   for(const d of droplets){
-   for(const t of d.trail){ctx.fillStyle='rgba(213,237,239,.36)';ctx.beginPath();ctx.arc(t.x,t.y,t.r,0,Math.PI*2);ctx.fill()}
-   const g=ctx.createRadialGradient(d.x-d.r*.35,d.y-d.r*.4,.3,d.x,d.y,d.r*1.4);
-   g.addColorStop(0,'rgba(255,255,255,.92)');g.addColorStop(.35,'rgba(221,244,245,.62)');g.addColorStop(1,'rgba(141,194,204,.16)');
-   ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(d.x,d.y,d.r*.82,d.r*1.25,-.12,0,Math.PI*2);ctx.fill();
-   ctx.strokeStyle='rgba(255,255,255,.72)';ctx.lineWidth=.8;ctx.beginPath();ctx.arc(d.x-d.r*.12,d.y-d.r*.28,d.r*.43,Math.PI*1.05,Math.PI*1.75);ctx.stroke();
+   for(const t of d.trail){ctx.fillStyle='rgba(213,237,239,.3)';ctx.beginPath();ctx.arc(t.x,t.y,t.r,0,Math.PI*2);ctx.fill()}
+   const g=ctx.createRadialGradient(d.x-d.r*.35,d.y-d.r*.4,.3,d.x,d.y,d.r*1.4);g.addColorStop(0,'rgba(255,255,255,.92)');g.addColorStop(.35,'rgba(221,244,245,.62)');g.addColorStop(1,'rgba(141,194,204,.16)');
+   ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(d.x,d.y,d.r*.82,d.r*1.25,-.12,0,Math.PI*2);ctx.fill();ctx.strokeStyle='rgba(255,255,255,.72)';ctx.lineWidth=.8;ctx.beginPath();ctx.arc(d.x-d.r*.12,d.y-d.r*.28,d.r*.43,Math.PI*1.05,Math.PI*1.75);ctx.stroke();
   }
-  ctx.restore();
-  ctx.strokeStyle='rgba(174,132,66,.45)';ctx.lineWidth=1.3;ctx.beginPath();ctx.roundRect(left,top,right-left,bottomY-top,12);ctx.stroke();
+  ctx.restore();ctx.strokeStyle='rgba(174,132,66,.45)';ctx.lineWidth=1.3;ctx.beginPath();ctx.roundRect(left,top,right-left,bottomY-top,12);ctx.stroke();
  }
  function loop(now){
   if(!active){raf=0;return}
-  const dt=Math.min(.022,Math.max(.001,(now-lastTime)/1000||.016));lastTime=now;
-  tankPercent=Number(window.ranchuTankWaterPercent??tankPercent);
-  if(waterPage.classList.contains('active')){
-   physics(dt);updateCondensation(dt);render(now);
-   if(status&&now>statusUntil)status.textContent=tankPercent<=0?'The Ranchu is out of water in this simulation.': 'Wipe across the glass to clear condensation and drag through the water to make waves.';
-  }
+  const dt=Math.min(.022,Math.max(.001,(now-lastTime)/1000||.016));lastTime=now;tankPercent=Number(window.ranchuTankWaterPercent??tankPercent);
+  if(waterPage.classList.contains('active')){physics(dt);updateCondensation(dt);updateFood(dt);render(now);if(status&&now>statusUntil)status.textContent=tankPercent<=0&&fishAdded?'The tank is empty in this simulation. Your Ranchu is not happy.': 'Move across the glass to wipe condensation; hold and drag in the water to make waves.'}
   raf=requestAnimationFrame(loop);
  }
  function start(){if(active)return;active=true;resize();lastTime=performance.now();raf=requestAnimationFrame(loop)}
  function stop(){active=false;if(raf)cancelAnimationFrame(raf);raf=0}
- function reset(){offsets.fill(0);velocities.fill(0);elapsed=0;setStatus('Water surface reset.');if(!active)start()}
+ function reset(){offsets.fill(0);velocities.fill(0);elapsed=0;setStatus('Water waves reset.');if(!active)start()}
  function point(e){const r=canvas.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}
- canvas.addEventListener('pointerdown',e=>{const p=point(e);pointer={...p,px:p.x,py:p.y};pointerDown=true;wipe(p.x,p.y,0,0);if(tankPercent>0)disturb(p.x,p.y,0,-12);try{canvas.setPointerCapture(e.pointerId)}catch(_){}e.preventDefault()});
- canvas.addEventListener('pointermove',e=>{const p=point(e),mx=p.x-pointer.px,my=p.y-pointer.py;wipe(p.x,p.y,mx,my);if(pointerDown&&tankPercent>0)disturb(p.x,p.y,mx,my);pointer={...p,px:p.x,py:p.y}});
+ canvas.addEventListener('pointerdown',e=>{const p=point(e);pointer={...p,px:p.x,py:p.y};pointerDown=true;if(tankPercent>0)disturb(p.x,p.y,0,-14,true);try{canvas.setPointerCapture(e.pointerId)}catch(_){}e.preventDefault()});
+ canvas.addEventListener('pointermove',e=>{
+  const p=point(e),mx=p.x-pointer.px,my=p.y-pointer.py;
+  // Mouse hover wipes the glass without a click; touch wipes while the finger is down.
+  if(e.pointerType==='mouse'||pointerDown)wipe(p.x,p.y,mx,my);
+  if(pointerDown&&tankPercent>0)disturb(p.x,p.y,mx,my,true);
+  pointer={...p,px:p.x,py:p.y};
+ });
  const release=()=>{pointerDown=false};canvas.addEventListener('pointerup',release);canvas.addEventListener('pointercancel',release);canvas.addEventListener('lostpointercapture',release);
+ let fishPointer=null;
+ fishToken?.addEventListener('pointerdown',e=>{if(fishAdded)return;fishPointer=e.pointerId;fishToken.classList.add('dragging');fishToken.setPointerCapture?.(e.pointerId);setStatus('Drag the Ranchu down into the water.');e.preventDefault()});
+ fishToken?.addEventListener('pointermove',e=>{if(fishPointer!==e.pointerId)return;fishToken.style.transform='translateY(2px) scale(1.05)'});
+ function finishFishDrag(e){
+  if(fishPointer!==e.pointerId)return;fishPointer=null;fishToken.classList.remove('dragging');fishToken.style.transform='';
+  const r=canvas.getBoundingClientRect();if(e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom){
+   fishAdded=true;fishToken.disabled=true;fishToken.classList.remove('dragging');document.getElementById('fishTokenLabel').textContent='Ranchu added';setStatus('A little Ranchu is swimming in the tank!');
+  }else setStatus('Drop the fish inside the aquarium to add it.');
+ }
+ fishToken?.addEventListener('pointerup',finishFishDrag);fishToken?.addEventListener('pointercancel',e=>{if(fishPointer===e.pointerId){fishPointer=null;fishToken.classList.remove('dragging')}});
+ pumpButton?.addEventListener('click',()=>{window.dispatchEvent(new CustomEvent('ranchu:simulate-pump',{detail:{gallons:10}}));setStatus('The side pump removed simulated water.')});
+ feedButton?.addEventListener('click',()=>{
+  if(!fishAdded){setStatus('Add your Ranchu first by dragging the fish icon into the tank.');return}
+  if(tankPercent<=0){setStatus('The tank is empty in this simulation.');return}
+  for(let i=0;i<5;i++)food.push({x:width*.42+Math.random()*width*.16,y:18+Math.random()*14,vy:3+Math.random()*2,r:2+Math.random()*1.2,age:0});
+  setStatus('A tiny snack is drifting down for your Ranchu.');
+ });
  resetButton?.addEventListener('click',reset);
  if('ResizeObserver'in window)new ResizeObserver(()=>{resize();render(performance.now())}).observe(frame);else window.addEventListener('resize',()=>{resize();render(performance.now())});
  document.querySelectorAll('.nav-btn').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.page==='water')start()}));
@@ -1148,7 +1158,6 @@ window.addEventListener('ranchuStartupComplete',()=>{
  document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();else if(waterPage.classList.contains('active'))start()});
  if(waterPage.classList.contains('active'))start();
 })();
-
 </script>
 
 <script type="module">
