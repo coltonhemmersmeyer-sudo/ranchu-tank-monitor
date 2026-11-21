@@ -182,6 +182,26 @@ input,select,textarea{background:#fffdf6;border-color:#e8d5ac;color:var(--text)}
 .startup-meta{display:flex;justify-content:space-between;gap:12px;margin-top:9px;color:#96764e;font-size:11px}
 .sound-toggle{cursor:pointer;font:inherit}
 .sound-toggle:focus-visible{outline:3px solid #e8ad43;outline-offset:3px}
+
+ .device-connection-list{display:grid;gap:0}
+ .device-connection-row{display:grid;grid-template-columns:42px minmax(130px,1fr) auto auto;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid #f0e2c5}
+ .device-connection-row:last-child{border-bottom:0}
+ .device-symbol{width:40px;height:40px;display:grid;place-items:center;border-radius:13px;background:#fff1cf;color:#a66b25;font-size:22px;font-weight:800}
+ .device-copy{min-width:0;display:grid;gap:4px}
+ .device-copy b{font-size:12px;color:#65451f}
+ .device-copy span,.device-manual-label{font-size:10px;color:#96764e;line-height:1.4}
+ .device-connect-btn{min-width:86px}
+ .device-connect-modal{text-align:center}
+ .connection-spinner-wrap{display:grid;place-items:center;margin:4px auto 18px}
+ .connection-spinner{width:112px;height:112px;border-radius:50%;padding:7px;background:conic-gradient(from 0deg,#f2c34c 0deg,#ed982d 100deg,#d96b4b 210deg,#f2c34c 360deg);animation:ranchuConnectSpin 1.15s linear infinite;box-shadow:0 8px 22px rgba(151,96,28,.16)}
+ .connection-spinner:before{content:"";position:absolute}
+ .connection-spinner img{width:100%;height:100%;object-fit:cover;border:6px solid #fffaf0;border-radius:50%;background:#f7d66e;animation:ranchuConnectCounter 1.15s linear infinite}
+ @keyframes ranchuConnectSpin{to{transform:rotate(360deg)}}
+ @keyframes ranchuConnectCounter{to{transform:rotate(-360deg)}}
+ .connection-result-icon{width:72px;height:72px;border-radius:50%;margin:6px auto 18px;display:grid;place-items:center;background:#fff1cf;color:#a66b25;font-size:34px}
+ @media(max-width:600px){.device-connection-row{grid-template-columns:38px minmax(0,1fr) auto;gap:9px}.device-connection-row .badge{grid-column:2;justify-self:start}.device-connect-btn{grid-column:3;grid-row:1 / span 2;min-width:76px;padding:9px 10px}.device-copy span{font-size:10px}.device-symbol{width:36px;height:36px}}
+ @media(prefers-reduced-motion:reduce){.connection-spinner,.connection-spinner img{animation:none}}
+
 @media(prefers-reduced-motion:reduce){#startupScreen,.page,.progress>span,#startupProgress{transition:none;animation:none}}
 
 </style>
@@ -277,10 +297,18 @@ input,select,textarea{background:#fffdf6;border-color:#e8d5ac;color:var(--text)}
 
 <section class="page" id="page-camera"><div class="grid"><div class="card span-12"><div class="card-head"><h3>Aquarium Camera</h3><span class="badge off">Not connected</span></div><div class="camera"><div><div style="font-size:36px">▣</div><b>Camera feed unavailable</b><span class="hint">A compatible Wi-Fi camera can be integrated in a future stage.</span></div></div><p class="hint" style="margin-top:14px">Future live viewing will use a compatible camera and secure access method. No camera stream is currently configured.</p></div></div></section>
 
-<section class="page" id="page-devices"><div class="grid"><div class="card span-6"><div class="card-head"><h3>Hardware connections</h3><span class="badge off">Not installed</span></div><div class="list"><div class="list-row"><span>Water-level sensor</span><span class="badge off">Not connected</span></div><div class="list-row"><span>ESP32 controller</span><span class="badge off">Not configured</span></div><div class="list-row"><span>Refill pump & flow meter</span><span class="badge off">Not connected</span></div><div class="list-row"><span>High-water safety cutoff</span><span class="badge off">Not installed</span></div><div class="list-row"><span>Automatic feeder</span><span class="badge off">Not connected</span></div><div class="list-row"><span>Tank camera</span><span class="badge off">Not connected</span></div></div></div><div class="card span-6"><div class="card-head"><h3>Connection health</h3><span class="badge off">Offline</span></div><div class="list"><div class="list-row"><span>Sensor status</span><span class="badge off">Unavailable</span></div><div class="list-row"><span>Controller status</span><span class="badge off">Unavailable</span></div><div class="list-row"><span>Last successful communication</span><span class="muted">Never</span></div><div class="list-row"><span>Reading freshness</span><span class="badge off">No readings</span></div></div></div><div class="card span-12"><div class="card-head"><h3>Account & Firebase</h3><span class="badge" id="deviceAuthBadge">Checking</span></div><div id="deviceAuthStatus" class="hint">Checking sign-in status…</div><p class="hint">Google authentication is connected. Realtime Database reads and writes are not enabled by this prototype.</p><div class="notice">All pump, feeder, and sensor functions are prototypes. No physical device is being controlled.</div></div></div></section>
+<section class="page" id="page-devices"><div class="grid"><div class="card span-12"><div class="card-head"><h3>Device connection overview</h3><span class="badge off">Connection setup pending</span></div><p class="hint">Use Project Status to connect or disconnect aquarium equipment. The ESP32 controller will act as the main bridge for wired sensors and equipment; a compatible Wi-Fi camera connects separately.</p><div class="notice info">The connection interface is being prepared first. Live device pairing still requires the ESP32 firmware, Firebase Realtime Database integration, and verified device security rules. No physical equipment is controlled yet.</div><div class="actions"><button class="btn" onclick="showPage('status')">Open Device Connection Manager</button></div></div><div class="card span-12"><div class="card-head"><h3>How devices will communicate</h3><span class="badge">Planned architecture</span></div><div class="list"><div class="list-row"><span>Water-level sensor and float switches</span><span class="badge off">Through ESP32</span></div><div class="list-row"><span>Low-voltage pump and flow meter</span><span class="badge off">Through ESP32</span></div><div class="list-row"><span>Automatic feeder</span><span class="badge off">Through ESP32</span></div><div class="list-row"><span>Wi-Fi camera</span><span class="badge off">Direct Wi-Fi</span></div><div class="list-row"><span>Water test kits</span><span class="badge">Manual entry</span></div></div></div></div></section>
 
 <section class="page" id="page-status"><div class="grid"><div class="card span-12"><div class="card-head"><h3>Project overview</h3><span class="badge warn">Preparation stage</span></div><div class="stat-row"><div><div class="stat-label">Planned aquarium</div><div class="big">240 <span class="unit">gallons</span></div><div class="hint">Ranchu aquarium · final setup planned</div></div><span class="badge warn">Awaiting arrival</span></div><p class="hint" style="margin-top:14px">The existing project record says the aquarium is awaiting arrival. Update this status when the project changes. This website remains a prototype and hardware readings are simulated or unavailable.</p></div>
-<div class="card span-6"><div class="card-head"><h3>Hardware still needed</h3><span class="badge off">Planning list</span></div><div class="list"><div class="list-row"><span>ESP32 Wi-Fi controller</span><span class="badge off">Not purchased</span></div><div class="list-row"><span>Water-level sensor</span><span class="badge off">Not purchased</span></div><div class="list-row"><span>Independent float switches</span><span class="badge off">Not purchased</span></div><div class="list-row"><span>Low-voltage pump & flow meter</span><span class="badge off">Not purchased</span></div><div class="list-row"><span>Automatic feeder</span><span class="badge off">Planned</span></div><div class="list-row"><span>Wi-Fi camera</span><span class="badge off">Future</span></div><div class="list-row"><span>Water test kits</span><span class="badge warn">To verify</span></div></div></div>
+ <div class="card span-12"><div class="card-head"><h3>Device Connection Manager</h3><span class="badge off" id="deviceManagerSummary">0 connected</span></div><p class="hint">Connect each device when its hardware is installed and configured. Wired aquarium equipment will communicate through the ESP32 controller; the Wi-Fi camera connects separately.</p><div class="device-connection-list">
+  <div class="device-connection-row"><div class="device-symbol">⌘</div><div class="device-copy"><b>ESP32 Wi-Fi Controller</b><span>Main controller · connects the website to wired aquarium hardware</span></div><span class="badge off" id="deviceStatus-esp32">Not connected</span><button class="btn secondary device-connect-btn" data-device-connect="esp32">Connect</button></div>
+  <div class="device-connection-row"><div class="device-symbol">⌁</div><div class="device-copy"><b>Water-Level Sensor</b><span>Sensor readings delivered through the ESP32</span></div><span class="badge off" id="deviceStatus-water">Not connected</span><button class="btn secondary device-connect-btn" data-device-connect="water">Connect</button></div>
+  <div class="device-connection-row"><div class="device-symbol">⏚</div><div class="device-copy"><b>Independent Float Switches</b><span>Safety inputs · independent physical cutoff remains separate</span></div><span class="badge off" id="deviceStatus-floats">Not connected</span><button class="btn secondary device-connect-btn" data-device-connect="floats">Connect</button></div>
+  <div class="device-connection-row"><div class="device-symbol">◉</div><div class="device-copy"><b>Low-Voltage Pump & Flow Meter</b><span>Equipment connection through the ESP32 · safety interlocks required</span></div><span class="badge off" id="deviceStatus-pump">Not connected</span><button class="btn secondary device-connect-btn" data-device-connect="pump">Connect</button></div>
+  <div class="device-connection-row"><div class="device-symbol">♧</div><div class="device-copy"><b>Automatic Feeder</b><span>Feeder controller connection through the ESP32</span></div><span class="badge off" id="deviceStatus-feeder">Not connected</span><button class="btn secondary device-connect-btn" data-device-connect="feeder">Connect</button></div>
+  <div class="device-connection-row"><div class="device-symbol">▣</div><div class="device-copy"><b>Wi-Fi Camera</b><span>Separate Wi-Fi connection · stream setup is a later step</span></div><span class="badge off" id="deviceStatus-camera">Not connected</span><button class="btn secondary device-connect-btn" data-device-connect="camera">Connect</button></div>
+  <div class="device-connection-row"><div class="device-symbol">▤</div><div class="device-copy"><b>Water Test Kits</b><span>Manual test results are entered in Conditions</span></div><span class="badge">Manual</span><span class="device-manual-label">No online connection</span></div>
+ </div><div class="notice info" style="margin-top:14px">Connection buttons currently open the pairing interface preview. They will only change to Connected after a real device handshake is implemented and verified. No hardware is being represented as connected.</div></div>
 <div class="card span-6"><div class="card-head"><h3>Completed setup steps</h3><span class="badge">Existing progress</span></div><div class="list"><div class="list-row"><span>Website prototype & navigation</span><span class="badge">Built</span></div><div class="list-row"><span>Google sign-in configuration</span><span class="badge">Configured</span></div><div class="list-row"><span>Database security configuration</span><span class="badge">Previously configured</span></div><div class="list-row"><span>Firebase live data integration</span><span class="badge off">Not enabled here</span></div></div></div>
 <div class="card span-12"><div class="card-head"><h3>Remaining development steps</h3><span class="badge warn">In progress</span></div><div class="list"><div class="list-row"><span>Connect Firebase database data model</span><span class="badge off">Remaining</span></div><div class="list-row"><span>Validate water sensor readings</span><span class="badge off">Hardware required</span></div><div class="list-row"><span>Independent refill safety testing</span><span class="badge off">Required</span></div><div class="list-row"><span>Feeder calibration and local schedule</span><span class="badge off">Hardware required</span></div><div class="list-row"><span>Camera integration</span><span class="badge off">Future</span></div><div class="list-row"><span>Full system testing</span><span class="badge off">Remaining</span></div></div></div>
 <div class="card span-12"><div class="card-head"><h3>Status Reports</h3><span class="badge">Saved history</span></div><p class="hint">Record important project or aquarium status updates.</p><div class="field"><label for="statusReportText">New status report</label><textarea id="statusReportText" placeholder="Write a status update..."></textarea></div><button class="btn" id="saveStatusReport">Save status report</button><div id="statusReportHistory" class="list" style="margin-top:14px"></div></div>
@@ -297,6 +325,7 @@ input,select,textarea{background:#fffdf6;border-color:#e8d5ac;color:var(--text)}
 </main></div>
 
 <div class="modal-backdrop" id="warningModal" role="dialog" aria-modal="true" aria-labelledby="warningTitle"><div class="modal"><div id="warningIcon" style="font-size:30px;margin-bottom:8px">⚠️</div><h3 id="warningTitle">Aquarium warning</h3><p id="warningMessage"></p><div class="actions"><button class="btn secondary" id="dismissWarning">Dismiss</button><button class="btn" id="goWarningPage">Open Water</button></div></div></div>
+<div class="modal-backdrop" id="deviceConnectModal" role="dialog" aria-modal="true" aria-labelledby="deviceConnectTitle"><div class="modal device-connect-modal"><div class="connection-spinner-wrap" id="connectionSpinnerWrap"><div class="connection-spinner"><img src="assets/ranchu-icon.png.png" alt="Ranchu Tank Monitor logo"></div></div><div class="connection-result-icon" id="connectionResultIcon" style="display:none">⌁</div><h3 id="deviceConnectTitle">Connecting device</h3><p id="deviceConnectMessage">Preparing the connection process…</p><div class="notice info" id="deviceConnectExplanation" style="display:none">Live pairing is not configured yet. The website needs the device firmware and secure Firebase communication before it can confirm a connection.</div><div class="actions"><button class="btn secondary" id="deviceConnectClose">Close</button><button class="btn" id="deviceConnectRetry" style="display:none">Try again</button></div></div></div>
 <div class="toast" id="toast" role="status"></div>
 
 <script>
@@ -382,6 +411,37 @@ $('saveStatusReport').addEventListener('click',()=>{const text=$('statusReportTe
 $('resetAllData').addEventListener('click',()=>{if(!window.confirm('Reset the entire Ranchu Tank Monitor to default? All saved records and settings in this browser will be permanently cleared.'))return;localStorage.removeItem(STORAGE_KEY);window.location.reload()});$('refreshDashboard').addEventListener('click',()=>{saveAppData();window.location.reload()});
 ['feedTime1','feedTime2','dailyFeedLimit','portion','refillAmount','customAmount'].forEach(id=>$(id)?.addEventListener('change',saveAppData));
 document.addEventListener('click',()=>setTimeout(saveAppData,0));document.addEventListener('change',saveAppData);document.addEventListener('input',e=>{if(e.target.matches('#testVolume,#testVolumeNumber'))saveAppData()});window.addEventListener('pagehide',saveAppData);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')saveAppData()});
+
+/* Device connection manager interface. A successful state is never assumed without a real device handshake. */
+(function(){
+ const modal=$('deviceConnectModal'),title=$('deviceConnectTitle'),message=$('deviceConnectMessage');
+ const spinner=$('connectionSpinnerWrap'),resultIcon=$('connectionResultIcon'),explanation=$('deviceConnectExplanation');
+ const close=$('deviceConnectClose'),retry=$('deviceConnectRetry');
+ const deviceNames={esp32:'ESP32 Wi-Fi Controller',water:'Water-Level Sensor',floats:'Independent Float Switches',pump:'Low-Voltage Pump & Flow Meter',feeder:'Automatic Feeder',camera:'Wi-Fi Camera'};
+ let activeDevice=null,previewTimer=null;
+ function closeModal(){modal.classList.remove('show');if(previewTimer)clearTimeout(previewTimer);previewTimer=null;activeDevice=null}
+ function startConnectionPreview(deviceId){
+  const name=deviceNames[deviceId];if(!name)return;
+  activeDevice=deviceId;if(previewTimer)clearTimeout(previewTimer);
+  title.textContent='Connecting device';
+  message.textContent='Preparing a connection to '+name+'…';
+  spinner.style.display='grid';resultIcon.style.display='none';explanation.style.display='none';
+  retry.style.display='none';modal.classList.add('show');
+  previewTimer=setTimeout(()=>{
+   if(activeDevice!==deviceId)return;
+   spinner.style.display='none';resultIcon.style.display='grid';
+   title.textContent='Pairing setup required';
+   message.textContent=name+' has not connected. The live pairing service and device firmware are not configured yet.';
+   explanation.style.display='block';retry.style.display='inline-block';
+  },1450);
+ }
+ document.querySelectorAll('[data-device-connect]').forEach(button=>button.addEventListener('click',()=>startConnectionPreview(button.dataset.deviceConnect)));
+ close.addEventListener('click',closeModal);
+ retry.addEventListener('click',()=>{if(activeDevice)startConnectionPreview(activeDevice)});
+ modal.addEventListener('click',event=>{if(event.target===modal)closeModal()});
+ document.addEventListener('keydown',event=>{if(event.key==='Escape'&&modal.classList.contains('show'))closeModal()});
+})();
+
 updateLevel(false);renderQuality();renderOther();renderFish();renderJournal();renderFeedLog();renderRefillLog();renderConditionLog();renderNotifications();renderStatusReports();saveAppData();
 
 /* Additive startup progress and interface sound effects */
