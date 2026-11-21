@@ -118,7 +118,12 @@ textarea{min-height:88px;resize:vertical}input:focus,select:focus,textarea:focus
 #warningModal.warning-modal-critical .modal{border:2px solid #e68b31;background:#fff4e7}
 #warningModal.warning-modal-emergency .modal{border:2px solid #d7473e;background:#fff0ed}
 #emergencyBanner{position:fixed;z-index:1100;top:calc(10px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);width:min(920px,calc(100vw - 22px));padding:7px;border-radius:16px;background:repeating-linear-gradient(135deg,#d51f2a 0 13px,#171717 13px 26px);background-size:52px 52px;box-shadow:0 12px 36px rgba(90,20,20,.32);animation:emergencyTapeTravel 1.7s linear infinite}
+#emergencyBanner::before,#emergencyBanner::after{content:"";position:absolute;top:-18px;width:2px;height:25px;border-radius:2px;background:repeating-linear-gradient(180deg,#9a784b 0 4px,#d9bd87 4px 7px);box-shadow:0 0 0 1px rgba(91,61,29,.12);transform-origin:top center;pointer-events:none}
+#emergencyBanner::before{left:14%}
+#emergencyBanner::after{right:14%}
 #emergencyBanner[hidden]{display:none!important}
+#emergencyBanner.is-retracting{animation:emergencySignWindUp .52s cubic-bezier(.55,.05,.8,.35) both!important;pointer-events:none}
+@keyframes emergencySignWindUp{0%{opacity:1;transform:translate(-50%,0) rotate(0) scale(1)}45%{opacity:1;transform:translate(-50%,-12px) rotate(-1.2deg) scale(.99)}100%{opacity:0;transform:translate(-50%,-115%) rotate(2deg) scale(.94)}}
 #emergencyBanner .emergency-banner-inner{display:flex;align-items:center;gap:13px;padding:13px 16px;border-radius:10px;background:#fff7f4;color:#742020}
 #emergencyBanner .emergency-banner-copy{min-width:0;flex:1}
 #emergencyBanner strong{display:block;font-size:14px;letter-spacing:.45px}
@@ -296,13 +301,18 @@ input,select,textarea{background:#fffdf6;border-color:#e8d5ac;color:var(--text)}
 }
 .toast.show{animation:ranchuToastRise .34s cubic-bezier(.2,.85,.25,1) both}
 #emergencyBanner:not([hidden]){
-  animation:emergencyTapeTravel 1.7s linear infinite,ranchuAlertDrop .38s ease-out both;
+  animation:emergencyTapeTravel 1.7s linear infinite,ranchuAlertDrop .38s ease-out both,emergencySignBob 2.5s ease-in-out .38s infinite;
+}
+@keyframes emergencySignBob{
+  0%,100%{transform:translate(-50%,0)}
+  50%{transform:translate(-50%,3px)}
 }
 @media(prefers-reduced-motion:reduce){
   .page.active,.page.active .card,.page.active .bar,
   .modal-backdrop.show .modal,.toast.show,#emergencyBanner:not([hidden]){
     animation:none!important;
   }
+  #emergencyBanner.is-retracting{opacity:0!important;transform:translate(-50%,-115%)!important}
   .card,.nav-btn,.segment button,.btn,.sound-toggle{
     transition:none!important;
   }
@@ -519,7 +529,19 @@ let lastAlertState='normal';
 function drawChart(){const vals=[238,237,239,236,238,240,gallons],labels=['-6','-5','-4','-3','-2','-1','Now'];$('historyChart').innerHTML=vals.map((v,i)=>`<div class="bar-wrap"><div class="bar" style="height:${Math.max(4,v/CAPACITY*100)}%"></div><small>${labels[i]}</small></div>`).join('')}
 function setTestVolume(value,showPopup=true){const next=Number(value);if(!Number.isFinite(next))return;const old=gallons;gallons=Math.max(0,Math.min(CAPACITY,next));lastVolumeChange={time:Date.now(),value:gallons};updateLevel(showPopup);if(old-gallons>=10)addNotification('warning','Rapid water-loss pattern',`${(old-gallons).toFixed(1)} simulated gallons dropped in one test action.`,'emergency')}
 function isStandaloneApp(){return window.matchMedia?.('(display-mode: standalone)').matches===true||navigator.standalone===true}
-function renderEmergencyBanner(state){const banner=$('emergencyBanner');if(!banner)return;banner.hidden=!(startupHasCompleted&&state==='emergency'&&disruptiveUiEnabled&&!appStartupSuppressed)}
+let emergencyBannerHideTimer=null;
+function renderEmergencyBanner(state){
+ const banner=$('emergencyBanner');if(!banner)return;
+ const shouldShow=startupHasCompleted&&state==='emergency'&&disruptiveUiEnabled&&!appStartupSuppressed;
+ if(shouldShow){
+  if(emergencyBannerHideTimer){clearTimeout(emergencyBannerHideTimer);emergencyBannerHideTimer=null}
+  banner.hidden=false;banner.classList.remove('is-retracting');return;
+ }
+ if(!banner.hidden&&!banner.classList.contains('is-retracting')){
+  banner.classList.add('is-retracting');
+  emergencyBannerHideTimer=setTimeout(()=>{banner.hidden=true;banner.classList.remove('is-retracting');emergencyBannerHideTimer=null},520);
+ }
+}
 function syncEmergencySound(state){if(startupHasCompleted&&!appStartupSuppressed&&state==='emergency'&&warningNotificationsEnabled&&interfaceSoundEnabled){if(!window.emergencySoundTimer){window.emergencySoundTimer=setInterval(()=>{if(stateFor(gallons)!=='emergency'||!warningNotificationsEnabled||!interfaceSoundEnabled){clearInterval(window.emergencySoundTimer);window.emergencySoundTimer=null;return}window.playWarningSound?.('emergency')},18000)}}else if(window.emergencySoundTimer){clearInterval(window.emergencySoundTimer);window.emergencySoundTimer=null}}
 function showAlertPopup(state){if(!warningNotificationsEnabled)return;const titles={low:'LOW WATER WARNING',critical:'CRITICAL WATER-LEVEL WARNING',emergency:'EMERGENCY WATER LOSS'};const messages={low:'The simulated aquarium volume is at or below 220 gallons. Yellow reminder: review the water level and inspect the aquarium in person.',critical:'The simulated aquarium volume is at or below 200 gallons. Orange critical warning: inspect the aquarium. No real sensor is connected.',emergency:'The simulated aquarium volume is at or below 140 gallons. Immediate inspection is required. The simulated refill control is locked until the level is restored and inspected. No real hardware is controlled.'};$('warningTitle').textContent=titles[state]||'Water level normal';$('warningMessage').textContent=messages[state]||'The simulated water level is normal.';$('warningModal').className='modal-backdrop warning-modal-'+state+' show';window.playWarningSound?.(state)}
 $('dismissWarning').addEventListener('click',()=>$('warningModal').classList.remove('show'));
