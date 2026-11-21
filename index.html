@@ -1332,22 +1332,31 @@ window.addEventListener('ranchuStartupComplete',()=>{
  function updateBloodworm(dt,now){
   if(!bloodwormAdded||tankPercent<=0)return;
   bloodwormPhase+=dt*8.5;
-  if(fishAdded&&Math.hypot(bloodwormX-fishX,bloodwormY-fishY)<31){
-   bloodwormAdded=false;fishSlurp=.42;fishVX+=fishFacing*24;addFeedingRipple(bloodwormX,bloodwormY,1.25);playAquariumSound('food');setStatus('Your Ranchu slurped up the live bloodworm!');return;
+  const visualScale=Math.min(1,width/700),mouthRotation=-fishTilt*fishFacingVisual;
+  const mouthX=fishX+Math.cos(mouthRotation)*32*visualScale*fishFacingVisual-Math.sin(mouthRotation)*8*visualScale;
+  const mouthY=fishY+Math.sin(mouthRotation)*32*visualScale*fishFacingVisual+Math.cos(mouthRotation)*8*visualScale;
+  if(fishAdded&&Math.hypot(bloodwormX-mouthX,bloodwormY-mouthY)<19){
+   bloodwormAdded=false;fishSlurp=.42;fishVX+=fishFacingVisual*18;addFeedingRipple(bloodwormX,bloodwormY,1.25);playAquariumSound('food');setStatus('Your Ranchu slurped up the live bloodworm!');return;
   }
-  let desiredX=Math.sin(now*.00037)*24,desiredY=Math.sin(now*.00061)*12;
+  let desiredX=Math.sin(now*.00037)*20,desiredY=Math.sin(now*.00061)*10;
   if(fishAdded){
    const awayX=bloodwormX-fishX,awayY=bloodwormY-fishY,d=Math.hypot(awayX,awayY);
-   if(d<155){const urgency=1-clamp(d/155,0,1),inv=1/Math.max(1,d);desiredX+=awayX*inv*(28+58*urgency);desiredY+=awayY*inv*(22+48*urgency)}
+   if(d<155){const urgency=1-clamp(d/155,0,1),inv=1/Math.max(1,d);desiredX+=awayX*inv*(25+48*urgency);desiredY+=awayY*inv*(18+38*urgency)}
   }
-  const response=1-Math.exp(-dt*2.1);
+  // A worm should turn back into open water before reaching a wall or corner.
+  const minX=52,maxX=width-52,minY=surfaceBase()+25,maxY=bottom()-30;
+  const edgePush=34;
+  if(bloodwormX<minX+edgePush)desiredX+=((minX+edgePush-bloodwormX)/edgePush)*58;
+  if(bloodwormX>maxX-edgePush)desiredX-=((bloodwormX-(maxX-edgePush))/edgePush)*58;
+  if(bloodwormY<minY+edgePush)desiredY+=((minY+edgePush-bloodwormY)/edgePush)*48;
+  if(bloodwormY>maxY-edgePush)desiredY-=((bloodwormY-(maxY-edgePush))/edgePush)*48;
+  const response=1-Math.exp(-dt*2.35);
   bloodwormVX+=(desiredX-bloodwormVX)*response;bloodwormVY+=(desiredY-bloodwormVY)*response;
   bloodwormX+=bloodwormVX*dt;bloodwormY+=bloodwormVY*dt;
-  const minX=22,maxX=width-24,minY=surfaceBase()+13,maxY=bottom()-13;
-  if(bloodwormX<minX){bloodwormX=minX;bloodwormVX=Math.abs(bloodwormVX)+18}
-  if(bloodwormX>maxX){bloodwormX=maxX;bloodwormVX=-Math.abs(bloodwormVX)-18}
-  if(bloodwormY<minY){bloodwormY=minY;bloodwormVY=Math.abs(bloodwormVY)+12}
-  if(bloodwormY>maxY){bloodwormY=maxY;bloodwormVY=-Math.abs(bloodwormVY)-12}
+  if(bloodwormX<minX){bloodwormX=minX;bloodwormVX=Math.max(0,bloodwormVX)*.35}
+  if(bloodwormX>maxX){bloodwormX=maxX;bloodwormVX=Math.min(0,bloodwormVX)*.35}
+  if(bloodwormY<minY){bloodwormY=minY;bloodwormVY=Math.max(0,bloodwormVY)*.35}
+  if(bloodwormY>maxY){bloodwormY=maxY;bloodwormVY=Math.min(0,bloodwormVY)*.35}
  }
  function drawBloodworm(now){
   if(!bloodwormAdded||tankPercent<=0)return;
@@ -1506,11 +1515,14 @@ window.addEventListener('ranchuStartupComplete',()=>{
   const edibleTarget=!!(target&&!target.isPlant&&!target.isBubble);
   if(edibleTarget){
    const targetDX=target.x-fishX,targetDY=target.y-fishY;
-   const nextFacing=targetDX>9?1:targetDX< -9?-1:fishFacing;
-   if(nextFacing!==fishFacing){fishFacing=nextFacing;fishTurnPause=Math.max(fishTurnPause,.18)}
+   // Keep the fish's current heading for targets that are mostly above/below it.
+   // This avoids rapid left/right flips when a pellet drops almost vertically.
+   const horizontalTurnThreshold=Math.max(22,Math.abs(targetDY)*.38);
+   const nextFacing=targetDX>horizontalTurnThreshold?1:targetDX< -horizontalTurnThreshold?-1:fishFacing;
+   if(nextFacing!==fishFacing){fishFacing=nextFacing;fishTurnPause=Math.max(fishTurnPause,.28)}
    const aimFacing=fishFacingVisual;
    const visualScale=Math.min(1,width/700);
-   const aimTilt=clamp(-aimFacing*Math.atan2(targetDY,Math.max(12,Math.abs(targetDX))),-.68,.68);
+   const aimTilt=clamp(-aimFacing*Math.atan2(targetDY,Math.max(20,Math.abs(targetDX))),-.48,.48);
    const rotation=-aimTilt*aimFacing;
    const localMouthX=32*visualScale*aimFacing,localMouthY=8*visualScale;
    const mouthOffsetX=Math.cos(rotation)*localMouthX-Math.sin(rotation)*localMouthY;
@@ -1531,7 +1543,7 @@ window.addEventListener('ranchuStartupComplete',()=>{
   fishX=clamp(fishX,48,width-54);
   const floorApproach=!!(edibleTarget&&target.settled&&target.y>=bottom()-16);
   fishY=clamp(fishY,surfaceBase()+(fishSurfaceFeeding?9:20),bottom()-(floorApproach?12:24));
-  const desiredTilt=edibleTarget?clamp(-fishFacingVisual*Math.atan2(target.y-fishY,Math.max(12,Math.abs(target.x-fishX))),-.68,.68):0;
+  const desiredTilt=edibleTarget?clamp(-fishFacingVisual*Math.atan2(target.y-fishY,Math.max(20,Math.abs(target.x-fishX))),-.48,.48):0;
   fishTilt+=(desiredTilt-fishTilt)*(1-Math.exp(-dt*(edibleTarget?3.6:3.2)));
   if(!edibleTarget&&!fishSurfaceFeeding){
    const movingFacing=fishVX>10?1:fishVX< -10?-1:fishFacing;
