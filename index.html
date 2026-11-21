@@ -1483,7 +1483,7 @@ window.addEventListener('ranchuStartupComplete',()=>{
   for(const p of food){
    const dxp=p.x-fishX,dyp=p.y-fishY,d=Math.hypot(dxp,dyp);
    const inWater=p.y>=surfaceBase()-8&&p.y<=bottom()-5;
-   const fallingAbove=p.y<surfaceBase()+5&&Math.abs(dxp)<110&&p.vy>0;
+   const fallingAbove=!!p.surfaceDrop&&p.y<surfaceBase()+25&&Math.abs(dxp)<110&&p.vy>0;
    if((inWater&&d<145||fallingAbove&&d<165)&&d<best){best=d;target=p;surfacePellet=fallingAbove}
   }
   let desiredVX=0,desiredVY=0;
@@ -1641,7 +1641,7 @@ window.addEventListener('ranchuStartupComplete',()=>{
   if(!foodSelected)return;
   const r=canvas.getBoundingClientRect(),x=(e.clientX-r.left)*(width/Math.max(1,r.width)),y=(e.clientY-r.top)*(height/Math.max(1,r.height));
   if(x<8||x>width-8||y<8||y>height-8||tankPercent<=0)return;
-  food.push({x,y:y<surfaceBase()?y:y-5,vy:8+Math.random()*3,vx:(Math.random()-.5)*.7,r:2.2+Math.random()*.7,age:0,settled:false});
+  food.push({x,y:y<surfaceBase()?y:y-5,vy:8+Math.random()*3,vx:(Math.random()-.5)*.7,r:2.2+Math.random()*.7,age:0,settled:false,surfaceDrop:y<surfaceBase()});
   playAquariumSound('food');setStatus('A food pellet was placed in the water.');e.preventDefault();e.stopImmediatePropagation();
  },true);
  resetButton?.addEventListener('click',reset);
