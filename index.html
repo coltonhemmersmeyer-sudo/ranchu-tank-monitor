@@ -494,6 +494,11 @@ input,select,textarea{background:#fffdf6;border-color:#e8d5ac;color:var(--text)}
 
 @media(max-width:700px){.tank-blueprint{grid-template-columns:1fr}.tank-spec-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.tank-model-stage{padding:8px}}
 
+
+/* Keep device pairing above the entire dashboard, not inside the animated Devices page. */
+#deviceConnectModal{position:fixed;inset:0;z-index:2000;width:100vw;height:100vh;height:100dvh;align-items:center;justify-content:center}
+#deviceConnectModal.show{display:flex}
+@media(max-width:600px){#deviceConnectModal{align-items:flex-end}}
 </style>
 </head>
 <body>
@@ -875,7 +880,10 @@ document.addEventListener('click',()=>setTimeout(saveAppData,0));document.addEve
 
 /* Device connection manager interface. A successful state is never assumed without a real device handshake. */
 (function(){
- const modal=$('deviceConnectModal'),title=$('deviceConnectTitle'),message=$('deviceConnectMessage');
+ const modal=$('deviceConnectModal');
+ // Move the overlay out of the animated page section so fixed positioning covers the full viewport.
+ if(modal&&modal.parentElement!==document.body)document.body.appendChild(modal);
+ const title=$('deviceConnectTitle'),message=$('deviceConnectMessage');
  const spinner=$('connectionSpinnerWrap'),resultIcon=$('connectionResultIcon'),explanation=$('deviceConnectExplanation');
  const close=$('deviceConnectClose'),retry=$('deviceConnectRetry');
  const deviceNames={esp32:'ESP32 Wi-Fi Controller',water:'Water-Level Sensor',floats:'Independent Float Switches',pump:'Low-Voltage Pump & Flow Meter',feeder:'Automatic Feeder',camera:'Wi-Fi Camera'};
