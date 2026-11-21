@@ -462,6 +462,31 @@ input,select,textarea{background:#fffdf6;border-color:#e8d5ac;color:var(--text)}
 .tank-model-legend{display:flex;gap:10px;flex-wrap:wrap;font-size:10px;color:#866744;margin-top:10px}
 .tank-model-legend span{display:flex;align-items:center;gap:5px}
 .tank-model-legend i{width:9px;height:9px;border-radius:3px;display:inline-block}
+.equipment-layout{display:grid;grid-template-columns:minmax(0,1.1fr) 78px minmax(220px,.9fr);gap:10px;align-items:center;margin-top:16px}
+.equipment-tank{min-height:205px;border:8px solid #a8733e;border-top-width:13px;border-radius:10px 10px 5px 5px;background:linear-gradient(180deg,#d7f4f6 0 24%,#68bfd3 24% 100%);padding:12px;position:relative;box-shadow:inset 0 0 0 3px #2f7896}
+.equipment-tank-label,.equipment-table-title{font-size:10px;font-weight:850;letter-spacing:1px;color:#785025}
+.equipment-water{display:flex;flex-wrap:wrap;gap:7px;margin-top:18px;align-items:flex-start}
+.equipment-chip{font-size:10px;font-weight:750;color:#205c70;background:#e7fbff;border:1px solid #a4dce8;border-radius:9px;padding:7px}
+.equipment-heater{font-size:10px;font-weight:750;color:#925a1d;background:#fff2d8;border:1px dashed #d99a42;border-radius:9px;padding:7px}
+.equipment-heater small,.equipment-filter small{font-weight:500;line-height:1.35}
+.equipment-filter{position:absolute;right:9px;bottom:9px;background:#fffaf0;border:1px solid #e6d1a4;color:#785025;border-radius:8px;padding:7px;font-size:10px;font-weight:750;max-width:52%}
+.equipment-cable{font-size:10px;color:#886943;text-align:center;line-height:1.5}
+.equipment-cable:before{content:"";display:block;height:3px;background:repeating-linear-gradient(90deg,#b77b38 0 7px,transparent 7px 12px);margin-bottom:8px}
+.equipment-table{min-height:205px;position:relative;border:1px solid #d9bd87;border-radius:12px;background:linear-gradient(180deg,#fff8e8,#f5e6c8);padding:13px 12px 34px;box-shadow:0 6px 14px rgba(117,78,29,.1)}
+.equipment-enclosure{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:15px}
+.equipment-board{background:#fffdf6;border:1px solid #dfc99e;border-radius:9px;padding:9px 7px;min-width:0}
+.equipment-board:first-child{grid-column:1/-1;background:#eaf6e8;border-color:#b8d2a9}
+.equipment-board b{display:block;font-size:11px;color:#65451f}
+.equipment-board small{display:block;font-size:9px;color:#98764e;margin-top:3px}
+.equipment-table-leg{position:absolute;bottom:-12px;left:22px;width:9px;height:12px;background:#a8733e}
+.equipment-table-leg.second{left:auto;right:22px}
+.equipment-table-note{position:absolute;bottom:7px;left:10px;right:10px;font-size:9px;color:#886943;text-align:center}
+.equipment-list-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:17px}
+.equipment-list-item{background:#fff8e8;border:1px solid #eddbb5;border-radius:12px;padding:12px}
+.equipment-list-item b{display:block;font-size:11px;color:#81511e;margin-bottom:5px}
+.equipment-list-item span{display:block;font-size:10px;line-height:1.5;color:#98784f}
+@media(max-width:700px){.equipment-layout{grid-template-columns:1fr;gap:8px}.equipment-cable{padding:5px 18px}.equipment-cable:before{width:3px;height:22px;margin:0 auto 6px;background:repeating-linear-gradient(180deg,#b77b38 0 7px,transparent 7px 12px)}.equipment-list-grid{grid-template-columns:1fr}}
+
 @media(max-width:700px){.tank-blueprint{grid-template-columns:1fr}.tank-spec-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.tank-model-stage{padding:8px}}
 
 </style>
@@ -588,12 +613,52 @@ input,select,textarea{background:#fffdf6;border-color:#e8d5ac;color:var(--text)}
       <g data-tank-part="water" tabindex="0" role="button" aria-label="Interior water area"><rect x="121" y="83" width="378" height="194" rx="4" fill="#64bfd6"/><path d="M136 111 Q208 97 277 111 T418 111 T485 111 M136 243 Q208 229 277 243 T418 243 T485 243" fill="none" stroke="#d7faff" stroke-width="3" opacity=".75"/></g>
       <g data-tank-part="crossbar" tabindex="0" role="button" aria-label="Top wooden crossbar"><rect x="291" y="50" width="28" height="260" rx="3" fill="#805027" stroke="#70451f" stroke-width="2"/><rect x="296" y="52" width="18" height="256" fill="#bd8950"/></g>
       <g data-tank-part="drain" tabindex="0" role="button" aria-label="Drain valve"><rect x="512" y="248" width="35" height="18" rx="4" fill="#aab3b2" stroke="#52666a" stroke-width="2"/><circle cx="550" cy="257" r="10" fill="#d4d9d8" stroke="#52666a" stroke-width="2"/></g>
-      <g fill="#6b4a2a" font-size="12" font-weight="700"><text x="83" y="28">TOP VIEW · 47.2 × 31.5 IN EXTERIOR</text><text x="83" y="340" font-size="10" fill="#96764e">Interior equipment positions are not assigned yet</text></g>
+      <g fill="#6b4a2a" font-size="12" font-weight="700"><text x="83" y="28">TOP VIEW · 47.2 × 31.5 IN EXTERIOR</text><text x="83" y="340" font-size="10" fill="#96764e">Equipment and sensor positions are preliminary</text></g>
      </svg>
      <div class="tank-model-legend"><span><i style="background:#a8733e"></i>Wood frame</span><span><i style="background:#2f7896"></i>PVC liner</span><span><i style="background:#64bfd6"></i>Water area</span><span><i style="background:#aab3b2"></i>Drain fitting</span></div>
     </div>
     <div class="tank-part-detail" aria-live="polite"><span class="eyebrow">Selected component</span><h4 id="tankPartTitle">Tank overview</h4><p class="hint" id="tankPartDescription">Choose a highlighted part of the model to see its details. The interior equipment layout can be added as the actual equipment positions are finalized.</p><div class="notice info" style="margin-top:14px">This is a visual planning model. No physical equipment is connected to the dashboard.</div></div>
    </div>
+  </div>
+  <div class="card span-12">
+   <div class="card-head"><h3>Equipment & Water-Side Layout</h3><span class="badge warn">Planning layout</span></div>
+   <p class="hint">A separate equipment zone keeps bulky water equipment at the tank while keeping the controller and electronics away from splashes. Exact positions will be finalized after the filter and other hardware are selected.</p>
+   <div class="equipment-layout">
+    <div class="equipment-tank">
+     <div class="equipment-tank-label">137-GALLON TANK · SIDE CONCEPT</div>
+     <div class="equipment-water">
+      <span class="equipment-chip">Temperature probe</span>
+      <span class="equipment-chip">Water-level sensor</span>
+      <span class="equipment-heater">Optional heater location<br><small>only if temperature records show it is needed</small></span>
+     </div>
+     <div class="equipment-filter">Filter / circulation return<br><small>near heater location if one is ever needed</small></div>
+    </div>
+    <div class="equipment-cable" aria-hidden="true"><span>Sensor cables routed neatly with drip loops</span></div>
+    <div class="equipment-table">
+     <div class="equipment-table-title">SEPARATE DRY CONTROL TABLE</div>
+     <div class="equipment-enclosure">
+      <div class="equipment-board"><b>ESP32</b><small>Wi-Fi controller</small></div>
+      <div class="equipment-board"><b>Sensor terminals</b><small>Low-voltage connections</small></div>
+      <div class="equipment-board"><b>Protected power</b><small>Approved power supply / enclosure</small></div>
+     </div>
+     <div class="equipment-table-leg"></div>
+     <div class="equipment-table-leg second"></div>
+     <div class="equipment-table-note">Outside splash zone · ventilated · accessible for maintenance</div>
+    </div>
+   </div>
+   <div class="equipment-list-grid">
+    <div class="equipment-list-item"><b>Inside / at the tank</b><span>Temperature probe and water-level sensor in their approved positions; filter and circulation equipment placed to provide even movement.</span></div>
+    <div class="equipment-list-item"><b>On the separate table</b><span>ESP32 board inside a suitable protective enclosure, sensor connection points, and its approved low-voltage power supply.</span></div>
+    <div class="equipment-list-item"><b>How it connects</b><span>Sensor leads run from the tank to the ESP32. The ESP32 sends readings over Wi-Fi to the dashboard once firmware and secure database integration are completed.</span></div>
+    <div class="equipment-list-item"><b>Electrical safety</b><span>Keep electronics dry and above floor level, use drip loops and a GFCI-protected outlet, and have an experienced adult handle all mains-powered connections. Do not put mains wiring on a DIY breadboard.</span></div>
+   </div>
+   <div class="notice info" style="margin-top:14px">The diagram is a proposed arrangement, not a wiring diagram. No ESP32, sensors, heater, pump, or other physical hardware is connected yet. The camera would remain a separate Wi-Fi device.</div>
+  </div>
+  <div class="card span-12">
+   <div class="card-head"><h3>Heating Plan</h3><span class="badge off">No heater selected</span></div>
+   <p class="hint">My recommendation is to start without a heater. Ranchu goldfish are cool-water fish and generally do not need routine aquarium heating. Fort Myers is warm, but the tank's actual water temperature—especially on the coolest winter nights—should decide whether backup heating is necessary.</p>
+   <div class="notice">I would not choose a very small heater just because the climate is warm: 100 watts is marketed for much smaller tanks, and it may be unable to make a meaningful difference in 137 gallons. First log the water temperature through a cool spell. If heating is genuinely needed, size a thermostatically controlled, guarded unit to the measured temperature difference and tank conditions, then verify it with an independent thermometer.</div>
+   <p class="hint" style="margin-top:10px">If a heater is added later, its planned position is near steady filter flow—not against the liner, plants, or decorations—and it must remain fully submerged exactly as its manufacturer specifies.</p>
   </div>
   <div class="card span-12"><div class="card-head"><h3>Product reference</h3><span class="badge off">Amazon listing</span></div><p class="hint">MOGUOBIN Ground Aquarium / Hydroponic Cultivation · ASIN B0FDKZCCR5</p><p><a href="https://www.amazon.com/dp/B0FDKZCCR5" target="_blank" rel="noopener noreferrer">Open the exact Amazon product listing ↗</a></p><p class="hint">The product photo and visible construction details are the reference for this illustration. The diagram is a simplified interactive recreation, not a photograph.</p></div>
  </div>
