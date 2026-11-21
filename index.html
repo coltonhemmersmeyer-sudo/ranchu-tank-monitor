@@ -769,5 +769,24 @@ signInBtn.addEventListener('click',async()=>{try{await signInWithPopup(auth,prov
 signOutBtn.addEventListener('click',async()=>{try{await signOut(auth)}catch(e){document.getElementById('authStatus').textContent='Sign-out error: '+e.message}});
 onAuthStateChanged(auth,updateAuth);
 </script>
+
+<script>
+/* iPhone/Safari failsafe: never let a stalled intro or startup loader cover the dashboard indefinitely. */
+(function(){
+ if(!window.matchMedia||!window.matchMedia('(max-width: 600px)').matches)return;
+ window.setTimeout(function(){
+  const loader=document.getElementById('startupScreen');
+  const intro=document.getElementById('introVideoScreen');
+  if(loader&&loader.isConnected){
+   loader.classList.add('is-done');
+   loader.remove();
+  }
+  if(intro&&intro.isConnected)intro.remove();
+  document.documentElement.classList.remove('waiting-for-intro');
+  window.dispatchEvent(new Event('ranchuStartupComplete'));
+ },15000);
+})();
+</script>
+
 </body>
 </html>
