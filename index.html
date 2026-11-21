@@ -942,7 +942,7 @@ onAuthStateChanged(auth,updateAuth);
  function ropePath(side){
   const width=sign.offsetWidth||920;
   const left=window.innerWidth/2-width/2;
-  const baseTop=sign.getBoundingClientRect().top;
+  const baseTop=parseFloat(getComputedStyle(sign).top)||10;
   const pivotX=window.innerWidth/2,pivotY=baseTop-43+pull;
   // End the rope inside the board face so the board naturally hides the joint.
   const localX=side*width*.36,localY=63;
