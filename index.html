@@ -324,7 +324,7 @@ input,select,textarea{background:#fffdf6;border-color:#e8d5ac;color:var(--text)}
 <div class="card span-5"><div class="card-head"><h3>Current alert state</h3><span class="badge" id="testStateBadge">Normal</span></div><div id="testStateNotice" class="notice good">The simulated water level is in the normal range.</div><p class="hint" id="refillLockStatus" style="margin-top:12px">Automatic refill simulation is not locked.</p><div class="notice info" style="margin-top:12px">Rapid-loss test: use the button below to generate a simulated sudden drop and verify the emergency response.</div><button class="btn danger" id="rapidLossBtn" style="margin-top:12px">Simulate rapid water loss</button></div>
 <div class="card span-12"><div class="card-head"><h3>Preview every warning popup</h3><span class="hint">Independent preview</span></div><div class="actions"><button class="btn secondary" id="showLowPopup">Preview yellow warning</button><button class="btn" id="showCriticalPopup">Preview orange warning</button><button class="btn danger" id="showEmergencyPopup">Preview red emergency</button></div><p class="hint" style="margin-top:12px">Restoring the simulated volume clears the simulated emergency lock. No real equipment is connected or triggered.</p></div><div class="card span-12"><div class="card-head"><h3>Dashboard controls</h3><span class="badge off">Testing utility</span></div><p class="hint">Reload the dashboard to check that browser-saved records and settings are restored correctly.</p><button class="btn secondary" id="refreshDashboard">Refresh dashboard</button></div></div></section>
 
-<section class="page" id="page-settings"><div class="grid"><div class="card span-12"><div class="card-head"><h3>Data & storage</h3><span class="badge">Browser storage</span></div><div class="notice good">Automatic saving is enabled. Records and dashboard settings are saved in this browser and restored when the app is reopened.</div><p class="hint" style="margin-top:12px">This storage is local to this browser and device. It does not synchronize between devices or Google accounts yet. Clearing browser site data can erase these records.</p><p class="hint" id="storageStatus">Checking saved data…</p></div><div class="card span-12"><div class="card-head"><h3>Reset to default</h3><span class="badge red">Destructive action</span></div><p>This clears saved status reports, notifications, journal entries, notes, test records, feeding and refill history, fish profiles, and dashboard settings. The dashboard returns to its original 240-gallon starting state.</p><div class="notice critical">This action cannot be undone. Copy anything important before resetting.</div><button class="btn danger" id="resetAllData" style="margin-top:12px">Reset everything to default</button></div></div></section>
+<section class="page" id="page-settings"><div class="grid"><div class="card span-12"><div class="card-head"><h3>Sound & volume</h3><span class="badge">Interface audio</span></div><p class="hint">Adjust the volume of dashboard sound effects and play a preview. The volume setting is saved in this browser.</p><div class="field"><label for="soundVolume">Sound effects volume <strong id="soundVolumeLabel">200%</strong></label><input id="soundVolume" type="range" min="50" max="400" step="10" value="200"></div><div class="actions"><button class="btn" id="soundPreviewButton" type="button">♫ Play sound preview</button><span class="hint">If sounds are still quiet, check your device volume too.</span></div></div><div class="card span-12"><div class="card-head"><h3>Data & storage</h3><span class="badge">Browser storage</span></div><div class="notice good">Automatic saving is enabled. Records and dashboard settings are saved in this browser and restored when the app is reopened.</div><p class="hint" style="margin-top:12px">This storage is local to this browser and device. It does not synchronize between devices or Google accounts yet. Clearing browser site data can erase these records.</p><p class="hint" id="storageStatus">Checking saved data…</p></div><div class="card span-12"><div class="card-head"><h3>Reset to default</h3><span class="badge red">Destructive action</span></div><p>This clears saved status reports, notifications, journal entries, notes, test records, feeding and refill history, fish profiles, and dashboard settings. The dashboard returns to its original 240-gallon starting state.</p><div class="notice critical">This action cannot be undone. Copy anything important before resetting.</div><button class="btn danger" id="resetAllData" style="margin-top:12px">Reset everything to default</button></div></div></section>
 
 <footer>Ranchu Tank Monitor · Redesigned prototype · Browser-stored records · Hardware not connected</footer>
 </main></div>
@@ -335,9 +335,9 @@ input,select,textarea{background:#fffdf6;border-color:#e8d5ac;color:var(--text)}
 <script>
 const CAPACITY=240;
 let gallons=240,waterMode='manual',feedMode='manual',refillLog=[],feedLog=[],conditionLog=[],qualityNotes=[],otherNotes=[],fishProfiles=[],journalEntries=[],notifications=[],paused=false,autoFeedEnabled=false,emergencyLock=false,lastVolumeChange={time:Date.now(),value:240};
-const STORAGE_KEY='ranchuTankMonitorData_v1';let statusReports=[];
-function saveAppData(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify({gallons,waterMode,feedMode,refillLog,feedLog,conditionLog,qualityNotes,otherNotes,fishProfiles,journalEntries,notifications,statusReports,paused,autoFeedEnabled,emergencyLock,settings:{feedTime1:$('feedTime1')?.value,feedTime2:$('feedTime2')?.value,dailyFeedLimit:$('dailyFeedLimit')?.value,portion:$('portion')?.value,refillAmount:$('refillAmount')?.value,customAmount:$('customAmount')?.value}}));if($('storageStatus'))$('storageStatus').textContent='All changes saved locally · '+new Date().toLocaleTimeString()}catch(e){if($('storageStatus'))$('storageStatus').textContent='Could not save: browser storage may be full (large photos can use significant space).';console.warn('Local save failed',e)}}
-function loadAppData(){try{const d=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');if(!d)return;if(Number.isFinite(Number(d.gallons)))gallons=Math.max(0,Math.min(CAPACITY,Number(d.gallons)));for(const k of ['refillLog','feedLog','conditionLog','qualityNotes','otherNotes','fishProfiles','journalEntries','notifications','statusReports'])if(Array.isArray(d[k])){if(k==='refillLog')refillLog=d[k];else if(k==='feedLog')feedLog=d[k];else if(k==='conditionLog')conditionLog=d[k];else if(k==='qualityNotes')qualityNotes=d[k];else if(k==='otherNotes')otherNotes=d[k];else if(k==='fishProfiles')fishProfiles=d[k];else if(k==='journalEntries')journalEntries=d[k];else if(k==='notifications')notifications=d[k];else statusReports=d[k]}if(['manual','automatic'].includes(d.waterMode))waterMode=d.waterMode;if(['manual','automatic'].includes(d.feedMode))feedMode=d.feedMode;if(typeof d.paused==='boolean')paused=d.paused;if(typeof d.autoFeedEnabled==='boolean')autoFeedEnabled=d.autoFeedEnabled;if(typeof d.emergencyLock==='boolean')emergencyLock=d.emergencyLock;const s=d.settings||{};for(const id of ['feedTime1','feedTime2','dailyFeedLimit','portion','refillAmount','customAmount'])if($(id)&&s[id]!==undefined)$(id).value=s[id]}catch(e){console.warn('Could not load saved dashboard data',e)}}
+const STORAGE_KEY='ranchuTankMonitorData_v1';let statusReports=[];let interfaceSoundVolume=2;let interfaceSoundEnabled=true;
+function saveAppData(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify({gallons,waterMode,feedMode,refillLog,feedLog,conditionLog,qualityNotes,otherNotes,fishProfiles,journalEntries,notifications,statusReports,paused,autoFeedEnabled,emergencyLock,settings:{feedTime1:$('feedTime1')?.value,feedTime2:$('feedTime2')?.value,dailyFeedLimit:$('dailyFeedLimit')?.value,portion:$('portion')?.value,refillAmount:$('refillAmount')?.value,customAmount:$('customAmount')?.value,interfaceSoundVolume,interfaceSoundEnabled}}));if($('storageStatus'))$('storageStatus').textContent='All changes saved locally · '+new Date().toLocaleTimeString()}catch(e){if($('storageStatus'))$('storageStatus').textContent='Could not save: browser storage may be full (large photos can use significant space).';console.warn('Local save failed',e)}}
+function loadAppData(){try{const d=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');if(!d)return;if(Number.isFinite(Number(d.gallons)))gallons=Math.max(0,Math.min(CAPACITY,Number(d.gallons)));for(const k of ['refillLog','feedLog','conditionLog','qualityNotes','otherNotes','fishProfiles','journalEntries','notifications','statusReports'])if(Array.isArray(d[k])){if(k==='refillLog')refillLog=d[k];else if(k==='feedLog')feedLog=d[k];else if(k==='conditionLog')conditionLog=d[k];else if(k==='qualityNotes')qualityNotes=d[k];else if(k==='otherNotes')otherNotes=d[k];else if(k==='fishProfiles')fishProfiles=d[k];else if(k==='journalEntries')journalEntries=d[k];else if(k==='notifications')notifications=d[k];else statusReports=d[k]}if(['manual','automatic'].includes(d.waterMode))waterMode=d.waterMode;if(['manual','automatic'].includes(d.feedMode))feedMode=d.feedMode;if(typeof d.paused==='boolean')paused=d.paused;if(typeof d.autoFeedEnabled==='boolean')autoFeedEnabled=d.autoFeedEnabled;if(typeof d.emergencyLock==='boolean')emergencyLock=d.emergencyLock;const s=d.settings||{};if(Number.isFinite(Number(s.interfaceSoundVolume)))interfaceSoundVolume=Math.max(.5,Math.min(4,Number(s.interfaceSoundVolume)));if(typeof s.interfaceSoundEnabled==='boolean')interfaceSoundEnabled=s.interfaceSoundEnabled;for(const id of ['feedTime1','feedTime2','dailyFeedLimit','portion','refillAmount','customAmount'])if($(id)&&s[id]!==undefined)$(id).value=s[id]}catch(e){console.warn('Could not load saved dashboard data',e)}}
 
 const pageInfo={overview:['Overview','Your aquarium at a glance.'],water:['Water','Water level, warning thresholds, and refill planning.'],feeding:['Feeding','Manual feeding and automatic feeder schedule.'],conditions:['Conditions','Water-quality notes, other observations, and test records.'],fish:['Fish','Individual Ranchu profiles and observations.'],journal:['Journal','A chronological record of aquarium events.'],notifications:['Notifications','Warnings, logs, and system activity.'],camera:['Camera','Future live viewing of your aquarium.'],devices:['Devices','Hardware connections and communication status.'],status:['Project Status','Equipment, completed steps, and development roadmap.'],testing:['Testing','Safely preview warnings and simulate water-level changes.'],settings:['Settings','Saved dashboard data, browser storage, and reset options.']};
 const $=id=>document.getElementById(id);
@@ -456,10 +456,16 @@ updateLevel(false);renderQuality();renderOther();renderFish();renderJournal();re
  const percent=document.getElementById('startupPercent');
  const message=document.getElementById('startupMessage');
  let audioContext=null;
- let soundEnabled=true;
+ let soundEnabled=interfaceSoundEnabled;
+ let soundVolume=interfaceSoundVolume;
  let lastHoverTarget=null;
  let lastHoverTime=0;
  const soundToggle=document.getElementById('soundToggle');
+ const soundVolumeSlider=document.getElementById('soundVolume');
+ const soundVolumeLabel=document.getElementById('soundVolumeLabel');
+ const soundPreviewButton=document.getElementById('soundPreviewButton');
+ function updateSoundVolumeLabel(){if(soundVolumeLabel)soundVolumeLabel.textContent=Math.round(soundVolume*100)+'%';}
+ updateSoundVolumeLabel();
  function getAudio(){
   const AudioCtx=window.AudioContext||window.webkitAudioContext;
   if(!AudioCtx)return null;
@@ -480,7 +486,7 @@ updateLevel(false);renderQuality();renderOther();renderFish();renderJournal();re
   const safeStart=Math.max(start,ctx.currentTime+.012);
   osc.type=type||'sine';osc.frequency.setValueAtTime(frequency,safeStart);
   gain.gain.setValueAtTime(.0001,safeStart);
-  gain.gain.exponentialRampToValueAtTime(Math.min(volume||.018,.16),safeStart+.01);
+  gain.gain.exponentialRampToValueAtTime(Math.min((volume||.018)*soundVolume,.55),safeStart+.01);
   gain.gain.exponentialRampToValueAtTime(.0001,safeStart+duration);
   osc.connect(gain);gain.connect(ctx.destination);osc.start(safeStart);osc.stop(safeStart+duration+.02);
  }
@@ -570,7 +576,7 @@ updateLevel(false);renderQuality();renderOther();renderFish();renderJournal();re
    if(introSoundPlayed||ctx.state!=='running')return;
    introSoundPlayed=true;
    const start=ctx.currentTime+.04;
-   const master=ctx.createGain();master.gain.setValueAtTime(.32,start);master.connect(ctx.destination);
+   const master=ctx.createGain();master.gain.setValueAtTime(Math.min(.32*soundVolume,.85),start);master.connect(ctx.destination);
    const notes=[523.25,659.25,783.99,1046.5,783.99,987.77,1174.66,1318.51,1567.98,1318.51,1567.98];
    notes.forEach((frequency,i)=>{
     const when=start+i*.27,osc=ctx.createOscillator(),gain=ctx.createGain();
@@ -586,7 +592,7 @@ updateLevel(false);renderQuality();renderOther();renderFish();renderJournal();re
    endGain.gain.exponentialRampToValueAtTime(.20,start+2.76);
    endGain.gain.exponentialRampToValueAtTime(.0001,start+3.02);
    end.connect(endGain);endGain.connect(master);end.start(start+2.72);end.stop(start+3.05);
-   master.gain.setValueAtTime(.32,start+2.85);
+   master.gain.setValueAtTime(Math.min(.32*soundVolume,.85),start+2.85);
    master.gain.exponentialRampToValueAtTime(.0001,start+3.12);
   };
   if(ctx.state==='running')schedule();
@@ -629,11 +635,27 @@ updateLevel(false);renderQuality();renderOther();renderFish();renderJournal();re
   if(target&&target!==soundToggle)tick('click');
  },true);
  if(soundToggle){
+  soundToggle.textContent=soundEnabled?'♫ Sound On':'♫ Sound Off';
+  soundToggle.setAttribute('aria-pressed',String(soundEnabled));
   soundToggle.addEventListener('click',()=>{
-   soundEnabled=!soundEnabled;
+   soundEnabled=!soundEnabled;interfaceSoundEnabled=soundEnabled;
    soundToggle.textContent=soundEnabled?'♫ Sound On':'♫ Sound Off';
    soundToggle.setAttribute('aria-pressed',String(soundEnabled));
+   saveAppData();
    if(soundEnabled)tick('click');
+  });
+ }
+ if(soundVolumeSlider){
+  soundVolumeSlider.value=String(Math.round(soundVolume*100));
+  soundVolumeSlider.addEventListener('input',()=>{
+   soundVolume=Math.max(.5,Math.min(4,Number(soundVolumeSlider.value)/100));
+   interfaceSoundVolume=soundVolume;updateSoundVolumeLabel();saveAppData();
+  });
+ }
+ if(soundPreviewButton){
+  soundPreviewButton.addEventListener('click',()=>{
+   if(!soundEnabled){soundPreviewButton.textContent='Turn Sound On to Preview';setTimeout(()=>{soundPreviewButton.textContent='♫ Play sound preview'},1500);return;}
+   withAudioReady(ctx=>{const now=ctx.currentTime+.02;[523.25,659.25,783.99,987.77].forEach((f,i)=>scheduleTone(ctx,f,now+i*.14,.18,.12,'sine'));});
   });
  }
  const introVideoScreen=document.getElementById('introVideoScreen');
