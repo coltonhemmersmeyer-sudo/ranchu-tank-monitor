@@ -415,6 +415,8 @@ input,select,textarea{background:#fffdf6;border-color:#e8d5ac;color:var(--text)}
 .fish-drag-token,.food-shake-token{display:inline-flex;align-items:center;justify-content:center;gap:5px;border:0;background:transparent;color:#936b37;border-radius:8px;padding:2px 5px;font-size:11px;font-weight:700;cursor:grab;touch-action:none;user-select:none;box-shadow:none;opacity:.82;transition:opacity .18s,background .18s}
 .fish-drag-token:hover,.food-shake-token:hover{opacity:1;background:rgba(232,199,137,.16)}
 .fish-drag-token:active,.fish-drag-token.dragging,.food-shake-token:active,.food-shake-token.shaking{cursor:grabbing;background:rgba(232,199,137,.2)}
+.fish-drag-token,.food-shake-token{touch-action:none}
+.dragging,.shaking{opacity:.58}
 .fish-token-canvas{width:42px;height:28px;display:block;overflow:visible;pointer-events:none}
 .food-token-canvas{width:24px;height:24px;display:block;pointer-events:none}
 .food-shake-token{width:30px;height:30px;padding:2px}
@@ -1000,7 +1002,7 @@ window.addEventListener('ranchuStartupComplete',()=>{
  const ctx=canvas.getContext('2d');if(!ctx)return;
  const N=220,offsets=new Float32Array(N),velocities=new Float32Array(N);
  let width=0,height=0,dpr=1,lastTime=0,raf=0,active=false,pointerDown=false,statusUntil=0,elapsed=0,spawnClock=0;
- let tankPercent=Number(window.ranchuTankWaterPercent??100),visualTankPercent=tankPercent,lastObservedTankPercent=tankPercent,fishAdded=false,fishDrag=null,heldWaveClock=0,fishX=0,fishY=0,fishVX=0,fishVY=0,fishPositionReady=false,fillGainPerDrop=0;
+ let tankPercent=Number(window.ranchuTankWaterPercent??100),visualTankPercent=tankPercent,lastObservedTankPercent=tankPercent,fishAdded=false,fishDrag=null,heldWaveClock=0,fishX=0,fishY=0,fishVX=0,fishVY=0,fishPositionReady=false,fishFacing=1,fillGainPerDrop=0;
  let pointer={x:0,y:0,px:0,py:0};
  const droplets=[],food=[],fillParticles=[];
  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -1086,11 +1088,8 @@ window.addEventListener('ranchuStartupComplete',()=>{
  }
  function drawFish(now){
   if(!fishAdded)return;
-  const alive=tankPercent>0,travel=now*.00013,depth=Math.max(0,bottom()-surfaceBase());
-  let x=width*(.5+.29*Math.sin(travel));if(alive&&food.length)x+=(food[0].x-x)*.025;
-  const y=alive?fishY:bottom()-Math.min(27,height*.105)*.72+Math.sin(now*.018)*3;
-  const direction=alive?(Math.abs(fishVX)>.5?(fishVX>=0?1:-1):1):(Math.sin(now*.018)>=0?1:-1);
-  drawRanchu(ctx,alive?fishX:x,y+(alive?Math.sin(now*.006)*1.2:0),Math.min(1,width/700),direction,now,alive?0:Math.sin(now*.025)*.48);
+  const alive=tankPercent>0,x=alive?fishX:width*.5,y=alive?fishY:bottom()-Math.min(27,height*.105)*.72+Math.sin(now*.018)*2;
+  drawRanchu(ctx,x,y,Math.min(1,width/700),alive?fishFacing:1,now,alive?0:Math.sin(now*.012)*.22);
  }
  function pumpOutlet(){return{x:width-43,y:54}}
  function drawSidePump(now,base){
@@ -1122,18 +1121,24 @@ window.addEventListener('ranchuStartupComplete',()=>{
   if(fillParticles.length===0&&visualTankPercent<tankPercent)visualTankPercent=tankPercent;
  }
  function updateFish(dt,now){
-  if(!fishAdded||tankPercent<=0){fishVX*=.9;fishVY*=.9;return}
+  if(!fishAdded||tankPercent<=0){fishVX*=Math.pow(.08,dt);fishVY*=Math.pow(.08,dt);return}
   const depth=Math.max(0,bottom()-surfaceBase());
   if(!fishPositionReady){fishX=width*.5;fishY=surfaceBase()+depth*.45;fishPositionReady=true}
   let target=null,best=Infinity;
-  for(const p of food){const d=Math.hypot(p.x-fishX,p.y-fishY);if(d<best){best=d;target=p}}
-  let tx,ty,speed;
-  if(target){tx=target.x;ty=target.y;speed=205}
-  else{const t=now*.00013;tx=width*(.5+.29*Math.sin(t));ty=surfaceBase()+depth*(.43+.08*Math.sin(t*1.7));speed=85}
-  const dxTo=tx-fishX,dyTo=ty-fishY,distance=Math.hypot(dxTo,dyTo);
-  if(distance>1){const step=Math.min(distance,speed*dt);fishVX=dxTo/distance*speed;fishVY=dyTo/distance*speed;fishX+=dxTo/distance*step;fishY+=dyTo/distance*step}
-  else{fishVX=0;fishVY=0}
+  for(const p of food){
+   const dxp=p.x-fishX,dyp=p.y-fishY,d=Math.hypot(dxp,dyp);
+   const inWater=p.y>=surfaceBase()-8&&p.y<=bottom()-5;
+   const fallingAbove=dyp<0&&Math.abs(dxp)<72&&p.vy>0;
+   if((inWater&&d<145||fallingAbove&&d<95)&&d<best){best=d;target=p}
+  }
+  let desiredVX=0,desiredVY=0;
+  if(target){const tx=target.x-fishX,ty=target.y-fishY,d=Math.max(1,Math.hypot(tx,ty)),speed=Math.min(48,Math.max(15,d*.65));desiredVX=tx/d*speed;desiredVY=ty/d*speed}
+  else{desiredVX=Math.sin(now*.00032)*13;desiredVY=Math.sin(now*.00021)*4}
+  const response=1-Math.exp(-dt*(target?1.45:.65));
+  fishVX+=(desiredVX-fishVX)*response;fishVY+=(desiredVY-fishVY)*response;
+  fishX+=fishVX*dt;fishY+=fishVY*dt;
   fishX=clamp(fishX,48,width-54);fishY=clamp(fishY,surfaceBase()+20,bottom()-24);
+  if(fishVX>5)fishFacing=1;else if(fishVX< -5)fishFacing=-1;
  }
  function updateFood(dt){
   for(let i=food.length-1;i>=0;i--){const p=food[i];p.vy+=38*dt;p.y+=p.vy*dt;p.x+=p.vx||0;p.age+=dt;
@@ -1185,22 +1190,42 @@ window.addEventListener('ranchuStartupComplete',()=>{
  const release=()=>{pointerDown=false};canvas.addEventListener('pointerup',release);canvas.addEventListener('pointercancel',release);canvas.addEventListener('lostpointercapture',release);
  const fishTokenCanvas=document.getElementById('fishTokenCanvas');if(fishTokenCanvas){const tokenCtx=fishTokenCanvas.getContext('2d');drawRanchu(tokenCtx,57,37,.72,1,performance.now());}
  const foodTokenCanvas=document.getElementById('foodTokenCanvas');if(foodTokenCanvas){const f=foodTokenCanvas.getContext('2d');f.fillStyle='#a9783e';f.beginPath();f.roundRect(7,19,34,22,7);f.fill();f.fillStyle='#e5bd76';f.fillRect(9,17,30,5);f.fillStyle='#f6e0ad';f.beginPath();f.arc(16,15,3,0,Math.PI*2);f.arc(24,12,3,0,Math.PI*2);f.arc(32,15,3,0,Math.PI*2);f.fill();f.strokeStyle='rgba(255,244,211,.8)';f.lineWidth=1.4;f.beginPath();f.moveTo(12,25);f.lineTo(36,25);f.stroke();}
- let fishPointer=null;
- fishToken?.addEventListener('pointerdown',e=>{if(fishAdded)return;fishPointer=e.pointerId;fishToken.classList.add('dragging');fishToken.setPointerCapture?.(e.pointerId);setStatus('Drag the Ranchu down into the water.');e.preventDefault()});
- fishToken?.addEventListener('pointermove',e=>{if(fishPointer!==e.pointerId)return;fishToken.style.transform='translateY(2px) scale(1.05)'});
- function finishFishDrag(e){
-  if(fishPointer!==e.pointerId)return;fishPointer=null;fishToken.classList.remove('dragging');fishToken.style.transform='';
-  const r=canvas.getBoundingClientRect();if(e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom){
-   fishAdded=true;fishToken.disabled=true;fishToken.classList.remove('dragging');document.getElementById('fishTokenLabel').textContent='Ranchu';setStatus('A little Ranchu is swimming in the tank!');
-  }else setStatus('Drop the fish inside the aquarium to add it.');
+ let fishPointer=null,fishGhost=null;
+ function makeDragGhost(source,kind,x,y){
+  const ghost=document.createElement('canvas');ghost.width=source.width;ghost.height=source.height;
+  ghost.style.cssText='position:fixed;left:0;top:0;width:76px;height:48px;z-index:99999;pointer-events:none;opacity:.94;filter:drop-shadow(0 5px 8px rgba(28,67,75,.25));transform:translate(-50%,-50%)';
+  const gc=ghost.getContext('2d');if(kind==='fish')drawRanchu(gc,57,37,.72,fishFacing,performance.now());else gc.drawImage(source,0,0);
+  document.body.appendChild(ghost);moveDragGhost(ghost,x,y);return ghost;
  }
- fishToken?.addEventListener('pointerup',finishFishDrag);fishToken?.addEventListener('pointercancel',e=>{if(fishPointer===e.pointerId){fishPointer=null;fishToken.classList.remove('dragging')}});
- const foodToken=document.getElementById('foodShakeToken');let foodPointer=null,lastSprinkle=0,lastFoodPoint=null;
- function sprinkleAt(clientX,clientY){const r=canvas.getBoundingClientRect();if(clientX<r.left||clientX>r.right||clientY<r.top||clientY>r.bottom||tankPercent<=0)return;const x=clientX-r.left,y=clientY-r.top,now=performance.now();if(now-lastSprinkle<75)return;lastSprinkle=now;for(let i=0;i<2;i++)food.push({x:x+(Math.random()-.5)*13,y:y+(Math.random()-.5)*8,vy:5+Math.random()*4,r:2+Math.random()*1.1,age:0});if(foodAddedStatus())setStatus('Food is drifting toward your Ranchu.');}
- function foodAddedStatus(){return fishAdded}
- foodToken?.addEventListener('pointerdown',e=>{foodPointer=e.pointerId;lastSprinkle=0;lastFoodPoint={x:e.clientX,y:e.clientY};foodToken.classList.add('shaking');foodToken.setPointerCapture?.(e.pointerId);e.preventDefault();setStatus('Shake the food over the water to sprinkle it.');});
- foodToken?.addEventListener('pointermove',e=>{if(foodPointer!==e.pointerId)return;const moved=Math.hypot(e.clientX-lastFoodPoint.x,e.clientY-lastFoodPoint.y);if(moved>5)sprinkleAt(e.clientX,e.clientY);lastFoodPoint={x:e.clientX,y:e.clientY};});
- const stopFood=()=>{foodPointer=null;foodToken?.classList.remove('shaking')};foodToken?.addEventListener('pointerup',stopFood);foodToken?.addEventListener('pointercancel',stopFood);
+ function moveDragGhost(ghost,x,y){if(ghost){ghost.style.left=x+'px';ghost.style.top=y+'px'}}
+ function removeDragGhost(ghost){if(ghost?.isConnected)ghost.remove()}
+ function insideTank(x,y){const r=canvas.getBoundingClientRect();return x>=r.left&&x<=r.right&&y>=r.top&&y<=r.bottom}
+ fishToken?.addEventListener('pointerdown',e=>{if(fishAdded)return;fishPointer=e.pointerId;fishToken.classList.add('dragging');fishGhost=makeDragGhost(fishTokenCanvas,'fish',e.clientX,e.clientY);try{fishToken.setPointerCapture(e.pointerId)}catch(_){}setStatus('Carry the Ranchu into the aquarium and release it.');e.preventDefault()});
+ fishToken?.addEventListener('pointermove',e=>{if(fishPointer!==e.pointerId)return;moveDragGhost(fishGhost,e.clientX,e.clientY)});
+ function finishFishDrag(e){
+  if(fishPointer!==e.pointerId)return;fishPointer=null;fishToken.classList.remove('dragging');removeDragGhost(fishGhost);fishGhost=null;
+  if(insideTank(e.clientX,e.clientY)){fishAdded=true;fishPositionReady=false;fishToken.disabled=true;setStatus('Your Ranchu is swimming calmly in the tank!')}
+  else setStatus('Release the Ranchu over the aquarium to add it.');
+ }
+ fishToken?.addEventListener('pointerup',finishFishDrag);fishToken?.addEventListener('pointercancel',e=>{if(fishPointer===e.pointerId){fishPointer=null;fishToken.classList.remove('dragging');removeDragGhost(fishGhost);fishGhost=null}});
+ const foodToken=document.getElementById('foodShakeToken');let foodPointer=null,lastSprinkle=0,lastFoodPoint=null,foodGhost=null,shakeEnergy=0;
+ function sprinkleAt(clientX,clientY,shake){
+  if(!insideTank(clientX,clientY)||tankPercent<=0||shake<10)return;
+  const r=canvas.getBoundingClientRect(),x=clientX-r.left,y=clientY-r.top,now=performance.now();
+  if(now-lastSprinkle<170)return;lastSprinkle=now;
+  const amount=Math.min(3,Math.max(1,Math.floor(shake/18)));
+  for(let i=0;i<amount;i++)food.push({x:x+(Math.random()-.5)*17,y:y+(Math.random()-.5)*9,vy:8+Math.random()*5,vx:(Math.random()-.5)*3,r:1.9+Math.random()*.9,age:0});
+  if(fishAdded)setStatus('A few pellets are falling into the water.');
+ }
+ foodToken?.addEventListener('pointerdown',e=>{foodPointer=e.pointerId;lastSprinkle=0;shakeEnergy=0;lastFoodPoint={x:e.clientX,y:e.clientY};foodToken.classList.add('shaking');foodGhost=makeDragGhost(foodTokenCanvas,'food',e.clientX,e.clientY);try{foodToken.setPointerCapture(e.pointerId)}catch(_){}e.preventDefault();setStatus('Carry the food over the water and shake it gently.');});
+ foodToken?.addEventListener('pointermove',e=>{
+  if(foodPointer!==e.pointerId)return;moveDragGhost(foodGhost,e.clientX,e.clientY);
+  const moved=Math.hypot(e.clientX-lastFoodPoint.x,e.clientY-lastFoodPoint.y);
+  if(moved>9){shakeEnergy=Math.min(55,shakeEnergy+moved);sprinkleAt(e.clientX,e.clientY,shakeEnergy);shakeEnergy*=.35}
+  lastFoodPoint={x:e.clientX,y:e.clientY};
+ });
+ const stopFood=()=>{foodPointer=null;foodToken?.classList.remove('shaking');removeDragGhost(foodGhost);foodGhost=null;shakeEnergy=0};
+ foodToken?.addEventListener('pointerup',stopFood);foodToken?.addEventListener('pointercancel',stopFood);
  resetButton?.addEventListener('click',reset);
  if('ResizeObserver'in window)new ResizeObserver(()=>{resize();render(performance.now())}).observe(frame);else window.addEventListener('resize',()=>{resize();render(performance.now())});
  document.querySelectorAll('.nav-btn').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.page==='water')start()}));
