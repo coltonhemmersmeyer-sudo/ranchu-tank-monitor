@@ -1002,7 +1002,7 @@ window.addEventListener('ranchuStartupComplete',()=>{
  const ctx=canvas.getContext('2d');if(!ctx)return;
  const N=220,offsets=new Float32Array(N),velocities=new Float32Array(N);
  let width=0,height=0,dpr=1,lastTime=0,raf=0,active=false,pointerDown=false,statusUntil=0,elapsed=0,spawnClock=0;
- let tankPercent=Number(window.ranchuTankWaterPercent??100),fishAdded=false,fishDrag=null;
+ let tankPercent=Number(window.ranchuTankWaterPercent??100),fishAdded=false,fishDrag=null,heldWaveClock=0;
  let pointer={x:0,y:0,px:0,py:0};
  const droplets=[],food=[];
  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -1089,9 +1089,10 @@ window.addEventListener('ranchuStartupComplete',()=>{
   ctx.restore();
  }
  function updateFood(dt){
-  for(let i=food.length-1;i>=0;i--){const p=food[i];p.vy+=38*dt;p.y+=p.vy*dt;
-   if(fishAdded&&tankPercent>0&&Math.abs(p.x-width*.5)<width*.42&&p.y>surfaceBase()&&p.y<bottom()-12){p.y-=1.5;if(p.y>surfaceBase()+20&&Math.random()<.18){food.splice(i,1);continue}}
-   if(p.y>bottom()-4||p.age>6)food.splice(i,1);p.age+=dt;
+  const now=performance.now(),fishX=width*(.5+.29*Math.sin(now*.00013)),fishY=surfaceBase()+Math.max(0,bottom()-surfaceBase())*.43;
+  for(let i=food.length-1;i>=0;i--){const p=food[i];p.vy+=38*dt;p.y+=p.vy*dt;p.age+=dt;
+   if(fishAdded&&tankPercent>0&&Math.hypot(p.x-fishX,p.y-fishY)<30){food.splice(i,1);setStatus('Your Ranchu found a little snack!');continue}
+   if(p.y>bottom()-4||p.age>6)food.splice(i,1);
   }
  }
  function render(now){
@@ -1118,7 +1119,7 @@ window.addEventListener('ranchuStartupComplete',()=>{
  function loop(now){
   if(!active){raf=0;return}
   const dt=Math.min(.022,Math.max(.001,(now-lastTime)/1000||.016));lastTime=now;tankPercent=Number(window.ranchuTankWaterPercent??tankPercent);
-  if(waterPage.classList.contains('active')){physics(dt);updateCondensation(dt);updateFood(dt);render(now);if(status&&now>statusUntil)status.textContent=tankPercent<=0&&fishAdded?'The tank is empty in this simulation. Your Ranchu is not happy.': 'Move across the glass to wipe condensation; hold and drag in the water to make waves.'}
+  if(waterPage.classList.contains('active')){if(pointerDown&&tankPercent>0){heldWaveClock+=dt;if(heldWaveClock>=.14){disturb(pointer.x,pointer.y,0,0,true);heldWaveClock=0}}physics(dt);updateCondensation(dt);updateFood(dt);render(now);if(status&&now>statusUntil)status.textContent=tankPercent<=0&&fishAdded?'The tank is empty in this simulation. Your Ranchu is not happy.': 'Move across the glass to wipe condensation; hold and drag in the water to make waves.'}
   raf=requestAnimationFrame(loop);
  }
  function start(){if(active)return;active=true;resize();lastTime=performance.now();raf=requestAnimationFrame(loop)}
