@@ -193,6 +193,8 @@ input,select,textarea{background:#fffdf6;border-color:#e8d5ac;color:var(--text)}
  .device-copy b{font-size:12px;color:#65451f}
  .device-copy span,.device-manual-label{font-size:10px;color:#96764e;line-height:1.4}
  .device-connect-btn{min-width:86px}
+ .tank-full-nudge{animation:tankFullNudge .36s ease-in-out}
+ @keyframes tankFullNudge{0%,100%{transform:translateX(0)}20%{transform:translateX(-3px)}40%{transform:translateX(3px)}60%{transform:translateX(-2px)}80%{transform:translateX(2px)}}
  .device-connect-modal{text-align:center}
  .connection-spinner-wrap{display:grid;place-items:center;margin:4px auto 18px}
  .connection-spinner{width:112px;height:112px;border-radius:50%;padding:7px;background:conic-gradient(from 0deg,#f2c34c 0deg,#ed982d 100deg,#d96b4b 210deg,#f2c34c 360deg);animation:ranchuConnectSpin 1.15s linear infinite;box-shadow:0 8px 22px rgba(151,96,28,.16)}
@@ -202,7 +204,7 @@ input,select,textarea{background:#fffdf6;border-color:#e8d5ac;color:var(--text)}
  @keyframes ranchuConnectCounter{to{transform:rotate(-360deg)}}
  .connection-result-icon{width:72px;height:72px;border-radius:50%;margin:6px auto 18px;display:grid;place-items:center;background:#fff1cf;color:#a66b25;font-size:34px}
  @media(max-width:600px){.device-connection-row{grid-template-columns:38px minmax(0,1fr) auto;gap:9px}.device-connection-row .badge{grid-column:2;justify-self:start}.device-connect-btn{grid-column:3;grid-row:1 / span 2;min-width:76px;padding:9px 10px}.device-copy span{font-size:10px}.device-symbol{width:36px;height:36px}}
- @media(prefers-reduced-motion:reduce){.connection-spinner,.connection-spinner img{animation:none}}
+ @media(prefers-reduced-motion:reduce){.connection-spinner,.connection-spinner img,.tank-full-nudge{animation:none}}
 
 @media(prefers-reduced-motion:reduce){#startupScreen,.page,.progress>span,#startupProgress{transition:none;animation:none}}
 
@@ -381,7 +383,7 @@ $('dismissWarning').addEventListener('click',()=>$('warningModal').classList.rem
 $('goWarningPage').addEventListener('click',()=>{$('warningModal').classList.remove('show');showPage('water')});
 function setWaterMode(mode){waterMode=mode;$('manualWaterBtn').classList.toggle('selected',mode==='manual');$('autoWaterBtn').classList.toggle('selected',mode==='automatic');$('waterModeText').textContent=mode==='manual'?'Manual mode: choose a simulated amount and start a pretend refill.':'Automatic mode preview only. No sensor or pump is connected; this mode cannot run real equipment.';$('startRefill').textContent=mode==='manual'?'Start simulated refill':'Run refill preview'}
 $('refillAmount').addEventListener('change',()=>$('customAmountWrap').style.display=$('refillAmount').value==='custom'?'grid':'none');
-$('startRefill').addEventListener('click',()=>{if(emergencyLock){toast('Emergency lock: restore and inspect the simulated level first.');return}let amount=$('refillAmount').value==='custom'?Number($('customAmount').value):Number($('refillAmount').value);if(!Number.isFinite(amount)||amount<=0||amount>30){toast('Enter a simulated amount between 0.1 and 30 gallons.');return}const added=Math.min(amount,CAPACITY-gallons);if(added<=0){toast('Simulated tank is already full.');return}gallons+=added;refillLog.unshift({amount:added,time:new Date().toLocaleString(),mode:waterMode});$('refillStatus').textContent=`Complete · ${added.toFixed(1)} simulated gallons added`;$('refillHistory').innerHTML=refillLog.map(x=>`<div class="list-row"><span>${x.amount.toFixed(1)} gal · ${x.mode==='manual'?'Manual':'Automatic preview'}</span><span class="muted">${safe(x.time)}</span></div>`).join('');$('todayChange').textContent='+'+refillLog.reduce((a,x)=>a+x.amount,0).toFixed(1)+' gal';updateLevel(true);addNotification('water','Simulated refill',`${added.toFixed(1)} gallons added in simulation.`);window.playRefillChime?.();toast('Simulated refill complete. No real water was moved.')});
+$('startRefill').addEventListener('click',()=>{if(emergencyLock){toast('Emergency lock: restore and inspect the simulated level first.');return}let amount=$('refillAmount').value==='custom'?Number($('customAmount').value):Number($('refillAmount').value);if(!Number.isFinite(amount)||amount<=0||amount>30){toast('Enter a simulated amount between 0.1 and 30 gallons.');return}const added=Math.min(amount,CAPACITY-gallons);if(added<=0){window.playTankFullSound?.();const button=$('startRefill');button.classList.remove('tank-full-nudge');void button.offsetWidth;button.classList.add('tank-full-nudge');setTimeout(()=>button.classList.remove('tank-full-nudge'),420);toast('Simulated tank is already full.');return}gallons+=added;refillLog.unshift({amount:added,time:new Date().toLocaleString(),mode:waterMode});$('refillStatus').textContent=`Complete · ${added.toFixed(1)} simulated gallons added`;$('refillHistory').innerHTML=refillLog.map(x=>`<div class="list-row"><span>${x.amount.toFixed(1)} gal · ${x.mode==='manual'?'Manual':'Automatic preview'}</span><span class="muted">${safe(x.time)}</span></div>`).join('');$('todayChange').textContent='+'+refillLog.reduce((a,x)=>a+x.amount,0).toFixed(1)+' gal';updateLevel(true);addNotification('water','Simulated refill',`${added.toFixed(1)} gallons added in simulation.`);window.playRefillChime?.();toast('Simulated refill complete. No real water was moved.')});
 $('stopRefill').addEventListener('click',()=>{$('refillStatus').textContent='Stopped · Simulation only';toast('Simulation stopped. No hardware is connected.')});
 function setFeedMode(mode){feedMode=mode;$('manualFeedBtn').classList.toggle('selected',mode==='manual');$('autoFeedBtn').classList.toggle('selected',mode==='automatic');$('feedModeText').textContent=mode==='manual'?'Manual mode: record a feeding. No food will be dispensed.':'Automatic schedule preview: save times and enable the interface state. No feeder is connected.';$('feedNow').textContent=mode==='manual'?'Record manual feeding':'Record scheduled feeding'}
 $('feedNow').addEventListener('click',()=>{if(feedMode==='automatic'&&(!autoFeedEnabled||paused)){toast('Automatic schedule is disabled or paused.');return}const todayCount=feedLog.filter(x=>x.date===today()).length,limit=Number($('dailyFeedLimit').value);if(todayCount>=limit){toast('Daily simulated feeding limit reached.');addNotification('feeding','Daily feeding limit reached','No additional simulated feeding was recorded.','warning');return}const portion=$('portion').value;feedLog.unshift({portion,time:new Date().toLocaleString(),date:today(),mode:feedMode});renderFeedLog();addNotification('feeding','Feeding recorded',`${portion} portion · ${feedMode==='manual'?'Manual':'Scheduled'} simulation.`);toast('Feeding recorded. No food was dispensed.')});
@@ -424,13 +426,14 @@ document.addEventListener('click',()=>setTimeout(saveAppData,0));document.addEve
  function closeModal(){modal.classList.remove('show');if(previewTimer)clearTimeout(previewTimer);previewTimer=null;activeDevice=null}
  function startConnectionPreview(deviceId){
   const name=deviceNames[deviceId];if(!name)return;
-  activeDevice=deviceId;if(previewTimer)clearTimeout(previewTimer);
+  activeDevice=deviceId;if(previewTimer)clearTimeout(previewTimer);window.playDeviceConnectingSound?.();
   title.textContent='Connecting device';
   message.textContent='Preparing a connection to '+name+'…';
   spinner.style.display='grid';resultIcon.style.display='none';explanation.style.display='none';
   retry.style.display='none';modal.classList.add('show');
   previewTimer=setTimeout(()=>{
    if(activeDevice!==deviceId)return;
+   window.playDeviceFailedSound?.();
    spinner.style.display='none';resultIcon.style.display='grid';
    title.textContent='Pairing setup required';
    message.textContent=name+' has not connected. The live pairing service and device firmware are not configured yet.';
@@ -492,6 +495,32 @@ updateLevel(false);renderQuality();renderOther();renderFish();renderJournal();re
    else scheduleTone(ctx,920,now,.04,.042,'sine');
   });
  }
+ window.playDeviceConnectingSound=function(){
+  if(!soundEnabled)return;
+  withAudioReady(ctx=>{
+   const now=ctx.currentTime+.02;
+   // Short rising three-note cue while the device connection preview is starting.
+   [587.33,739.99,880].forEach((f,i)=>scheduleTone(ctx,f,now+i*.105,.10,.045,'sine'));
+  });
+ };
+ window.playDeviceFailedSound=function(){
+  if(!soundEnabled)return;
+  withAudioReady(ctx=>{
+   const now=ctx.currentTime+.02;
+   // Soft descending double-note cue when pairing cannot complete.
+   scheduleTone(ctx,587.33,now,.15,.060,'triangle');
+   scheduleTone(ctx,392,now+.17,.20,.055,'triangle');
+  });
+ };
+ window.playTankFullSound=function(){
+  if(!soundEnabled)return;
+  withAudioReady(ctx=>{
+   const now=ctx.currentTime+.02;
+   // A quiet low two-note cue indicates that no more refill is needed.
+   scheduleTone(ctx,330,now,.10,.050,'triangle');
+   scheduleTone(ctx,247,now+.12,.13,.045,'triangle');
+  });
+ };
  window.playRefillChime=function(){
   if(!soundEnabled)return;
   withAudioReady(ctx=>{
