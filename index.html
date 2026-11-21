@@ -921,50 +921,64 @@ signInBtn.addEventListener('click',async()=>{try{await signInWithPopup(auth,prov
 signOutBtn.addEventListener('click',async()=>{try{await signOut(auth)}catch(e){document.getElementById('authStatus').textContent='Sign-out error: '+e.message}});
 onAuthStateChanged(auth,updateAuth);
 
-// emergency-hanging-sign-physics-v1: pointer bumps and touch drags gently swing the alert
+// emergency-hanging-sign-physics-v2: heavy, damped pendulum simulation
 (()=>{
  const sign=document.getElementById('emergencyBanner');
  if(!sign)return;
  if(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)return;
- let angle=0,velocity=0,frame=0,lastX=0,lastY=0,lastTime=0;
+ let angle=0,angularVelocity=0,frame=0,lastX=0,lastTime=0;
+ let lastPointerType='';
+ const MAX_ANGLE=7*Math.PI/180;
  const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
- function kick(amount){
-  velocity=clamp(velocity+amount,-3.8,3.8);
-  if(!frame)frame=requestAnimationFrame(step);
+ function impulse(value){
+  // High rotational inertia: pointer movement transfers only a small amount of momentum.
+  angularVelocity=clamp(angularVelocity+value,-.34,.34);
+  if(!frame){lastTime=performance.now();frame=requestAnimationFrame(step)}
  }
- function step(){
-  const spring=.105,damping=.88;
-  velocity+=(-angle*spring);
-  velocity*=damping;
-  angle+=velocity;
-  if(Math.abs(angle)<.035&&Math.abs(velocity)<.035){
-   angle=0;velocity=0;sign.style.setProperty('--emergency-swing','0deg');frame=0;return;
+ function step(now){
+  const dt=Math.min(.032,Math.max(.001,(now-lastTime)/1000));
+  lastTime=now;
+  // Pendulum gravity plus substantial air/friction damping.
+  const acceleration=-2.35*Math.sin(angle)-2.05*angularVelocity;
+  angularVelocity+=acceleration*dt;
+  angle+=angularVelocity*dt;
+  if(angle>MAX_ANGLE){angle=MAX_ANGLE;angularVelocity=Math.min(0,angularVelocity)*.35}
+  if(angle< -MAX_ANGLE){angle=-MAX_ANGLE;angularVelocity=Math.max(0,angularVelocity)*.35}
+  if(Math.abs(angle)<.0009&&Math.abs(angularVelocity)<.003){
+   angle=0;angularVelocity=0;
+   sign.style.setProperty('--emergency-swing','0deg');
+   frame=0;return;
   }
-  angle=clamp(angle,-14,14);
-  sign.style.setProperty('--emergency-swing',angle.toFixed(2)+'deg');
+  sign.style.setProperty('--emergency-swing',(angle*180/Math.PI).toFixed(2)+'deg');
   frame=requestAnimationFrame(step);
  }
  sign.addEventListener('pointerenter',e=>{
   if(e.pointerType!=='mouse'||sign.hidden)return;
   const r=sign.getBoundingClientRect();
-  kick((e.clientX<r.left+r.width/2?1:-1)*1.55);
+  const side=e.clientX<r.left+r.width/2?1:-1;
+  impulse(side*.045);
+  lastX=e.clientX;lastPointerType=e.pointerType;
  });
  sign.addEventListener('pointerdown',e=>{
   if(sign.hidden)return;
-  const r=sign.getBoundingClientRect();
-  const side=e.clientX<r.left+r.width/2?1:-1;
-  if(e.pointerType==='touch'||e.pointerType==='pen')kick(side*2.15);
-  lastX=e.clientX;lastY=e.clientY;lastTime=performance.now();
+  lastX=e.clientX;lastPointerType=e.pointerType;
+  if(e.pointerType==='touch'||e.pointerType==='pen'){
+   const r=sign.getBoundingClientRect();
+   impulse((e.clientX<r.left+r.width/2?1:-1)*.065);
+  }
  });
  sign.addEventListener('pointermove',e=>{
-  if(e.pointerType!=='touch'&&e.pointerType!=='pen')return;
-  if(!(e.buttons||e.pressure>0))return;
-  const now=performance.now(),dx=e.clientX-lastX,dy=e.clientY-lastY;
-  const dt=Math.max(8,now-lastTime);
-  if(Math.abs(dx)>1||Math.abs(dy)>1)kick(clamp(dx/dt*.72,-1.5,1.5));
-  lastX=e.clientX;lastY=e.clientY;lastTime=now;
+  if(sign.hidden||!(e.buttons||e.pressure>0||e.pointerType==='mouse'))return;
+  if(lastPointerType!==e.pointerType){lastX=e.clientX;lastPointerType=e.pointerType;return}
+  const dx=e.clientX-lastX;
+  lastX=e.clientX;
+  if(Math.abs(dx)<1)return;
+  const width=Math.max(220,sign.getBoundingClientRect().width);
+  const transfer=e.pointerType==='mouse'?.95:1.65;
+  impulse(clamp(dx/width*transfer,-.13,.13));
  });
 })();
+
 </script>
 </body>
 </html>
