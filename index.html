@@ -1431,10 +1431,10 @@ window.addEventListener('ranchuStartupComplete',()=>{
  function drawBloodworm(now){
   if(!bloodwormAdded||tankPercent<=0)return;
   const speed=Math.hypot(bloodwormVX,bloodwormVY);
+  const direction=bloodwormVX< -2?-1:1;
   let points=[];
   if(bloodwormEating&&bloodwormRagdoll){points=bloodwormRagdoll.map(p=>({x:p.x-bloodwormX,y:p.y-bloodwormY}))}
   else{
-   const direction=bloodwormVX< -2?-1:1;
    for(let i=0;i<=12;i++){const t=i/12,x=-17+t*34,y=Math.sin(t*Math.PI*3.2+bloodwormPhase)*(.8+speed*.018)*(Math.sin(t*Math.PI)*.9+.12);points.push({x:x*direction,y})}
   }
   ctx.save();ctx.translate(bloodwormX,bloodwormY);
