@@ -1321,9 +1321,12 @@ window.addEventListener('ranchuStartupComplete',()=>{
   g.fillStyle='rgba(225,132,67,.88)';g.beginPath();g.moveTo(-7,-17);g.quadraticCurveTo(6,-24,20,-15);g.quadraticCurveTo(14,-8,1,-8);g.quadraticCurveTo(-6,-9,-7,-17);g.fill();
   g.fillStyle='#e99559';g.beginPath();g.arc(18,-14,8,0,Math.PI*2);g.arc(24,-11,6.5,0,Math.PI*2);g.arc(15,-19,5.8,0,Math.PI*2);g.arc(21,-21,5.5,0,Math.PI*2);g.fill();
   g.fillStyle='rgba(255,220,168,.72)';g.beginPath();g.arc(16,-20,2.3,0,Math.PI*2);g.arc(24,-13,1.8,0,Math.PI*2);g.fill();
-  g.strokeStyle='rgba(167,91,53,.6)';g.lineWidth=1.2;g.beginPath();g.arc(12,1,7,-1.05,1.05);g.stroke();
-  g.fillStyle='#392a22';g.beginPath();g.arc(23,-3,2.15,0,Math.PI*2);g.fill();
-  if(slurp>0){g.fillStyle='#6e382e';g.beginPath();g.ellipse(24,9,2.2+slurp*2.2,1.4+slurp*2.8,0,0,Math.PI*2);g.fill();g.fillStyle='rgba(255,244,218,.9)';g.beginPath();g.arc(29,-1,1.5,0,Math.PI*2);g.arc(32,-5,1,0,Math.PI*2);g.fill()}else{g.strokeStyle='#925536';g.beginPath();g.moveTo(21,8);g.quadraticCurveTo(25,10,27,8);g.stroke()}
+  // Soft cheek shading keeps the face gentle without adding a harsh facial crease.
+  g.strokeStyle='rgba(167,91,53,.28)';g.lineWidth=.9;g.beginPath();g.arc(12,1,6,-.82,.72);g.stroke();
+  // A slightly larger warm-brown eye with a tiny catchlight gives the Ranchu a friendlier expression.
+  g.fillStyle='#493329';g.beginPath();g.arc(23,-3,2.65,0,Math.PI*2);g.fill();
+  g.fillStyle='rgba(255,245,222,.92)';g.beginPath();g.arc(23.8,-3.9,.82,0,Math.PI*2);g.fill();
+  if(slurp>0){g.fillStyle='#6e382e';g.beginPath();g.ellipse(24,9,2.2+slurp*2.2,1.4+slurp*2.8,0,0,Math.PI*2);g.fill();g.fillStyle='rgba(255,244,218,.9)';g.beginPath();g.arc(29,-1,1.5,0,Math.PI*2);g.arc(32,-5,1,0,Math.PI*2);g.fill()}else{g.strokeStyle='#925536';g.lineWidth=1.15;g.beginPath();g.moveTo(21,7.5);g.quadraticCurveTo(24.5,11,28,7.5);g.stroke()}
   g.strokeStyle='rgba(255,245,218,.34)';g.lineWidth=.75;
   for(let row=-1;row<=1;row++)for(let col=-1;col<=1;col++){const sx=-7+col*8,sy=row*7;if(sx*sx/780+sy*sy/360<.8){g.beginPath();g.arc(sx,sy,3.2,.25,2.4);g.stroke()}}
   if(flop){g.rotate(flop);g.fillStyle='#49342c';g.font='bold 15px Arial';g.textAlign='center';g.fillText(':(',2,-29)}
